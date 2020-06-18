@@ -184,8 +184,8 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             // alert(nodeVal);
             // add the text
             node.append("text")
-                .attr("x", 17)
-                .attr("dy", ".45em")
+                .attr("x", 12)
+                .attr("dy", ".35em")
                 .text(function (d) {
                     // return d.id;
                     var valueOfNode = d.id.toString();
