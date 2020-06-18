@@ -386,7 +386,7 @@ function onClickCreateNetwork() {
 
     createNetworkSelector.disabled = true;
     document.getElementById("loader").style.visibility = "visible";
-    document.getElementById("instruct").innerHTML = "loading...";
+    document.getElementById("instruct").innerHTML = "";
     
     if (selectedDropDown === "pf") {
         var parentheticalText = document.getElementById("parenthetical").value;
@@ -410,7 +410,6 @@ function onClickCreateNetwork() {
         // document.elementFromPoint(rect.left, rect.top).click();
     }
     createboxes();
-    document.getElementById("instruct").innerHTML = "Output:";
     // simulateClick();
     // simulateClick(309, 203);
     // var coordinates = document.getElementById("graph").getBoundingClientRect();
