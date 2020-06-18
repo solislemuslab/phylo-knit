@@ -163,7 +163,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
                     // if (valueOfNode < 1000)
                       nodeVal.push(valueOfNode);
                     // return (parseInt(d.id.toString()) <= 1000) ? 10 : 5;
-                    return (!reg1000P.test(valueOfNode) || valueOfNode === "internal1000") && !regInternalHybrid.test(valueOfNode) ? 20 : 10;
+                    return (!reg1000P.test(valueOfNode) || valueOfNode === "internal1000") && !regInternalHybrid.test(valueOfNode) ? 10 : 5;
                 })
 
                 .style("fill", function (d) {
