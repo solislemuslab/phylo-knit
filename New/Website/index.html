@@ -20,6 +20,7 @@
     <!-- <button class="button">Choose File</button> -->
     <button class="button" id="refresh" onclick="location.reload(true)">Try another one</button>
     <br>
+    <br>
     <select class=button id="transfer_reason" name="transfer_reason"
             onchange="selectInputType(this.value)">
         <option value="type">Select file type</option>
@@ -31,15 +32,15 @@
     <br>
     <br>
     <br>
-    <br>
     <input id="textThreshold" type="text" placeholder="P-value threshold (e.g. 0.05)">
 
     <br>
 
-    <input id="parenthetical" type="text" placeholder="Enter Newick Format Here">
+    <input id="parenthetical" type="text" placeholder="Enter Newick format (e.g. (B:6.0,(A:5.0,C:3.0,E:4.0):5.0,D:11.0);)">
 
     <br>
     <button class="button" onclick="onClickCreateNetwork()" id="createNetwork">Create Network</button>
+    <br>
     <div id="placeholder">
         <label>Displayed Leaves</label><br>
     </div>
