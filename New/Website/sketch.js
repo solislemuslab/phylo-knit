@@ -156,15 +156,15 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
 
             node
                 .append("circle")
-                .attr("r", 10)
-                //.attr("r", function (d) {
-                  //  var valueOfNode = d.id.toString();
-                    //if (!reg1000P.test(valueOfNode))
+                //.attr("r", 10)
+                .attr("r", function (d) {
+                  var valueOfNode = d.id.toString();
+                    if (!reg1000P.test(valueOfNode))
                     // if (valueOfNode < 1000)
-                      //  nodeVal.push(valueOfNode);
+                      nodeVal.push(valueOfNode);
                     // return (parseInt(d.id.toString()) <= 1000) ? 10 : 5;
-                    //return (!reg1000P.test(valueOfNode) || valueOfNode === "internal1000") && !regInternalHybrid.test(valueOfNode) ? 10 : 5;
-               // })
+                    return (!reg1000P.test(valueOfNode) || valueOfNode === "internal1000") && !regInternalHybrid.test(valueOfNode) ? 10 : 5;
+                })
 
                 .style("fill", function (d) {
                     if (removeNodeBool === false) {
@@ -184,8 +184,8 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             // alert(nodeVal);
             // add the text
             node.append("text")
-                .attr("x", 12)
-                .attr("dy", ".35em")
+                .attr("x", 17)
+                .attr("dy", ".45em")
                 .text(function (d) {
                     // return d.id;
                     var valueOfNode = d.id.toString();
