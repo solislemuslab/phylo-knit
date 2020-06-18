@@ -386,6 +386,8 @@ function onClickCreateNetwork() {
 
     createNetworkSelector.disabled = true;
     document.getElementById("loader").style.visibility = "visible";
+    document.getElementById("instruct").innerHTML = "loading...";
+    
     if (selectedDropDown === "pf") {
         var parentheticalText = document.getElementById("parenthetical").value;
         if (parentheticalText === "") {
@@ -408,6 +410,7 @@ function onClickCreateNetwork() {
         // document.elementFromPoint(rect.left, rect.top).click();
     }
     createboxes();
+    document.getElementById("instruct").innerHTML = "Output:";
     // simulateClick();
     // simulateClick(309, 203);
     // var coordinates = document.getElementById("graph").getBoundingClientRect();
