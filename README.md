@@ -5,7 +5,7 @@ Input can be accepted in different formats like Hyde, Parenthetical, Triplets, e
 
 * User can upload a certain type of inuput file and on clicking create network, the graph will be displayed.
 
-<img src='pic1.png' width='400' height= '300' alt='screenshot of the application'/>
+<img src='pic1.png' width='400' height= '250' alt='screenshot of the application'/>
 
 * User can click on download image to save a screenshot of the displayed graph
 
@@ -13,7 +13,7 @@ Input can be accepted in different formats like Hyde, Parenthetical, Triplets, e
 
 * User can uncheck the nodes they want the delete from the graph. On clicking Update Network, a new graph is displayed with that node removed. 
 
-<img src='pic3.png' width='400' height= '300' alt='screenshot of the downloaded image'/>
+<img src='pic3.png' width='400' height= '250' alt='screenshot of the downloaded image'/>
 
 
 
