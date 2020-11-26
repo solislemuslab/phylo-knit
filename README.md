@@ -3,15 +3,17 @@
 **PhyloKnit** is a web application that allows biologists to visualize complex phylogenetics networks. 
 Input can be accepted in different formats like Hyde, Parenthetical, Triplets, etc. 
 
-* User can upload a certain type of inuput file and on clicking create network, the graph will be displayed.
+## After successful completion of the project:
+
+* User will be able to upload a certain type of inuput file and on clicking create network, the graph will be displayed.
 
 <img src='pic1.png' width='400' height= '220' alt='screenshot of the application'/>
 
-* User can click on download image to save a screenshot of the displayed graph
+* User will be able to click on download image to save a screenshot of the displayed graph.
 
 <img src='pic2.png' width='300' alt='screenshot of the downloaded image'/>
 
-* User can uncheck the nodes they want the delete from the graph. On clicking Update Network, a new graph is displayed with that node removed. 
+* User will be able to uncheck the nodes they want the delete from the graph. On clicking Update Network, a new graph will be displayed with that node removed. 
 
 <img src='pic3.png' width='400' height= '220' alt='screenshot of the downloaded image'/>
 
