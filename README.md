@@ -1,6 +1,6 @@
 # PhyloKnit
 
-**PhyloKnit** is a web application that allows biologists to visualize complex phylogenetics networks. 
+**PhyloKnit** will be a web application that allows biologists to visualize complex phylogenetics networks. 
 Input can be accepted in different formats like Hyde, Parenthetical, Triplets, etc. 
 
 ## After successful completion of the project:
