@@ -11,34 +11,29 @@
 library(stringr)
 
 install.packages("stringr")
-# Parenthetical format ----------------------------------------------------
 
+
+
+# OBSERVATIONS ------------------------------------------------------------
+
+# The most important variable is "n" since it controls the unmber of taxa
+
+# Parenthetical format ----------------------------------------------------
 
 cat("\014") # 
 rm(list=ls())  # 
+# set.seed(42)
 
-# source("Fn phylo R.R") # old original library
 source("Fn_random_trees.R")
 
-# A very simple example of a tree
-# Obs: n is the number of taxa to use
-n <- 5; taxa <- LETTERS[1:n]
-x <- random_tree(taxa)
 
+n <- 15 # n is the number of taxa to use
+file_name <- "Parenthetical_file" # name of the output files
 
-# A more interesting one
-n <- 15; taxa <- gsub("\\s+", "", str_trim(paste("a",1:n)))
-# x <- random_tree(taxa)
-# review_Newick_format(x)
-my_plot_tree(x,edge_wedth=2)
-x <- random_tree(taxa,brach_lengths=F,discrete_lengths=T,interval_unif=c(1,10),
-                        equidistance=T,total_bl=10,round_digits=2) 
-my_plot_tree(x,edge_wedth=2)
+Sim_Parenthetical(n,file_name)
 
-x
-paste0(x,collapse = "")
+# Example of triplets -----------------------------------------------------
 
-# Example of errase taxa --------------------------------------------------
 
 cat("\014") # borra consola 
 rm(list=ls())  # Borra todo
@@ -73,6 +68,42 @@ for(i in 1:nrow(triplets)) {
 }
 triplets
 vec_raw_triplets
+
+
+name_of_file <- "Triplets_file.txt"
+
+write.table(vec_raw_triplets, file=name_of_file, append = F, sep = " ", dec = ".",
+            row.names = F, col.names = F, quote = FALSE)
+
+
+# Saving results ----------------------------------------------------------
+
+
+
+cat("\014") # borra consola 
+rm(list=ls())  # Borra todo
+# set.seed(421)
+
+# Obs: the triplet format is ===> 1 2 3 => ((1,2),3)
+
+# source("Fn phylo R.R") # old original library
+source("Fn_random_trees.R")
+
+
+n <- 5; taxa <- LETTERS[1:n]
+n <- 5; taxa <- LETTERS[1:n]
+
+
+
+file_name <- "Triplets_file"
+Sim_Triplets(n,file_name)
+
+# Saving results ----------------------------------------------------------
+
+
+write.table(text_invariance_Julia_programm, file="Test.txt", append = F, sep = "", dec = ".",
+            row.names = F, col.names = F, quote = FALSE)
+
 
 # asoteh ------------------------------------------------------------------
 

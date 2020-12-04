@@ -163,6 +163,7 @@ ordering_Newick <- function(x) {
   return(x)
 }
 
+
 #' Given an string with the Newick format this function returns a properly splited version
 #'
 #' @param x a one string Newick farmat 
@@ -276,23 +277,26 @@ my_plot_tree <- function(x,edge_wedth=2) {
 #' x <- "A"
 #' x <- "X"
 errase_taxa <- function(x,taxa_to_eliminate) {
+  # cat("-------------------------------Normal x that enters= ",x,"\n")
+  
   if(length(x)==1) x <- expand_Newick_format(x)
   taxa_place <- which(x==taxa_to_eliminate)
   taxa_place
+  # cat("taxa_place=",taxa_place,"\n")
+  
   if(length(taxa_place)==0) {
     print("You try to eliminate a not existing taxa")
     return(x)
   }
   if(taxa_place==length(x)-1) {
-    x <- ordering_Newick(x[2:(length(x)-3)])
-    return(x)
-  }
-  if(taxa_place==length(x)-1) {
+    # cat("x for ordering Newick= ",x[2:(length(x)-3)],"\n")
     x <- ordering_Newick(x[2:(length(x)-3)])
     return(x)
   }
   if(taxa_place==2) {
-    x <- ordering_Newick(x[4:(length(x)-1)])
+    # cat(" ----------- Entering if(taxa_place==2)  of fn. errase_taxa \n")
+    # x <- ordering_Newick(x[4:(length(x)-1)]) # BEFORE WITH -1
+    x <- c(ordering_Newick(x[4:(length(x)-2)]),";")
     return(x)
   }
   # Errase with comma at the right of taxa to eliminate
@@ -321,7 +325,7 @@ errase_taxa <- function(x,taxa_to_eliminate) {
       x <- x[c(1:(i1_subtree-2),i1_subtree:i2_subtree,(taxa_place+2):length(x))]
     }
   }
-  # x <- ordering_Newick(x)
+  # x <- ordering_Newick(x) # NEW COMMENTED VERSION
   return(x)
 }
 
@@ -340,9 +344,16 @@ errase_taxa <- function(x,taxa_to_eliminate) {
 #' vec_taxa_to_eliminate <- c("C","X","L")
 #' errase_k_taxa(x,vec_taxa_to_eliminate)
 errase_k_taxa <- function(x,vec_taxa_to_eliminate) {
-  for(taxa_to_eliminate in vec_taxa_to_eliminate) x <- errase_taxa(x,taxa_to_eliminate)
-  return(x)
+  x_reduced = x
+  for(taxa_to_eliminate in vec_taxa_to_eliminate) {
+    # cat("taxa_to_eliminate=",taxa_to_eliminate,"\n")
+    # cat(x_reduced,"\n")
+    x_reduced <- errase_taxa(x_reduced,taxa_to_eliminate)
+  }
+  return(x_reduced)
 }
+
+
 
 
 
@@ -364,28 +375,116 @@ brute_force_triplet_search <- function(x) {
   triplets <- matrix("",choose(n,3),9)
   triplets <- matrix("",choose(n,3),10)
   index_to_add <- 1
-  for(i1 in 1:(length(taxa)-2))
-    for(i2 in (i1+1):(length(taxa)-1))
-      for(i3 in (i2+1):length(taxa)) {
-        vec_taxa_to_eliminate <- taxa[-c(i1,i2,i3)]
-        
-        
-        # OBS: currently there is an error on the triples since,
-        # some triplets lenght are of lenght 11 an other of size 9.
-        # This depends of if is in the format ((A,B),C) or (A,(B,C))
-        # THe first is oyf size
-        triple_bad_format <- errase_k_taxa(x,vec_taxa_to_eliminate)
-        
-        cat("triple_bad_format =",triple_bad_format,"\n")
-        
-        # cat(triple_bad_format,"\n")
-        # OBS: to remedy the problem of different lengths we do the next 
-        # cheap trick with an if statement
-        if(length(triple_bad_format)==11) triplets[index_to_add,] <- triple_bad_format[-1] else
-          triplets[index_to_add,] <- triple_bad_format
-        index_to_add <- index_to_add+1
-      }
+  for(i1 in 1:(length(taxa)-2)) for(i2 in (i1+1):(length(taxa)-1)) for(i3 in (i2+1):length(taxa)) {
+    vec_taxa_to_eliminate <- taxa[-c(i1,i2,i3)]
+    
+    # cat("vec_taxa_to_eliminate=",vec_taxa_to_eliminate,"\n")
+    # OBS: currently there is an error on the triples since,
+    # some triplets lenght are of lenght 11 an other of size 9.
+    # This depends of if is in the format ((A,B),C) or (A,(B,C))
+    # THe first is oyf size
+    
+    triple_bad_format <- errase_k_taxa(x,vec_taxa_to_eliminate)
+    
+    # cat("triple_bad_format=",triple_bad_format,"\n")
+    # OBS: to remedy the problem of different lengths we do the next 
+    # cheap trick with an if statement
+    if(length(triple_bad_format)==11) {
+      # cat("length(triple_bad_format) == 11\n")
+      triplets[index_to_add,] <- triple_bad_format[-1] 
+    } else {
+      # cat("length(triple_bad_format)=",triple_bad_format,"\n")
+      # cat("length(triplets[index_to_add,])=",length(triplets[index_to_add,]),"\n")
+      triplets[index_to_add,] <- triple_bad_format
+    }
+    index_to_add <- index_to_add+1
+  }
   
   
   return(triplets)
+}
+
+
+#' Title
+#'
+#' @param n number of taxa
+#' @param file_name name of txt file to save the taxa
+#'
+#' @return
+#' @export
+#'
+#' @examples
+Sim_Parenthetical <- function(n,file_name) {
+  
+  taxa <- gsub("\\s+", "", str_trim(paste("a",1:n)))
+  # x <- random_tree(taxa)
+  
+  
+  # A more interesting one
+  # x <- random_tree(taxa)
+  # review_Newick_format(x)
+  x <- random_tree(taxa,brach_lengths=F,discrete_lengths=T,interval_unif=c(1,10),
+                   equidistance=T,total_bl=10,round_digits=2) 
+  my_plot_tree(x,edge_wedth=2)
+  
+  file_fig <- paste0(c("Fig_",file_name,".pdf"),collapse = "")
+  
+  dev.print(pdf, file_fig,width=8, height=5)
+  x
+  cat("Parenthetical simplation:\n",paste0(x,collapse = ""),"\n")
+  
+  file_name_txt <- paste0(c(file_name,".txt"),collapse = "")
+  write.table(vec_raw_triplets, file=file_name_txt, append = F, sep = "", dec = ".",
+              row.names = F, col.names = F, quote = FALSE)
+  cat("\nThe file ",file_name_txt," was generated.")
+  cat("\nThe file Fig_",file_fig," was generated.")
+}
+
+
+
+#' Title
+#'
+#' @param n number of taxa
+#' @param file_name name of txt file to save the taxa
+#'
+#' @return
+#' @export
+#'
+#' @examples
+Sim_Triplets <- function(n,file_name) {
+  
+  
+  taxa <- gsub("\\s+", "", str_trim(paste("a",1:n)))
+  # review_Newick_format(x)
+  x <- random_tree(taxa,brach_lengths=F,discrete_lengths=T,interval_unif=c(1,10),
+                   equidistance=T,total_bl=10,round_digits=2) 
+  my_plot_tree(x,edge_wedth=2)
+  
+  
+  # triplets has the triplets in a parenthetical format, but we need only the taxa
+  triplets <- brute_force_triplet_search(x) 
+  # We will extract the taxa in to the matrix vec_raw_triplets
+  vec_raw_triplets <- matrix("",nrow(triplets),3)
+  
+  for(i in 1:nrow(triplets)) {
+    taxa_row_i <- only_taxa_of_Newick_format(triplets[i,])
+    if(triplets[i,2]=="(") taxa_row_i <- taxa_row_i[c(3,1,2)]
+    vec_raw_triplets[i,] <- taxa_row_i
+  }
+  triplets
+  vec_raw_triplets
+  
+  
+  file_fig <- paste0(c("Fig_",file_name,".pdf"),collapse = "")
+  
+  dev.print(pdf, file_fig,width=8, height=5)
+  x
+  cat("Triplets simplation:\n",paste0(x,collapse = ""),"\n")
+  print(vec_raw_triplets)
+  file_name_txt <- paste0(c(file_name,".txt"),collapse = "")
+  write.table(vec_raw_triplets, file=file_name_txt, append = F, sep = " ", dec = ".",
+              row.names = F, col.names = F, quote = FALSE)
+  cat("\nThe file ",file_name_txt," was generated.")
+  cat("\nThe file Fig_",file_fig," was generated.")
+  
 }
