@@ -10,24 +10,24 @@
 
 library(stringr)
 
-
+install.packages("stringr")
 # Parenthetical format ----------------------------------------------------
 
 
-cat("\014") # borra consola 
-rm(list=ls())  # Borra todo
+cat("\014") # 
+rm(list=ls())  # 
 
 # source("Fn phylo R.R") # old original library
 source("Fn_random_trees.R")
 
 # A very simple example of a tree
 # Obs: n is the number of taxa to use
-n <- 10; taxa <- LETTERS[1:n]
+n <- 5; taxa <- LETTERS[1:n]
 x <- random_tree(taxa)
 
 
 # A more interesting one
-n <- 30; taxa <- gsub("\\s+", "", str_trim(paste("a",1:n)))
+n <- 15; taxa <- gsub("\\s+", "", str_trim(paste("a",1:n)))
 # x <- random_tree(taxa)
 # review_Newick_format(x)
 my_plot_tree(x,edge_wedth=2)
@@ -40,7 +40,6 @@ paste0(x,collapse = "")
 
 # Example of errase taxa --------------------------------------------------
 
-# osauth ------------------------------------------------------------------
 cat("\014") # borra consola 
 rm(list=ls())  # Borra todo
 # set.seed(421)
@@ -52,7 +51,7 @@ source("Fn_random_trees.R")
 
 
 n <- 5; taxa <- LETTERS[1:n]
-n <- 15; taxa <- LETTERS[1:n]
+n <- 5; taxa <- LETTERS[1:n]
 
 # A more interesting one
 # n <- 20; taxa <- gsub("\\s+", "", str_trim(paste("a",1:n)))
