@@ -103,6 +103,8 @@ print_tree <- function(tree) {
 
 #' Sonting the Newick format
 #'
+#'Obs: New version with the possibility of ending semicolon
+#'
 #' @param x vector of characters with the Newick format; eg x=c("(","B",",","A",")")
 #'
 #' @return a vector of characters with the Newick format of x but sorted in alphabetic order
@@ -114,6 +116,12 @@ print_tree <- function(tree) {
 #' x <- c("(","(","A",",","B",")",",","C",")") # cama central en i=7
 #' x <- c("(","(","C",",","B",")",",","A",")") # cama central en i=7
 ordering_Newick <- function(x) {
+  
+  if(x[length(x)]==";") {
+    x <- x[-length(x)]
+    flag_with_semicolon = TRUE
+  } else flag_with_semicolon = FALSE
+  
   print_info <- F # only for testing
   if(print_info) cat("Call for ordering_Newick: x=", x,"\n")
   # Case of only one taxa
@@ -151,6 +159,7 @@ ordering_Newick <- function(x) {
     x <- c("(",right_tree,",",left_tree,")")
   }else x <- c("(",left_tree,",",right_tree,")")
   
+  if(flag_with_semicolon) x = c(x,";")
   return(x)
 }
 
@@ -426,19 +435,26 @@ my_plot_tree <- function(x,edge_wedth=2) {
 #' x <- "A"
 #' x <- "X"
 errase_taxa <- function(x,taxa_to_eliminate) {
+  # cat("-------------------------------Normal x that enters= ",x,"\n")
+  
   if(length(x)==1) x <- expand_Newick_format(x)
   taxa_place <- which(x==taxa_to_eliminate)
   taxa_place
+  # cat("taxa_place=",taxa_place,"\n")
+  
   if(length(taxa_place)==0) {
     print("You try to eliminate a not existing taxa")
     return(x)
   }
   if(taxa_place==length(x)-1) {
+    # cat("x for ordering Newick= ",x[2:(length(x)-3)],"\n")
     x <- ordering_Newick(x[2:(length(x)-3)])
     return(x)
   }
   if(taxa_place==2) {
-    x <- ordering_Newick(x[4:(length(x)-1)])
+    # cat(" ----------- Entering if(taxa_place==2)  of fn. errase_taxa \n")
+    # x <- ordering_Newick(x[4:(length(x)-1)]) # BEFORE WITH -1
+    x <- c(ordering_Newick(x[4:(length(x)-2)]),";")
     return(x)
   }
   # Errase with comma at the right of taxa to eliminate
@@ -485,9 +501,20 @@ errase_taxa <- function(x,taxa_to_eliminate) {
 #' vec_taxa_to_eliminate <- c("C","X","L")
 #' errase_k_taxa(x,vec_taxa_to_eliminate)
 errase_k_taxa <- function(x,vec_taxa_to_eliminate) {
-  for(taxa_to_eliminate in vec_taxa_to_eliminate) x <- errase_taxa(x,taxa_to_eliminate)
-  return(x)
+  x_reduced = x
+  for(taxa_to_eliminate in vec_taxa_to_eliminate) {
+    # cat("taxa_to_eliminate=",taxa_to_eliminate,"\n")
+    # cat(x_reduced,"\n")
+    x_reduced <- errase_taxa(x_reduced,taxa_to_eliminate)
+  }
+  return(x_reduced)
 }
+
+
+# x_reduced <- c("(","D",",","(","B",",","(","C",",","E",")",")",")",";")
+# taxa_to_eliminate = "D"
+# x_reduced <- errase_taxa(x_reduced,taxa_to_eliminate)
+
 
 
 #' Generate the 15x12 matrix for 4-taxa species 3-taxa gene trees
@@ -751,25 +778,30 @@ brute_force_triplet_search <- function(x) {
   triplets <- matrix("",choose(n,3),9)
   triplets <- matrix("",choose(n,3),10)
   index_to_add <- 1
-  for(i1 in 1:(length(taxa)-2))
-    for(i2 in (i1+1):(length(taxa)-1))
-      for(i3 in (i2+1):length(taxa)) {
-        vec_taxa_to_eliminate <- taxa[-c(i1,i2,i3)]
-        
-        
-        # OBS: currently there is an error on the triples since,
-        # some triplets lenght are of lenght 11 an other of size 9.
-        # This depends of if is in the format ((A,B),C) or (A,(B,C))
-        # THe first is oyf size
-        triple_bad_format <- errase_k_taxa(x,vec_taxa_to_eliminate)
-        
-        # cat(triple_bad_format,"\n")
-        # OBS: to remedy the problem of different lengths we do the next 
-        # cheap trick with an if statement
-        if(length(triple_bad_format)==11) triplets[index_to_add,] <- triple_bad_format[-1] else
-          triplets[index_to_add,] <- triple_bad_format
-        index_to_add <- index_to_add+1
-      }
+  for(i1 in 1:(length(taxa)-2)) for(i2 in (i1+1):(length(taxa)-1)) for(i3 in (i2+1):length(taxa)) {
+    vec_taxa_to_eliminate <- taxa[-c(i1,i2,i3)]
+    
+    # cat("vec_taxa_to_eliminate=",vec_taxa_to_eliminate,"\n")
+    # OBS: currently there is an error on the triples since,
+    # some triplets lenght are of lenght 11 an other of size 9.
+    # This depends of if is in the format ((A,B),C) or (A,(B,C))
+    # THe first is oyf size
+    
+    triple_bad_format <- errase_k_taxa(x,vec_taxa_to_eliminate)
+    
+    # cat("triple_bad_format=",triple_bad_format,"\n")
+    # OBS: to remedy the problem of different lengths we do the next 
+    # cheap trick with an if statement
+    if(length(triple_bad_format)==11) {
+      # cat("length(triple_bad_format) == 11\n")
+      triplets[index_to_add,] <- triple_bad_format[-1] 
+    } else {
+      # cat("length(triple_bad_format)=",triple_bad_format,"\n")
+      # cat("length(triplets[index_to_add,])=",length(triplets[index_to_add,]),"\n")
+      triplets[index_to_add,] <- triple_bad_format
+    }
+    index_to_add <- index_to_add+1
+  }
   
   
   return(triplets)

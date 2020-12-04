@@ -9,6 +9,8 @@
 library(ape)
 # library(readtext)
 
+library(stringr)
+
 
 # Functions ---------------------------------------------------------------
 
@@ -343,3 +345,47 @@ errase_k_taxa <- function(x,vec_taxa_to_eliminate) {
 }
 
 
+
+#' All the possible triplets by using a two-for loop
+#'
+#' @param x a Newick format tree
+#'
+#' @return matrix such that each row corresponds to a triplet of x
+#' @export
+#'
+#' @examples
+#' n <- 7
+#' x <- special_random_tree_n_taxa(n)
+#' brute_force_triplet_search(x)
+brute_force_triplet_search <- function(x) {
+  # taxa <- x[x!="(" & x!="," & x!=")"]
+  taxa <- only_taxa_of_Newick_format(x)
+  n <- length(taxa)
+  triplets <- matrix("",choose(n,3),9)
+  triplets <- matrix("",choose(n,3),10)
+  index_to_add <- 1
+  for(i1 in 1:(length(taxa)-2))
+    for(i2 in (i1+1):(length(taxa)-1))
+      for(i3 in (i2+1):length(taxa)) {
+        vec_taxa_to_eliminate <- taxa[-c(i1,i2,i3)]
+        
+        
+        # OBS: currently there is an error on the triples since,
+        # some triplets lenght are of lenght 11 an other of size 9.
+        # This depends of if is in the format ((A,B),C) or (A,(B,C))
+        # THe first is oyf size
+        triple_bad_format <- errase_k_taxa(x,vec_taxa_to_eliminate)
+        
+        cat("triple_bad_format =",triple_bad_format,"\n")
+        
+        # cat(triple_bad_format,"\n")
+        # OBS: to remedy the problem of different lengths we do the next 
+        # cheap trick with an if statement
+        if(length(triple_bad_format)==11) triplets[index_to_add,] <- triple_bad_format[-1] else
+          triplets[index_to_add,] <- triple_bad_format
+        index_to_add <- index_to_add+1
+      }
+  
+  
+  return(triplets)
+}
