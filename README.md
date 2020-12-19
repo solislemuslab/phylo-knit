@@ -22,7 +22,7 @@ Input can be accepted in different formats like Hyde, Parenthetical, Triplets, e
 
 ## License
 
-    Copyright [2020] [Ritika Mittal, Claudia Solis Lemus, Harnoor Singh, Naman Kanwar]
+    Copyright [2020] Solis-Lemus lab
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
