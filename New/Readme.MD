@@ -15,4 +15,4 @@
 ## To Run the program
 1. Go to Server and Run the python script using ```python3 Server.py```
 
-2. Open index.html
+2. Navigate to phylo-knit/New/Website/, and open index.html. This should open a browser window with the website.
