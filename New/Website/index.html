@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
 
-    <title>Phylogenetic Network Visualizer</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="/scripts/snippet-javascript-console.min.js?v=1"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
-
+    <title>PhyloKnit</title>
+    
     <link href="styles.css" rel="stylesheet">
 
 </head>
 <body>
 
-<div class="top"><h1 class="center" style="color: #AF9965">Phylogenetic Network Visualizer</h1>
+<div class="top">
+    <h1 class="section__title section__title--intro">
+         Phylo<strong>Knit</strong>
+        </h1>
 </div>
 
 <div class="vbox">
-    <!-- <button class="button">Choose File</button> -->
-    <button class="button" id="refresh" onclick="location.reload(true)">Try another one</button>
-    <br>
     <br>
     <select class=button id="transfer_reason" name="transfer_reason"
             onchange="selectInputType(this.value)">
@@ -32,15 +29,12 @@
     <br>
     <br>
     <br>
+    <input class ="input" id="textThreshold" type="text" placeholder="P-value threshold (e.g. 0.05)">
     <br>
-    <input id="textThreshold" type="text" placeholder="P-value threshold (e.g. 0.05)">
-
-    <br>
-
-    <input id="parenthetical" type="text" placeholder="Enter Newick format (e.g. (B:6.0,(A:5.0,C:3.0,E:4.0):5.0,D:11.0);)">
-
+    <input class ="input" id="parenthetical" type="text" placeholder="Enter Newick format (e.g. (B:6.0,(A:5.0,C:3.0,E:4.0):5.0,D:11.0);)">
     <br>
     <button class="button" onclick="onClickCreateNetwork()" id="createNetwork">Create Network</button>
+    <button class="button" id="refresh" onclick="location.reload(true)">Try another one</button>
     <br>
     <div id="placeholder">
         <label>Displayed Leaves</label><br>
@@ -49,12 +43,17 @@
     <button class="button" onclick="removeNodesAction()" id="updateNetwork">Update Network</button>
 </div>
 
+<div class = "downloadSVG">
+    <button class = "button" onclick="saveImg()" id="downloadPng" style="float: top;">Download Image</button>
+</div>
+
 <div class="container" id="loader">
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
     <div class="shape shape-3"></div>
     <div class="shape shape-4"></div>
 </div>
+
 <!-- <h3>This example loads a file (or multiple files) that are selected by a user from their local drive.  If the file is an image, an image element is displayed.  For a text file, a paragraph element is created to display the text.</h3> -->
 <script src="libraries/d3.v4.min.js"></script>
 <script src="libraries/d3-dot-graph.js"></script>
@@ -66,10 +65,21 @@
 
 <svg id="chartId"
      width="1900" height="1500"
-     viewBox="-400 1200 4000 10"
+     viewBox="--500 900 1700 10"
      perserveAspectRatio="xMidYMid">
 </svg>
 
 </body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="/scripts/snippet-javascript-console.min.js?v=1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/save-svg-as-png/1.4.17/saveSvgAsPng.js"></script>
+<script src = "downloadSVG.js"></script>
 <script src="sketch.js" type="text/javascript"></script>
+<script>
+    function saveImg(){
+    svg = document.getElementsByTagName("svg")
+    saveSvgAsPng(svg[0],"pic.png")
+    }
+</script>
 </html>
