@@ -39,28 +39,52 @@ def removeDupTriplets():
 
 
 def parseHydeToTriplets(fileName, threshold):
-    dataset = pd.read_table(fileName, delim_whitespace=True, header=None,
-                            names=['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'])
+    f = open(fileName,'r')
+    lines = f.readlines()
+    result = []
+    for x in lines:
+        result.append(x.split(" "))
+    print(result[0])
 
-    datasetLess = dataset.loc[dataset['a7'] < threshold]
-    datasetMore = dataset.loc[dataset['a7'] > threshold]
+    dataset = pd.read_table(fileName, delim_whitespace=True, header=None)
+    tripletsFromLess1 = ""
+    tripletsFromLess2 = ""
+    tripletsFromMore1 = ''
 
+
+    if len(dataset.columns) == 8:
+        dataset.columns = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7']
+    #print(dataset)
+       
+        datasetLess = dataset.loc[dataset['a7'] < threshold]
+        datasetMore = dataset.loc[dataset['a7'] > threshold]
+        tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
+        tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
+        tripletsFromMore1 = datasetMore.values[:, [1, 3, 5]]
+    elif len(dataset.columns) == 21:
+        dataset = pd.read_table(fileName, delim_whitespace=True, header=None,skiprows=[0])
+        datasetLess = dataset.loc[dataset[4] <threshold]
+        datasetMore = dataset.loc[dataset[4] > threshold]
+        tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
+        tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
+        tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
+    else:
+        return 401
     # make 2 types of triplets from the dataset less than the threshold
-    tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
-    tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
-
+    print("triplets from less")
     print(tripletsFromLess1)
-    print(tripletsFromLess2)
+    #(tripletsFromLess2)
 
     # Writing Triplets from Less in 2 parts
     np.savetxt('Triplets1.txt', tripletsFromLess1, fmt='%d', delimiter=" ")
     np.savetxt('Triplets2.txt', tripletsFromLess2, fmt='%d', delimiter=" ")
 
     # Working with dataset more than the threshold
-    tripletsFromMore1 = datasetMore.values[:, [1, 3, 5]]
+    
+
     np.savetxt('Triplets3.txt', tripletsFromMore1, fmt='%d', delimiter=" ")
 
-    print(tripletsFromMore1)
+    #print(tripletsFromMore1)
 
     read_files = ['Triplets1.txt', 'Triplets2.txt', 'Triplets3.txt']
 
@@ -69,7 +93,7 @@ def parseHydeToTriplets(fileName, threshold):
             with open(f, "rb") as infile:
                 outfile.write(infile.read())
     removeDupTriplets()
-
+    return 0
 
 def returnParentheticalFormat(fileName):
     parentheticalFormat = ''
@@ -138,6 +162,7 @@ dot file as compared the same command via Python.
 def tripletsToDot(tripletsFName):
     cmd = 'java -jar Lev1athan.jar ' + tripletsFName + ' > cExample1.dot --nopostprocess'
     os.system(cmd)
+    print("reached here")
 
 
 def symbolReplacement(inputStr):
@@ -188,12 +213,29 @@ def newickToDot(newick):
 
 def returnReducedDotFile(fileName):
     retainActualLabels2(fileName)
+    print("here1")
     dotFormat = ''
     for line in list(open('cExample1_m.dot')):
+        print("here2")
         if line.__contains__('{') or line.__contains__('}') or line.__contains__('->'):
             dotFormat += line
+    print("3")
     return dotFormat.rstrip()
 
+def checkTripletErrors(triplets):
+    if len(triplets) == 0:
+        return 401
+    triplets_arr = triplets.split("\n")
+    for i in range(len(triplets_arr)):
+        line = triplets_arr[i].split(" ")
+        print("line")
+        print(line)
+        if len(line) != 3:
+            return 401
+        for j in range(len(line)):
+            if line[j].isnumeric() == False:
+                return 401
+    return 0
 
 def retainActualLabelDot(fileName):
     dotFormat = ''

@@ -2,7 +2,7 @@ import base64
 
 from flask import Flask, request, Response
 from flask_cors import CORS, cross_origin
-
+from flask import jsonify, make_response
 import ParentheticalConvertorNaman
 import ServerAction
 
@@ -86,9 +86,11 @@ def getParenthetical():
 @cross_origin()
 def uploadHyde(thresh):
     json = request.get_json()
+    print('this is json')
+    print(len(json['text']))
     print(json)
     if len(json['text']) == 0:
-        return 'error invalid input'
+        return jsonify({'error': 'File format is incorrect'}), 401
 
     hyde = json['text']
 
@@ -97,7 +99,12 @@ def uploadHyde(thresh):
     print(hyde)
     with open('HydeInput.txt', 'w+') as f:
         f.write(hyde)
-    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh))
+    try:
+        if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
+             return jsonify({'error': 'File format is incorrect'}), 401
+    except:
+        return jsonify({'error': 'File format is incorrect'}), 401
+
     # TODO: uncomment the following done
     ServerAction.tripletsToDot('HydeToTriplets.txt')
     # ServerAction.tripletsToDot('hydetotriplets.out')
@@ -148,6 +155,8 @@ def uploadTripletsAndReturnDot():
         return 'error invalid input'
 
     triplets = json['text']
+    if ServerAction.checkTripletErrors(triplets) == 401:
+        return jsonify({'error': 'File format is incorrect'}), 401
 
     print(triplets)
     with open('retrievedTriplets.txt', 'w+') as f:
