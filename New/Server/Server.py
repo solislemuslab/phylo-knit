@@ -155,6 +155,7 @@ def uploadTripletsAndReturnDot():
         return 'error invalid input'
 
     triplets = json['text']
+    
     if ServerAction.checkTripletErrors(triplets) == 401:
         return jsonify({'error': 'File format is incorrect'}), 401
 

@@ -4,26 +4,26 @@
 // SUMMARY: Input had 9 leaves.
 // USER-SETTING: Will *not* post-process output to collapse edges.
 // COMMENT: Triplet set is already dense.
-// SUMMARY: There are 180 triplets in the input.
-// SUMMARY: Total weight of input triplets is 180.
+// SUMMARY: There are 181 triplets in the input.
+// SUMMARY: Total weight of input triplets is 181.
 // SUMMARY: (Before post-processing)
-// SUMMARY: We got 112 units of triplet weight, that's 62.22% of total weight.
-// SUMMARY: In total 68 units of triplet weight were -not- consistent with the ouput network.
+// SUMMARY: We got 112 units of triplet weight, that's 61.87% of total weight.
+// SUMMARY: In total 69 units of triplet weight were -not- consistent with the ouput network.
 // SUMMARY: Output network contained 0 triplets -not- in the original input.
-// SUMMARY: The symmetric difference is thus 68 + (1 * 0) = 68
+// SUMMARY: The symmetric difference is thus 69 + (1 * 0) = 69
 // SUMMARY: (After post-processing)
 strict digraph G1 {
 edge [fontsize=8]
-labelbox [shape=box, width=0.4, label="File: HydeToTriplets.txt\nNumber of triplets: 180\nWeight of triplets: 180\nOverall %: 62.22%"];
+labelbox [shape=box, width=0.4, label="File: HydeToTriplets.txt\nNumber of triplets: 181\nWeight of triplets: 181\nOverall %: 61.87%"];
 internal1000 [shape=point];
 internal1001 [shape=point];
 9 [shape=box, width=0.3, label="9\n(100.0%)"];
 internal1003 [shape=point];
-8 [shape=box, width=0.3, label="8\n(55.55%)"];
+8 [shape=box, width=0.3, label="8\n(54.68%)"];
 internal1005 [shape=point];
-7 [shape=box, width=0.3, label="7\n(59.32%)"];
+7 [shape=box, width=0.3, label="7\n(58.33%)"];
 internal1007 [shape=point];
-6 [shape=box, width=0.3, label="6\n(55.55%)"];
+6 [shape=box, width=0.3, label="6\n(54.68%)"];
 internal1009 [shape=point];
 5 [shape=box, width=0.3, label="5\n(55.55%)"];
 internal1011 [shape=point];
@@ -56,11 +56,11 @@ internal1017 -> internal1001
 internal1001 -> 9
 }
 // SUMMARY: eNewick output: ((9)#H1,(8,(7,(6,(5,(4,(3,(2,(1,#H1)))))))));
-// SUMMARY: In total 68 units of triplet weight were -not- consistent with the ouput network.
+// SUMMARY: In total 69 units of triplet weight were -not- consistent with the ouput network.
 // SUMMARY: Output network contained 0 triplets -not- in the original input.
 // SUMMARY: Weight of missing triplets before contraction minus weight of missing triplets afterwards: 0
 // SUMMARY: Number of surplus triplets before contraction minus number of surplus triplets afterwards: 0
-// CONCLUSION: After post-processing we got 112 units of triplet weight, that's 62.22% of total weight (before post-processing this was 62.22%).
-// CONCLUSION: After post-processing the symmetric difference is thus 68 + (1 * 0) = 68 (before post-processing this was 68)
-// STAT: PERCENTAGE = 62.22
-// STAT: NETWORK-TRIPLET SD = 68
+// CONCLUSION: After post-processing we got 112 units of triplet weight, that's 61.87% of total weight (before post-processing this was 61.87%).
+// CONCLUSION: After post-processing the symmetric difference is thus 69 + (1 * 0) = 69 (before post-processing this was 69)
+// STAT: PERCENTAGE = 61.87
+// STAT: NETWORK-TRIPLET SD = 69
