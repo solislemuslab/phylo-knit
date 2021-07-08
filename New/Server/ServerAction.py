@@ -44,8 +44,6 @@ def parseHydeToTriplets(fileName, threshold):
     result = []
     for x in lines:
         result.append(x.split(" "))
-    print(result[0])
-
     dataset = pd.read_table(fileName, delim_whitespace=True, header=None)
     tripletsFromLess1 = ""
     tripletsFromLess2 = ""
@@ -54,7 +52,6 @@ def parseHydeToTriplets(fileName, threshold):
 
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7']
-    #print(dataset)
        
         datasetLess = dataset.loc[dataset['a7'] < threshold]
         datasetMore = dataset.loc[dataset['a7'] > threshold]
@@ -71,8 +68,7 @@ def parseHydeToTriplets(fileName, threshold):
     else:
         return 401
     # make 2 types of triplets from the dataset less than the threshold
-    print("triplets from less")
-    print(tripletsFromLess1)
+    #print(tripletsFromLess1)
     #(tripletsFromLess2)
 
     # Writing Triplets from Less in 2 parts
@@ -162,7 +158,6 @@ dot file as compared the same command via Python.
 def tripletsToDot(tripletsFName):
     cmd = 'java -jar Lev1athan.jar ' + tripletsFName + ' > cExample1.dot --nopostprocess'
     os.system(cmd)
-    print("reached here")
 
 
 def symbolReplacement(inputStr):
@@ -213,13 +208,11 @@ def newickToDot(newick):
 
 def returnReducedDotFile(fileName):
     retainActualLabels2(fileName)
-    print("here1")
+
     dotFormat = ''
     for line in list(open('cExample1_m.dot')):
-        print("here2")
         if line.__contains__('{') or line.__contains__('}') or line.__contains__('->'):
             dotFormat += line
-    print("3")
     return dotFormat.rstrip()
 
 def checkTripletErrors(triplets):
@@ -230,11 +223,13 @@ def checkTripletErrors(triplets):
         line = triplets_arr[i].split(" ")
         print("line")
         print(line)
-        if len(line) != 3:
+        if len(line) != 3 and i != len(triplets_arr) - 1:
             return 401
+        '''
         for j in range(len(line)):
             if line[j].isnumeric() == False:
                 return 401
+        '''
     return 0
 
 def retainActualLabelDot(fileName):

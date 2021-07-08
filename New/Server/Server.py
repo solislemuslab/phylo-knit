@@ -5,6 +5,8 @@ from flask_cors import CORS, cross_origin
 from flask import jsonify, make_response
 import ParentheticalConvertorNaman
 import ServerAction
+import test_user
+import convertor
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -86,9 +88,6 @@ def getParenthetical():
 @cross_origin()
 def uploadHyde(thresh):
     json = request.get_json()
-    print('this is json')
-    print(len(json['text']))
-    print(json)
     if len(json['text']) == 0:
         return jsonify({'error': 'File format is incorrect'}), 401
 
@@ -99,6 +98,7 @@ def uploadHyde(thresh):
     print(hyde)
     with open('HydeInput.txt', 'w+') as f:
         f.write(hyde)
+    #test_user.testHyde("HydeInput.txt",hyde,thresh)
     try:
         if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
              return jsonify({'error': 'File format is incorrect'}), 401
@@ -114,7 +114,8 @@ def uploadHyde(thresh):
         f.write(dotFile)
 
     print(dotFile)
-    return "executiing"
+    print(convertor.reader())
+    return jsonify({'stat': "executing",'newick':convertor.reader()})
 
 
 # POST
