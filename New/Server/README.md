@@ -44,15 +44,15 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Backend-Flow</a></li>
-        <li><a href="#installation">Frontend-Flow</a></li>
+        <li><a href="#Backend-Flow-Overview">Backend Summary</a></li>
+        <li><a href="Frontend-Flow-Overview">Frontend Summary</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Server.py()</a></li>
-    <li><a href="#roadmap">ServerAction.py()</a></li>
+    <li><a href="#Server.py">Server.py()</a></li>
+    <li><a href="#ServerAction.py">ServerAction.py()</a></li>
     <!-- <li><a href="#contributing">Testing</a></li> -->
-    <li><a href="#license">Sketch.js</a></li>
-    <li><a href="#contact">Glossary</a></li>
+    <li><a href="#Sketch.js">Sketch.js</a></li>
+    <li><a href="#Glossary">Glossary</a></li>
     <li><a href="#acknowledgements">RoadMap/Flow</a></li>
   </ol>
 </details>
@@ -62,7 +62,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
 This is the developer guide for the Phylo-knit visualization project. This Project allows the visualization of phylogentic data in the form of the three formats (Hyde,Parenthetical and Triplet format). This guide allows a better udnerstanding of the project for any future developers and for myself to understanding the current level of the project
 
@@ -116,7 +116,7 @@ A basic understanding of get/post requests in Flask Applications might be needed
 
 * Note : Once ServerAction.py called methods end the post/get requests are also completed. The responses are sent back to the XML request caller to check 
 
-## Front-End Flow Overview
+## FrontEnd Flow Overview
 
 The front-end html elements are located in index.html with most of the functionality in sketch.js and p5.js.
 
