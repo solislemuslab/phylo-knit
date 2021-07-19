@@ -700,9 +700,9 @@ function pushHydeToServer(hydeInput, thresh) {
         // document.write("This is Working <p>");
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("downloadPng").style.visibility = "visible;"
+            document.getElementById("downloadPng").style.visibility = "visible";
 
-            console.log(this.response)
+
             createD3Graph();
         } else if (request.status === 401) {
             reqStatus = request.status;
@@ -727,9 +727,17 @@ function pushParentheticalToServer(parenthetical) {
     request.send(data);
 
     function processRequest(e) {
+        
         // document.write("This is Working <p>");
         if (request.readyState === 4 && request.status === 200) {
+            var x = JSON.parse(request.responseText);
+            newickFr = x.newick    
+            document.getElementById("downloadPng").style.visibility = "visible"
+
             createD3Graph();
+            var x = JSON.parse(request.responseText);
+            newickFr = x.newick
+    
         } else if (request.readyState === 4) {
             // document.write("<p>Error : " + request.status + "," + request.statusText);
         }
@@ -749,6 +757,11 @@ function pushStringToServer(triplets) {
 
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
+            var x = JSON.parse(request.responseText);
+            newickFr = x.newick
+    
+            document.getElementById("dwn-btn").style.visibility = "visible";
+            document.getElementById("downloadPng").style.visibility = "visible";
             createD3Graph();
         } else if (request.status === 401) {
             reqStatus = request.status;

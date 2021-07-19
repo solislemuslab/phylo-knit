@@ -139,7 +139,7 @@ def uploadParentheticalAndReturnDot():
 
     ParentheticalConvertorNaman.newickToDot(parenthetical)
 
-    return "Executing"
+    return jsonify({'stat': "executing",'newick':convertor.reader()})
 
 
 # POST
@@ -171,7 +171,7 @@ def uploadTripletsAndReturnDot():
         f.write(dotFile)
 
     print(dotFile)
-    return "Executing"
+    return jsonify({'stat': "executing",'newick':convertor.reader()})
 
 
 # GET
