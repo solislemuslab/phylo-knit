@@ -38,7 +38,7 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#Requirements">Built With</a></li>
+        <li><a href="#Requirements">Requirements</a></li>
       </ul>
     </li>
     <li>
@@ -48,12 +48,12 @@
         <li><a href="Frontend-Flow-Overview">Frontend Summary</a></li>
       </ul>
     </li>
-    <li><a href="#Server.py">Server.py()</a></li>
-    <li><a href="#ServerAction.py">ServerAction.py()</a></li>
+    <li><a href="#Server">Server.py()</a></li>
+    <li><a href="#ServerAction">ServerAction.py()</a></li>
     <!-- <li><a href="#contributing">Testing</a></li> -->
-    <li><a href="#Sketch.js">Sketch.js</a></li>
+    <li><a href="#Sketch">Sketch.js</a></li>
     <li><a href="#Glossary">Glossary</a></li>
-    <li><a href="#acknowledgements">RoadMap/Flow</a></li>
+    <li><a href="#RoadMap">RoadMap/Flow</a></li>
   </ol>
 </details>
 
@@ -116,7 +116,7 @@ A basic understanding of get/post requests in Flask Applications might be needed
 
 * Note : Once ServerAction.py called methods end the post/get requests are also completed. The responses are sent back to the XML request caller to check 
 
-## FrontEnd Flow Overview
+## Frontend Flow Overview
 
 The front-end html elements are located in index.html with most of the functionality in sketch.js and p5.js.
 
@@ -128,7 +128,7 @@ The front-end html elements are located in index.html with most of the functiona
 
 
 <!-- USAGE EXAMPLES -->
-## Server.py
+## Server
 
 This covers the methods and main concepts in Server.py:
 
@@ -140,7 +140,7 @@ This covers the methods and main concepts in Server.py:
 
 
 <!-- ROADMAP -->
-## ServerAction.py
+## ServerAction
 
 * The main Goal of this file is to take the requested file and convert it into a dot file. See cExample1.dot for an example of how a dot file works.
 
@@ -153,7 +153,7 @@ This covers the methods and main concepts in Server.py:
 * Error handling : Is done checking for either missing values, wrong formats or empty files. Currently what is occuring is when there is an error we are sending a json response with a status of 401 and a message back to the front-end which can be later displayed so that the user clearly understands what is going wrong with their file inputs. Check out the ParseHydeToTriplets() method to see how we check and return the error status and messages
 
 
-## Sketch.js
+## Sketch
 The goal of this file is to take the user input from the front end and push the file as a request to server.py which handles the dot file processing. If the file formats were correct sketch.js then calls CreateD3Graph() which displays a visualization along with the colouring.
 
 * CreateD3Graph(): The method is responsible for creating the visualization given a dot file. Although it is complex the main thing to understanding is how the node objects are being read and how the colours are being generated for the network
@@ -203,9 +203,13 @@ The goal of this file is to take the user input from the front end and push the 
 <!-- CONTACT -->
 ## Contact
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/solislemuslab/phylo-knit](https://github.com/solislemuslab/phylo-knit)
 
 
+
+## RoadMap
+
+![alt text](Flowchart.png)
 
 <!-- ACKNOWLEDGEMENTS -->
 <!-- ## Acknowledgements
