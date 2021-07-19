@@ -700,6 +700,7 @@ function pushHydeToServer(hydeInput, thresh) {
         // document.write("This is Working <p>");
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById("dwn-btn").style.visibility = "visible";
+            document.getElementById("downloadPng").style.visibility = "visible;"
 
             console.log(this.response)
             createD3Graph();
