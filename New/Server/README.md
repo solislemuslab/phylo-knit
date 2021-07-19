@@ -66,11 +66,14 @@
 
 This is the developer guide for the Phylo-knit visualization project. This Project allows the visualization of phylogentic data in the form of the three formats (Hyde,Parenthetical and Triplet format). This guide allows a better udnerstanding of the project for any future developers and for myself to understanding the current level of the project
 
-Here's why:
+![alt text](pic1.png)
+
+
+About:
 * This Project is Flask based application. Uses python for file processing to generate dot files. 
 * Dot files are then are used by sketch.js to create an interactive network.  
 
-Of course, This is a very basic overview of the project and this guide will slowly ease you into being fully fleged and able to work on this project. 
+Of course, This is a very basic overview of the project and this guide will slowly ease you into being fully understanding and being able to work on this project. 
 
 
 ### Requirements
