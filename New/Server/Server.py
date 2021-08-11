@@ -112,9 +112,8 @@ def uploadHyde(thresh):
 
     with open('upload.dot', 'w+') as f:
         f.write(dotFile)
-
+    print("dot file")
     print(dotFile)
-    print(convertor.reader())
     return jsonify({'stat': "executing",'newick':convertor.reader()})
 
 
@@ -186,11 +185,24 @@ def receiveDot():
     #     newickField.write(dotFile)
 
     # with open("upload1.dot", "r") as newickField:
-
+    print("THIS IS HERE")
+    print(quotifyTheFile('upload.dot'))
     return Response(quotifyTheFile('upload.dot'), mimetype='text/plain')
 
     # return "working"
 
+@app.route('/readDot2')
+@cross_origin()
+def receiveDot2():
+    print('Sending Dot')
+    # TODO change done
+    # dotFile = returnReducedDotFile('cExample1.dot')
+
+    # with open('upload.dot', 'w+') as newickField:
+    #     newickField.write(dotFile)
+
+    # with open("upload1.dot", "r") as newickField:
+    return jsonify({'dotData':quotifyTheFile("upload.dot")})
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5001)

@@ -467,6 +467,14 @@ function checking() {
 }
 
 function onClickCreateNetwork() {
+var svg = d3.select("body").select("svg")
+    // .attr("style", "outline: thin solid red;")   //This will do the job
+    // .call(d3.zoom().on("zoom", function () {
+    //     d3.event.transform.x = Math.min(0, Math.max(d3.event.transform.x, 1900 - 1900 * d3.event.transform.k));
+    //     d3.event.transform.y = Math.min(0, Math.max(d3.event.transform.y, 1500 - 1500 * d3.event.transform.k));
+    //     svg.attr("transform", d3.event.transform);;
+    // }))
+
     parentheticalSelector.disabled = true;
 
     createNetworkSelector.disabled = true;
@@ -702,7 +710,6 @@ function pushHydeToServer(hydeInput, thresh) {
             document.getElementById("dwn-btn").style.visibility = "visible";
             document.getElementById("downloadPng").style.visibility = "visible";
 
-
             createD3Graph();
         } else if (request.status === 401) {
             reqStatus = request.status;
@@ -894,3 +901,17 @@ document.getElementById("dwn-btn").addEventListener("click", function(){
     
     download(filename, text);
 }, false);
+
+
+var checkbox = document.querySelector("input[name=checkbox]");
+
+checkbox.addEventListener('change', function() {
+  if (this.checked) {
+    
+    console.log("Checkbox is checked..");
+  } else {
+      createD3Graph()
+    console.log("Checkbox is not checked..");
+  }
+});
+
