@@ -23,7 +23,9 @@ var btnUpdateNet = document.getElementById("updateNetwork");
 btnUpdateNet.disabled = true;
 
 var e = document.getElementById("textThreshold");
+var f = document.getElementById("textDiv");
 e.style.visibility = "hidden";
+f.style.visibility = "hidden";
 var m = document.getElementById("symb");
 m.style.visibility = "hidden";
 
@@ -184,6 +186,8 @@ function createD3Graph(
                 }
             }
         }
+        console.log("GRAPH HERE")
+        console.log(graph)
 
         // add the links and the arrows
         var path = svg
@@ -343,10 +347,12 @@ function setup() {
     // that can be used to select files
     // The first argument is the callback function
     // The 'multiple' flag allows more than one file to be selected
+    // elt = document.getElementById("here");
     inp = createFileInput(gotFile, "multiple");
-    inp.position(400, 100);
-    inp.addClass("chooseButton");
+    inp.position(400, 80);
+    inp.addClass("btn  btn-tertiary  btn-round chooseButton");
     inp.attribute("id", "file");
+    // inp.parent(elt)
 
     // inpputForHyde = createFileInput(gotHydeFile, 'multiple');
 
@@ -369,6 +375,7 @@ function selectInputType(val) {
         createNetworkSelector.style.visibility = "visible";
         createNetworkSelector.disabled = false;
         e.style.visibility = "visible";
+        f.style.visibility ="visible";
         m.style.visibility = "visible";
         newickField.style.visibility = "hidden";
         let x = document.getElementById("file");
@@ -386,6 +393,8 @@ function selectInputType(val) {
         // var e = document.getElementById("textThreshold");
         newickField.style.visibility = "hidden";
         e.style.visibility = "hidden";
+        f.style.visibility = "hidden";
+
         let x = document.getElementById("file");
         // createNetworkSelector.style.visibility = "visible";
         createNetworkSelector.disabled = false;
@@ -399,6 +408,8 @@ function selectInputType(val) {
             "Please upload a file in Newick format OR type an expression";
         removeGraph();
         e.style.visibility = "hidden";
+        f.style.visibility = "hidden";
+
         // location.reload(true);
         newickField.style.visibility = "visible";
         parentheticalSelector.style.visibility = "visible";
@@ -708,6 +719,8 @@ function pushHydeToServer(hydeInput, thresh) {
         // document.write("This is Working <p>");
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById("dwn-btn").style.visibility = "visible";
+            document.getElementById("dwn-div").style.visibility = "visible";
+
             document.getElementById("downloadPng").style.visibility = "visible";
 
             createD3Graph();
@@ -768,6 +781,8 @@ function pushStringToServer(triplets) {
             newickFr = x.newick
     
             document.getElementById("dwn-btn").style.visibility = "visible";
+            document.getElementById("dwn-div").style.visibility = "visible";
+
             document.getElementById("downloadPng").style.visibility = "visible";
             createD3Graph();
         } else if (request.status === 401) {
@@ -903,15 +918,15 @@ document.getElementById("dwn-btn").addEventListener("click", function(){
 }, false);
 
 
-var checkbox = document.querySelector("input[name=checkbox]");
+// var checkbox = document.querySelector("input[name=checkbox]");
 
-checkbox.addEventListener('change', function() {
-  if (this.checked) {
+// checkbox.addEventListener('change', function() {
+//   if (this.checked) {
     
-    console.log("Checkbox is checked..");
-  } else {
-      createD3Graph()
-    console.log("Checkbox is not checked..");
-  }
-});
+//     console.log("Checkbox is checked..");
+//   } else {
+//       createD3Graph()
+//     console.log("Checkbox is not checked..");
+//   }
+// });
 

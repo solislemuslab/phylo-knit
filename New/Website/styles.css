@@ -54,6 +54,7 @@ p {
 .vbox {
 
     /*margin-top: 86px;*/
+    border-style: dotted;
     position: relative;
     height: 100%;
     margin-left: 0px;
@@ -62,6 +63,7 @@ p {
     /*text-align: center;*/
     padding-left: 30px;
     overflow: auto;
+    border: #000;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -70,17 +72,28 @@ h1, h2, h3, h4, h5, h6 {
 
 
 .button {
-    background-color: #af9965;
-    border: none;
+    background-color: #000;
+    /* border: none; */
     color: white;
+    border: #000;
     margin-top: 20px;
     padding: 12px 20px;
     cursor: pointer;
     font-size: 20px;
     border-radius: 25px;
-    margin-right: 20px;
+    /* margin-right: 20px; */
     margin-bottom: 20px;
 
+}
+.v{
+    background-color: #e2c275;
+    color: white;
+    font-weight: bold;
+    border: #000;
+}
+.createNetwork{
+    padding-left: 0px;
+    right: 20px;
 }
 
 .button:disabled {
@@ -113,7 +126,7 @@ h1, h2, h3, h4, h5, h6 {
     color: white;
     /*background: #dce4ec;*/
 
-    background-color: #AF9965;
+    background-color: #000;
     border-radius: 25px;
     padding: 0 10px;
     display: inline-block;
