@@ -9,7 +9,7 @@ var reqStatus;
 var regHash = new RegExp("Hash[A-Za-z]+");
 var targetCounts = new Map();
 // As with JSON, use the Fetch API & ES6
-
+var y
 //const { testHyde } = require("../testUserInput");
 
 var removeNodeBool = false;
@@ -449,7 +449,8 @@ function createboxes() {
         checkbox.checked = true;
 
         checkbox.onclick = checking;
-        var y = document.createElement("p");
+        y = document.createElement("p");
+        // y.setAttribute("id", "id_you_like");
         var text = document.createTextNode("" + element);
         y.appendChild(text);
         // alert(y.textContent);
@@ -670,6 +671,7 @@ function gotFile(file) {
             var texts = selectAll(".text");
             // var paraText=  document.getElementsByClassName('text').innerHTML;
             paraText = document.getElementsByClassName("text")[0].innerHTML;
+            
 
             globalhydeFileData = paraText;
         } else if (selectedDropDown == "Triplets") {
@@ -733,6 +735,10 @@ function pushHydeToServer(hydeInput, thresh) {
             // document.write("<p>Error : " + request.status + "," + request.statusText);
         }
     }
+    paraT = document.getElementsByClassName("text")[0].id = "nodeTxt";
+    l = document.getElementById("nodeTxt");
+    l.remove();
+
 }
 
 function pushParentheticalToServer(parenthetical) {
@@ -917,7 +923,9 @@ document.getElementById("dwn-btn").addEventListener("click", function(){
     download(filename, text);
 }, false);
 
-
+document.getElementsByClassName("text")[0].id = "nodeTxt";
+paraGraph = document.getElementById("nodeTxt");
+paraGraph.remove();
 // var checkbox = document.querySelector("input[name=checkbox]");
 
 // checkbox.addEventListener('change', function() {

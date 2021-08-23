@@ -52,7 +52,7 @@ def parseHydeToTriplets(fileName, threshold):
 
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7']
-       
+        print("Threshold",threshold)
         datasetLess = dataset.loc[dataset['a7'] < threshold]
         datasetMore = dataset.loc[dataset['a7'] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
