@@ -99,11 +99,14 @@ def uploadHyde(thresh):
     with open('HydeInput.txt', 'w+') as f:
         f.write(hyde)
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
+    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh))
+    '''
     try:
         if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
              return jsonify({'error': 'File format is incorrect'}), 401
     except:
         return jsonify({'error': 'File format is incorrect'}), 401
+    '''
 
     # TODO: uncomment the following done
     ServerAction.tripletsToDot('HydeToTriplets.txt')

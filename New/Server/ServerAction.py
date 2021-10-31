@@ -25,9 +25,12 @@ def removeDupTriplets():
 
     for x in content:
         val = x.split()[2]
+        
         if val in result:
             pairs = result[val]
+            print(pairs,"pairs")
             if isDup(pairs, x.split()[0], x.split()[1]):
+                print("Duplicates", x.split()[0],x.split()[1])
                 file.write(x.split()[0] + " " + x.split()[1] + " " + val + "\n")
                 pairs.append(x.split()[0] + "," + x.split()[1])
             result[val] = pairs
@@ -35,7 +38,7 @@ def removeDupTriplets():
             file.write(x.split()[0] + " " + x.split()[1] + " " + val + "\n")
             result[val] = [x.split()[0] + "," + x.split()[1]]
     file.close()
-    print(result)
+    print("This is the triplet result", result)
 
 
 def parseHydeToTriplets(fileName, threshold):
@@ -49,18 +52,35 @@ def parseHydeToTriplets(fileName, threshold):
     tripletsFromLess2 = ""
     tripletsFromMore1 = ''
 
-
+    trip = set()
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7']
-        print("Threshold",threshold)
         datasetLess = dataset.loc[dataset['a7'] < threshold]
         datasetMore = dataset.loc[dataset['a7'] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
         tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
-        tripletsFromMore1 = datasetMore.values[:, [1, 3, 5]]
+        tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
+     
+    
+        for i in range(len(tripletsFromLess1)):
+            trip.add(tuple(tripletsFromLess1[i]))
+        for j in range(len(tripletsFromLess2)):
+            trip.add(tuple(tripletsFromLess2[j]))
+        for k in range(len(tripletsFromMore1)):
+            trip.add(tuple(tripletsFromMore1[k]))
+        re = []
+        print(trip)
+        print("set main")
+        for i,val in enumerate(trip):
+            re.append(list(val))
+        re = np.array(re)
+        np.savetxt('Triplets4.txt', re, fmt='%d', delimiter=" ")
+        
+        
+        
     elif len(dataset.columns) == 21:
         dataset = pd.read_table(fileName, delim_whitespace=True, header=None,skiprows=[0])
-        datasetLess = dataset.loc[dataset[4] <threshold]
+        datasetLess = dataset.loc[dataset[4] < threshold]
         datasetMore = dataset.loc[dataset[4] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
@@ -82,12 +102,13 @@ def parseHydeToTriplets(fileName, threshold):
 
     #print(tripletsFromMore1)
 
-    read_files = ['Triplets1.txt', 'Triplets2.txt', 'Triplets3.txt']
+    read_files = ['Triplets4.txt']
 
     with open("HydeToTriplets.txt", "wb") as outfile:
         for f in read_files:
             with open(f, "rb") as infile:
                 outfile.write(infile.read())
+    outfile.close()
     removeDupTriplets()
     return 0
 
