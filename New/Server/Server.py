@@ -136,12 +136,12 @@ def uploadParentheticalAndReturnDot():
     parenthetical = json['text']
 
     # print(parenthetical)
-    # parenthetical = ServerAction.symbolReplacement(parenthetical)
+    #parenthetical = ServerAction.symbolReplacement(parenthetical)
     print(parenthetical)
 
     ParentheticalConvertorNaman.newickToDot(parenthetical)
 
-    return jsonify({'stat': "executing",'newick':convertor.reader()})
+    #return jsonify({'stat': "executing",'newick':convertor.reader()})
 
 
 # POST
@@ -172,8 +172,8 @@ def uploadTripletsAndReturnDot():
     with open('upload.dot', 'w+') as f:
         f.write(dotFile)
 
-    print(dotFile)
-    return jsonify({'stat': "executing",'newick':convertor.reader()})
+    return dotFile
+    #return jsonify({'stat': "executing",'newick':convertor.reader()})
 
 
 # GET

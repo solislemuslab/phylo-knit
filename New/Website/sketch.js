@@ -385,15 +385,15 @@ function createboxes() {
         paraDiv = document.createElement("p");
         var text = document.createTextNode("" + element);
         paraDiv.appendChild(text);
-        if (!y.textContent.includes("Hash")) {
-            totalLeafNodes.push(y.textContent);
+        if (!paraDiv.textContent.includes("Hash")) {
+            totalLeafNodes.push(paraDiv.textContent);
         }
         if (
-            !y.textContent.includes("Hash") &&
-            !y.textContent.includes("internal")
+            !paraDiv.textContent.includes("Hash") &&
+            !paraDiv.textContent.includes("internal")
         ) {
             document.getElementById("placeholder").appendChild(checkbox);
-            document.getElementById("placeholder").appendChild(y);
+            document.getElementById("placeholder").appendChild(paraDiv);
             document.getElementById("placeholder").appendChild(linebreak);
         }
 
@@ -420,6 +420,8 @@ var svg = d3.select("body").select("svg")
         var parentheticalText = document.getElementById("parenthetical").value;
         if (parentheticalText === "") {
             paraText = document.getElementsByClassName("text")[0].innerHTML;
+            console.log("paraText");
+            console.log(paraText);
             pushParentheticalToServer(paraText);
         } else {
             pushParentheticalToServer(parentheticalText);
@@ -765,6 +767,6 @@ document.getElementById("dwn-btn").addEventListener("click", function(){
     download(filename, text);
 }, false);
 
-document.getElementsByClassName("text")[0].id = "nodeTxt";
-paraGraph = document.getElementById("nodeTxt");
-paraGraph.remove();
+// document.getElementsByClassName("text")[0].id = "nodeTxt";
+// paraGraph = document.getElementById("nodeTxt");
+// paraGraph.remove();

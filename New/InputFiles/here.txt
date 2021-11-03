@@ -1,0 +1,4 @@
+// NewickToTriplet.jj Version 1.0, 21st September 2009
+// Note: this program reads its input from stdin, not from a file, so if the program
+// seems to have hung then that is probably the reason.
+// Each triplet will receive a weight equal to the number of input trees it is in.
