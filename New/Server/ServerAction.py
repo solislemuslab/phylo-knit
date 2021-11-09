@@ -66,7 +66,12 @@ def parseHydeToTriplets(fileName, threshold):
             trip.add(tuple(tripletsFromLess1[i]))
         for j in range(len(tripletsFromLess2)):
             trip.add(tuple(tripletsFromLess2[j]))
+        
         for k in range(len(tripletsFromMore1)):
+            #TODO:
+            # TRIPLET CHECKING WILL BE ADDED HERE
+
+        
             trip.add(tuple(tripletsFromMore1[k]))
         re = []
         print(trip)
@@ -266,7 +271,17 @@ def retainActualLabelDot(fileName):
     with open('cExample1_m.dot', 'w+') as f:
         f.write(dotFormat)
 
-
+def readUserTriplets():
+    cmd = 'java -jar NewickToTriplet.jar < userTriplets.txt > NewickToTriplet.txt'
+    os.system(cmd)
+    userTriplets = set()
+    with open("NewickToTriplet.txt") as f:
+        contents = f.readlines()
+    for line in contents:
+        if "//" in line:
+            continue
+        userTriplets.add(tuple(line.strip().split()))
+    return userTriplets
 def retainActualLabels2(fileName):
     dotFormat = ''
     dictionary = {}
