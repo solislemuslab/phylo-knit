@@ -42,6 +42,9 @@ def removeDupTriplets():
 
 
 def parseHydeToTriplets(fileName, threshold, backbone):
+    filer = open("userTriplets.txt", "w")
+    filer.write(backbone)
+    filer.close()
     f = open(fileName,'r')
     lines = f.readlines()
     result = []
@@ -66,7 +69,7 @@ def parseHydeToTriplets(fileName, threshold, backbone):
             trip.add(tuple(tripletsFromLess1[i]))
         for j in range(len(tripletsFromLess2)):
             trip.add(tuple(tripletsFromLess2[j]))
-        userVals = backBoneToTriplets()
+        userVals = backBoneToTriplets(backbone)
         print("Change occurs here")
         print(userVals)
         print(tripletsFromMore1)
@@ -280,8 +283,9 @@ def retainActualLabelDot(fileName):
     with open('cExample1_m.dot', 'w+') as f:
         f.write(dotFormat)
 
-def backBoneToTriplets():
-    cmd = 'java -jar NewickToTriplet.jar < userTriplets.txt > NewickToTriplet.txt'
+def backBoneToTriplets(backbone):
+  
+    cmd = 'java -jar NewickToTriplet.jar < ' + backbone + ' > NewickToTriplet.txt'
     os.system(cmd)
     userTriplets = set()
     with open("NewickToTriplet.txt") as f:
