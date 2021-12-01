@@ -41,7 +41,7 @@ def removeDupTriplets():
     print("This is the triplet result", result)
 
 
-def parseHydeToTriplets(fileName, threshold):
+def parseHydeToTriplets(fileName, threshold, backbone):
     f = open(fileName,'r')
     lines = f.readlines()
     result = []
