@@ -88,10 +88,12 @@ def getParenthetical():
 @cross_origin()
 def uploadHyde(thresh):
     json = request.get_json()
+    print(json)
     if len(json['text']) == 0:
         return jsonify({'error': 'File format is incorrect'}), 401
 
     hyde = json['text']
+    print(json['data2'])
 
     print('Threshold =', thresh)
 
