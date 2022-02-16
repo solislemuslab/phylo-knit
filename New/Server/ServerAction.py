@@ -67,21 +67,27 @@ def parseHydeToTriplets(fileName, threshold):
         for j in range(len(tripletsFromLess2)):
             trip.add(tuple(tripletsFromLess2[j]))
         userVals = backBoneToTriplets()
-        print("Change occurs here")
-        print(userVals)
-        print(tripletsFromMore1)
+        print("BACKBONE TREE")
+        print("TRIPLETS FROM BACKBONE",userVals)
+        print(" ")
+        print(" ")
+        print("HYDE FILE TRIPLETS",tripletsFromMore1)
         for k in range(len(tripletsFromMore1)):
             #TODO:
             # TRIPLET CHECKING WILL BE ADDED HERE
+
             tempTriplet = ()
+            #Swapping of parents
             tempTriplet = tempTriplet + (tripletsFromMore1[k][0],tripletsFromMore1[k][2],tripletsFromMore1[k][1])
             print(tempTriplet in userVals, tempTriplet)
             
-
+            #trip.add(tuple(tripletsFromMore1[k]))
+            
             if tempTriplet in userVals:
                 trip.add(tuple(tempTriplet))
             else:
                 trip.add(tuple(tripletsFromMore1[k]))
+            
         re = []
         print(trip)
         print("set main")

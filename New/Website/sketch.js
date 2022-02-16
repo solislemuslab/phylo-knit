@@ -175,6 +175,22 @@ function createD3Graph(
         }
         console.log("GRAPH HERE")
         console.log(graph)
+
+        // Get source and target updates
+        var targetVals = ""
+        var sourceVals = ""
+        
+        for(var i = 0 ; i < graph.links.length; i++){
+            sourceVals = sourceVals + " " + graph.links[i].source
+            targetVals = targetVals + " " + graph.links[i].target
+        }
+
+        // Pass all data variables through here for leaf file update
+       
+        console.log(sourceVals)
+        console.log(targetVals)
+
+    
         var path = svg
             .append("svg:g")
             .attr("class", "links")
