@@ -114,6 +114,7 @@ def uploadHyde(thresh):
         return jsonify({'error': 'File format is incorrect'}), 401
 
     hyde = json['text']
+    print(json['data2'])
 
     print('Threshold =', thresh)
 
@@ -121,7 +122,7 @@ def uploadHyde(thresh):
     with open('HydeInput.txt', 'w+') as f:
         f.write(hyde)
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
-    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh))
+    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh),json["data2"])
     '''
     try:
         if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
