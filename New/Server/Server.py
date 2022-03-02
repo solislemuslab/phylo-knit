@@ -1,6 +1,6 @@
 import base64
-from django.db import connection
 from ete3 import Tree
+
 from flask import Flask, request, Response
 from flask_cors import CORS, cross_origin
 from flask import jsonify, make_response
@@ -30,6 +30,20 @@ def quotifyTheFile(fileName):
 
     return writeContent
 
+@app.route('/updateNewick/', methods=['POST'])
+@cross_origin()
+def updateNewick():
+    json = request.get_json()
+    source = json["source"].split()
+    target = json["target"].split()
+    print("source",source,"target",target)
+    connections = []
+    for i in range(len(source)):
+        connections.append(source[i]+ " " + target[i])
+    t = Tree.from_parent_child_table([line.split() for line in connections] )
+
+   
+    return jsonify({'stat': "executing",'newick':t.write()})
 
 # POST
 @app.route('/uploadLeaves/', methods=['POST'])
@@ -84,27 +98,6 @@ def getParenthetical():
     return "Hello parenthetical is here" + parenthetical
 
 
-@app.route('/updateNewick/', methods=['POST'])
-@cross_origin()
-def updateNewick():
-    json = request.get_json()
-    source = json["source"].split()
-    target = json["target"].split()
-    print("source",source,"target",target)
-    connections = []
-    for i in range(len(source)):
-        connections.append(source[i]+ " " + target[i])
-    t = Tree.from_parent_child_table([line.split() for line in connections] )
-
-   
-    return jsonify({'stat': "executing",'newick':t.write()})
-
-
-
-
-
-
-
 # POST
 @app.route('/uploadHyde/<thresh>', methods=['POST'])
 @cross_origin()
@@ -114,7 +107,6 @@ def uploadHyde(thresh):
         return jsonify({'error': 'File format is incorrect'}), 401
 
     hyde = json['text']
-    print(json['data2'])
 
     print('Threshold =', thresh)
 
@@ -122,7 +114,7 @@ def uploadHyde(thresh):
     with open('HydeInput.txt', 'w+') as f:
         f.write(hyde)
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
-    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh),json["data2"])
+    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh))
     '''
     try:
         if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
