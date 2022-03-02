@@ -189,6 +189,7 @@ function createD3Graph(
        
         console.log(sourceVals)
         console.log(targetVals)
+        getLeafUpdate(sourceVals,targetVals);
 
     
         var path = svg
@@ -577,6 +578,36 @@ function gotFile(file) {
     var boxnums = document.getElementsByClassName("boxText1");
 }
 
+
+
+function getLeafUpdate(source,target) {
+    var data = JSON.stringify({
+        source: source,
+        target: target
+    });
+    flag = 0;
+    var request = new XMLHttpRequest();
+    request.open("POST", "http://127.0.0.1:5001/updateNewick/");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("readystatechange", processRequest, false);
+    request.send(data);
+    console.log(data);
+
+    function processRequest(e) {
+        console.log("check ");
+        var x = JSON.parse(request.responseText);
+        newickFr = x.newick
+
+        //alert(e);
+        // document.write("This is Working <p>");
+       
+   
+
+}
+}
+
+
+
 function pushHydeToServer(hydeInput, thresh) {
     var data = JSON.stringify({
         text: hydeInput,
@@ -591,8 +622,8 @@ function pushHydeToServer(hydeInput, thresh) {
 
     function processRequest(e) {
         console.log("check ");
-        var x = JSON.parse(request.responseText);
-        newickFr = x.newick
+        // var x = JSON.parse(request.responseText);
+        // newickFr = x.newick
 
         //alert(e);
         // document.write("This is Working <p>");

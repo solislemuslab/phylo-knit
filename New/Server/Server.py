@@ -1,5 +1,6 @@
 import base64
-
+from django.db import connection
+from ete3 import Tree
 from flask import Flask, request, Response
 from flask_cors import CORS, cross_origin
 from flask import jsonify, make_response
@@ -81,6 +82,27 @@ def getParenthetical():
     parenthetical = ServerAction.returnParentheticalFormat('cExample.dot')
     print(parenthetical)
     return "Hello parenthetical is here" + parenthetical
+
+
+@app.route('/updateNewick/', methods=['POST'])
+@cross_origin()
+def updateNewick():
+    json = request.get_json()
+    source = json["source"].split()
+    target = json["target"].split()
+    print("source",source,"target",target)
+    connections = []
+    for i in range(len(source)):
+        connections.append(source[i]+ " " + target[i])
+    t = Tree.from_parent_child_table([line.split() for line in connections] )
+
+   
+    return jsonify({'stat': "executing",'newick':t.write()})
+
+
+
+
+
 
 
 # POST
