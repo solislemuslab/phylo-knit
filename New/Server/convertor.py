@@ -10,7 +10,7 @@ def reader():
             if "eNewick output" in line.strip():
                 r = str(line.strip())
                 r = r.split(":")
-                r[len(r)-1] = r[len(r)-1].replace(";","")
+                #r[len(r)-1] = r[len(r)-1].replace(";","")
                 newick = r[len(r)-1]
                 break
 

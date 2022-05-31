@@ -24,17 +24,18 @@ var parentheticalSelector = document.getElementById("parenthetical");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
 var globalhydeFileData = "";
+var originalNewick = "";
 
 
 function varSetup(){
-btnUpdateNet.disabled = true;
-textThresh.style.visibility = "hidden";
-divText.style.visibility = "hidden";
-symbolElement.style.visibility = "hidden";
-newickField.style.visibility = "hidden";
-createNetworkSelector.disabled = true;
-parentheticalSelector.style.visibility = "hidden";
-refresher.disabled = true;
+    btnUpdateNet.disabled = true;
+    textThresh.style.visibility = "hidden";
+    divText.style.visibility = "hidden";
+    symbolElement.style.visibility = "hidden";
+    newickField.style.visibility = "hidden";
+    createNetworkSelector.disabled = true;
+    parentheticalSelector.style.visibility = "hidden";
+    refresher.disabled = true;
 }
 
 function formdata() {
@@ -141,6 +142,8 @@ function createD3Graph(
                 for (let j = 0; j < nodesRemoveArr.length; j++) {
                     if (graph.nodes[i].id === nodesRemoveArr[j]) {
                         trackRemovedNodes.push(graph.nodes[i]);
+                        console.log("remove");
+                        console.log(graph.nodes[i])
                         graph.nodes.splice(i, 1); //remove 1 item at index i
                     }
                 }
@@ -158,6 +161,8 @@ function createD3Graph(
                 for (let i = 0; i < trackRemovedNodes.length; i++) {
                     for (let j = 0; j < newCheckedArray.length; j++) {
                         if (trackRemovedNodes[i].id === newCheckedArray[j]) {
+                            console.log("add");
+                            console.log(trackRemovedNodes[i]);
                             graph.links.add(trackRemovedNodes[i]); //remove 1 item at index i
                         }
                     }
@@ -189,7 +194,7 @@ function createD3Graph(
        
         console.log(sourceVals)
         console.log(targetVals)
-        getLeafUpdate(sourceVals,targetVals);
+        //getLeafUpdate(sourceVals,targetVals);
 
     
         var path = svg
@@ -261,7 +266,14 @@ function createD3Graph(
             });
 
         simulation.nodes(graph.nodes).on("tick", ticked);
-        simulation.force("link").links(graph.links);
+        console.log("link check")
+        console.log(graph.links)
+        // simulation = d3.forceSimulation(data['nodes'])
+        //     .force('link', d3.forceLink(data.edges).id(function(n) {return n.id; }))
+        // simulation.force("link").links(graph.links);
+        simulation.force('link', d3.forceLink(graph.links).id(function(n) {return n.id; }))
+        simulation.force('charge', d3.forceManyBody())
+        simulation.force('center', d3.forceCenter(width / 2, height / 2));
         let linkGen = d3
             .linkVertical()
             .x(function (d) {
@@ -488,6 +500,10 @@ function removeNodesAction() {
     });
     console.log("unchecked Nodes1: " + uncheckedNodes);
     console.log("checked Nodes1: " + uniqueArray);
+    if (originalNewick.length > 0){
+        getLeafUpdate(originalNewick,uncheckedNodes)
+
+    }
     createD3Graph(uncheckedNodes, uniqueArray, true, false);
 }
 
@@ -580,10 +596,10 @@ function gotFile(file) {
 
 
 
-function getLeafUpdate(source,target) {
+function getLeafUpdate(origNewick,removedVals) {
     var data = JSON.stringify({
-        source: source,
-        target: target
+        source: origNewick,
+        target: removedVals
     });
     flag = 0;
     var request = new XMLHttpRequest();
@@ -595,8 +611,8 @@ function getLeafUpdate(source,target) {
 
     function processRequest(e) {
         console.log("check ");
-        var x = JSON.parse(request.responseText);
-        newickFr = x.newick
+        // var x = JSON.parse(request.responseText);
+        // newickFr = x.newick
 
         //alert(e);
         // document.write("This is Working <p>");
@@ -622,8 +638,9 @@ function pushHydeToServer(hydeInput, thresh) {
 
     function processRequest(e) {
         console.log("check ");
-        // var x = JSON.parse(request.responseText);
-        // newickFr = x.newick
+        var x = JSON.parse(request.responseText);
+        originalNewick = x.newick;
+        newickFr = originalNewick; 
 
         //alert(e);
         // document.write("This is Working <p>");

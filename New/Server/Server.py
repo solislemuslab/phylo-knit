@@ -1,6 +1,6 @@
 import base64
 from ete3 import Tree
-
+import os
 from flask import Flask, request, Response
 from flask_cors import CORS, cross_origin
 from flask import jsonify, make_response
@@ -34,9 +34,27 @@ def quotifyTheFile(fileName):
 @cross_origin()
 def updateNewick():
     json = request.get_json()
-    source = json["source"].split()
-    target = json["target"].split()
+    source = json["source"]
+    target = json["target"]
+    tar = ""
+    for i in target:
+        tar = tar +" " + i
+    tar = tar.strip()
     print("source",source,"target",target)
+    with open('tester.txt','r+') as myfile:
+        data = myfile.read()
+        myfile.seek(0)
+        myfile.write(source + " " + tar)
+        myfile.truncate()
+    cmd = 'julia tester.jl'
+    os.system(cmd)
+    first = ""
+    with open("hereTest.txt") as f:
+        lines = f.read() ##Assume the sample file has 3 lines
+        first = lines.split('\n', 1)[0]
+
+    return jsonify({'newick':first})
+    '''
     connections = []
     for i in range(len(source)):
         connections.append(source[i]+ " " + target[i])
@@ -44,6 +62,7 @@ def updateNewick():
 
    
     return jsonify({'stat': "executing",'newick':t.write()})
+    '''
 
 # POST
 @app.route('/uploadLeaves/', methods=['POST'])

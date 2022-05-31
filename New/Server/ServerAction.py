@@ -105,6 +105,35 @@ def parseHydeToTriplets(fileName, threshold):
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
         tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
+        userVals = backBoneToTriplets()
+        print("BACKBONE TREE")
+        print("TRIPLETS FROM BACKBONE",userVals)
+        print(" ")
+        print(" ")
+        print("HYDE FILE TRIPLETS",tripletsFromMore1)
+        for k in range(len(tripletsFromMore1)):
+            #TODO:
+            # TRIPLET CHECKING WILL BE ADDED HERE
+
+            tempTriplet = ()
+            #Swapping of parents
+            tempTriplet = tempTriplet + (tripletsFromMore1[k][0],tripletsFromMore1[k][2],tripletsFromMore1[k][1])
+            print(tempTriplet in userVals, tempTriplet)
+            
+            #trip.add(tuple(tripletsFromMore1[k]))
+            
+            if tempTriplet in userVals:
+                trip.add(tuple(tempTriplet))
+            else:
+                trip.add(tuple(tripletsFromMore1[k]))
+            
+        re = []
+        print(trip)
+        print("set main")
+        for i,val in enumerate(trip):
+            re.append(list(val))
+        re = np.array(re)
+        np.savetxt('Triplets4.txt', re, fmt='%d', delimiter=" ")
     else:
         return 401
     # make 2 types of triplets from the dataset less than the threshold
