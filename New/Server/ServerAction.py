@@ -9,34 +9,36 @@ import pydot
 # from Launcher import removeDup
 import ParentheticalToDot
 
-
+# helper function for removeDupTriplets
 def isDup(pairs, a, b):
     for x in pairs:
         if a in x and b in x:
             return 0
     return 1
 
-
+# Removes duplicate triplets from a triplet file, overwriting the original file
+# where leaf1 leaf2 | outgroup is the pattern of each of the triples, we remove
+# duplicates as defined as (leaf1 leaf2 | outgroup) == (leaf2 leaf1 | outgroup)
 def removeDupTriplets(filename):
     with open(filename) as f:
-        content = f.readlines()
+        filecontents = f.readlines()
     result = dict()
     file = open(filename, "w")
 
-    for x in content:
-        val = x.split()[2]
+    for triple in filecontents:
+        outgroup = triple.split()[2]
         
-        if val in result:
-            pairs = result[val]
+        if outgroup in result:
+            pairs = result[outgroup]
             print(pairs,"pairs")
-            if isDup(pairs, x.split()[0], x.split()[1]):
-                print("Duplicates", x.split()[0],x.split()[1])
-                file.write(x.split()[0] + " " + x.split()[1] + " " + val + "\n")
-                pairs.append(x.split()[0] + "," + x.split()[1])
-            result[val] = pairs
+            if isDup(pairs, triple.split()[0], triple.split()[1]):
+                print("Duplicates", triple.split()[0],triple.split()[1])
+                file.write(triple.split()[0] + " " + triple.split()[1] + " " + outgroup + "\n")
+                pairs.append(triple.split()[0] + "," + triple.split()[1])
+            result[outgroup] = pairs
         else:
-            file.write(x.split()[0] + " " + x.split()[1] + " " + val + "\n")
-            result[val] = [x.split()[0] + "," + x.split()[1]]
+            file.write(triple.split()[0] + " " + triple.split()[1] + " " + outgroup + "\n")
+            result[outgroup] = [triple.split()[0] + "," + triple.split()[1]]
     file.close()
     print("This is the triplet result", result)
 
