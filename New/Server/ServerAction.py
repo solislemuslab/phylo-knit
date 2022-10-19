@@ -17,7 +17,7 @@ def isDup(pairs, a, b):
     return 1
 
 
-def removeDupTriplets(filename="HydeToTriplets.txt"):
+def removeDupTriplets(filename):
     with open(filename) as f:
         content = f.readlines()
     result = dict()
@@ -158,7 +158,7 @@ def parseHydeToTriplets(fileName, threshold):
             with open(f, "rb") as infile:
                 outfile.write(infile.read())
     outfile.close()
-    removeDupTriplets()
+    removeDupTriplets("HydeToTriplets.txt")
     return 0
 
 def returnParentheticalFormat(fileName):
