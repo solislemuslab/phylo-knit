@@ -88,6 +88,7 @@ Of course, This is a very basic overview of the project and this guide will slow
 * ```pip3 install pandas```
 * ```pip3 install numpy```
 * ```pip3 install flask```
+* ```pip3 install ete3```
 
 4. JRE 8 & JDK. To check try ```java --version``` or ```java -version```
 
