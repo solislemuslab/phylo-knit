@@ -17,11 +17,11 @@ def isDup(pairs, a, b):
     return 1
 
 
-def removeDupTriplets():
-    with open("HydeToTriplets.txt") as f:
+def removeDupTriplets(filename="HydeToTriplets.txt"):
+    with open(filename) as f:
         content = f.readlines()
     result = dict()
-    file = open("HydeToTriplets.txt", "w")
+    file = open(filename, "w")
 
     for x in content:
         val = x.split()[2]
@@ -222,10 +222,15 @@ def changeRoot(flag, newRoot):
 
 """There is a problem in the following method. I tried the same commmand via the terminal and that generates a different
 dot file as compared the same command via Python.
+
+update oct19: Lev1athan output shows that:
+"// Terminating because in normal usage duplicate triplets in input not allowed."
+following this, we attempt to remove duplicate triplets before calling Lev1athan
 """
 
 
 def tripletsToDot(tripletsFName):
+    removeDupTriplets(filename=tripletsFName)
     cmd = 'java -jar Lev1athan.jar ' + tripletsFName + ' > cExample1.dot --nopostprocess'
     os.system(cmd)
 

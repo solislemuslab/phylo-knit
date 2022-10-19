@@ -186,6 +186,7 @@ def uploadTripletsAndReturnDot():
     predicts requested text whether it is ham or spam
     :return: json
     """
+    # TODO: as of oct 19, triple file 
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
@@ -196,19 +197,20 @@ def uploadTripletsAndReturnDot():
     if ServerAction.checkTripletErrors(triplets) == 401:
         return jsonify({'error': 'File format is incorrect'}), 401
 
-    print(triplets)
+    print("triplets printed are \n", triplets, "\n")
     with open('retrievedTriplets.txt', 'w+') as f:
         f.write(triplets)
 
     ServerAction.tripletsToDot('retrievedTriplets.txt')
     dotFile = ServerAction.returnReducedDotFile('cExample1.dot')
 
+    print("triplets to dot is \n", dotFile, "\n end")
     with open('upload.dot', 'w+') as f:
         f.write(dotFile)
 
 
-    #return jsonify({'stat': "executing",'newick':convertor.reader()})
-    return dotFile
+    return jsonify({'stat': "executing",'newick':convertor.reader()})
+    #return dotFile
 
 
 # GET
