@@ -9,12 +9,14 @@ import pydot
 # from Launcher import removeDup
 import ParentheticalToDot
 
-# helper function for removeDupTriplets
+# for every pair in the set (of strings) of taxon pairs, 
+# check if a and b are contained in the set
 def isDup(pairs, a, b):
-    for x in pairs:
-        if a in x and b in x:
-            return 0
-    return 1
+    for pair in pairs:
+        if a in pair and b in pair:
+            #print(a, " is a, ", b, " is b, and these are in ", pair)
+            return 1
+    return 0
 
 # Removes duplicate triplets from a triplet file, overwriting the original file
 # where leaf1 leaf2 | outgroup is the pattern of each of the triples, we remove
@@ -27,18 +29,21 @@ def removeDupTriplets(filename):
 
     for triple in filecontents:
         outgroup = triple.split()[2]
+        leaf1 = triple.split()[0]
+        leaf2 = triple.split()[1]
         
         if outgroup in result:
             pairs = result[outgroup]
-            print(pairs,"pairs")
-            if isDup(pairs, triple.split()[0], triple.split()[1]):
-                print("Duplicates", triple.split()[0],triple.split()[1])
-                file.write(triple.split()[0] + " " + triple.split()[1] + " " + outgroup + "\n")
-                pairs.append(triple.split()[0] + "," + triple.split()[1])
+            if isDup(pairs, leaf1, leaf2):
+                # do not add duplicate triple to file
+                print("duplicate in " , pairs, " and ", leaf1, leaf2)
+            else: # not a duplicate, add to set of leaf pairs with that outgroup.
+                file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
+                pairs.append(leaf1 + "," + leaf2)
             result[outgroup] = pairs
-        else:
-            file.write(triple.split()[0] + " " + triple.split()[1] + " " + outgroup + "\n")
-            result[outgroup] = [triple.split()[0] + "," + triple.split()[1]]
+        else: # create new outgroup->pairs dict entry
+            file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
+            result[outgroup] = [leaf1 + "," + leaf2]
     file.close()
     print("This is the triplet result", result)
 
