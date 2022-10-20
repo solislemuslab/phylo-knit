@@ -778,6 +778,11 @@ function TestUserInput(formatType) {
                 "The Threshold value is missing for the Hyde Format Please try again ";
             errors = 1;
         }
+        if (isNaN(threshold)) {
+            errMsg = 
+                "The p-value is not a number. Please try again.";
+            errors = 1;
+        }
         if (hydeData === undefined || typeof hydeData === "undefined" || hydeData.length === 0) {
             errMsg =
                 "The Hyde format file was not uploaded. Please choose a hyde file and try again";
