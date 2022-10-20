@@ -46,8 +46,24 @@ def removeDupTriplets(filename):
     file.close()
     print("This is the triplet result", result)
 
+# ensures duplicate triples do not get added when parsing through HyDe file.
+# when provided without a backbone tree
+# these can erroneously add hybrid relationships
+def containsTriple(triple_set, leaf1, leaf2, outgroup):
+    for triplet in triple_set:
+        if leaf1 in triplet and leaf2 in triplet and outgroup in triplet:
+            return 1
+    return 0
 
-def parseHydeToTriplets(fileName, threshold):
+# From a HyDe output file (fileName) and a p-value (threshold), 
+# generate and extract triplets via the following guidelines:
+#   if the triplet's p-value is below the threshold:
+#       add two triples with outgroups as both parents
+#   else add only a single triple
+#
+# unfiltered HyDe files contain all possible triples, which will result in an arbitrary tree. 
+# thus a backbone is necessary to provide an informative tree. 
+def parseHydeToTriplets(fileName, threshold, backbonefile="userTriplets.txt"):
     f = open(fileName,'r')
     lines = f.readlines()
     result = []
@@ -56,54 +72,19 @@ def parseHydeToTriplets(fileName, threshold):
     dataset = pd.read_table(fileName, delim_whitespace=True, header=None)
     tripletsFromLess1 = ""
     tripletsFromLess2 = ""
-    tripletsFromMore1 = ''
+    tripletsFromMore1 = ""
 
-    trip = set()
+    trip = set() # storage for all triples
+    
+    # Older HyDe format that lists only putative parents, hybrid, z scores and p-values
     if len(dataset.columns) == 8:
-        dataset.columns = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7']
-        datasetLess = dataset.loc[dataset['a7'] < threshold]
-        datasetMore = dataset.loc[dataset['a7'] > threshold]
+        dataset.columns = ['a0', 'hybrid', 'a2', 'parent1', 'a4', 'parent2', 'z-score', 'p-value']
+        datasetLess = dataset.loc[dataset['p-value'] < threshold]
+        datasetMore = dataset.loc[dataset['p-value'] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
         tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
         tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
-     
-    
-        for i in range(len(tripletsFromLess1)):
-            trip.add(tuple(tripletsFromLess1[i]))
-        for j in range(len(tripletsFromLess2)):
-            trip.add(tuple(tripletsFromLess2[j]))
-        userVals = backBoneToTriplets()
-        print("BACKBONE TREE")
-        print("TRIPLETS FROM BACKBONE",userVals)
-        print(" ")
-        print(" ")
-        print("HYDE FILE TRIPLETS",tripletsFromMore1)
-        for k in range(len(tripletsFromMore1)):
-            #TODO:
-            # TRIPLET CHECKING WILL BE ADDED HERE
-
-            tempTriplet = ()
-            #Swapping of parents
-            tempTriplet = tempTriplet + (tripletsFromMore1[k][0],tripletsFromMore1[k][2],tripletsFromMore1[k][1])
-            print(tempTriplet in userVals, tempTriplet)
-            
-            #trip.add(tuple(tripletsFromMore1[k]))
-            
-            if tempTriplet in userVals:
-                trip.add(tuple(tempTriplet))
-            else:
-                trip.add(tuple(tripletsFromMore1[k]))
-            
-        re = []
-        print(trip)
-        print("set main")
-        for i,val in enumerate(trip):
-            re.append(list(val))
-        re = np.array(re)
-        np.savetxt('Triplets4.txt', re, fmt='%d', delimiter=" ")
-        
-        
-        
+    # Newer HyDe format that contains site pattern frequencies
     elif len(dataset.columns) == 21:
         dataset = pd.read_table(fileName, delim_whitespace=True, header=None,skiprows=[0])
         datasetLess = dataset.loc[dataset[4] < threshold]
@@ -111,58 +92,52 @@ def parseHydeToTriplets(fileName, threshold):
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
         tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
-        userVals = backBoneToTriplets()
-        print("BACKBONE TREE")
-        print("TRIPLETS FROM BACKBONE",userVals)
-        print(" ")
-        print(" ")
-        print("HYDE FILE TRIPLETS",tripletsFromMore1)
-        for k in range(len(tripletsFromMore1)):
-            #TODO:
-            # TRIPLET CHECKING WILL BE ADDED HERE
-
-            tempTriplet = ()
-            #Swapping of parents
-            tempTriplet = tempTriplet + (tripletsFromMore1[k][0],tripletsFromMore1[k][2],tripletsFromMore1[k][1])
-            print(tempTriplet in userVals, tempTriplet)
-            
-            #trip.add(tuple(tripletsFromMore1[k]))
-            
-            if tempTriplet in userVals:
-                trip.add(tuple(tempTriplet))
-            else:
-                trip.add(tuple(tripletsFromMore1[k]))
-            
-        re = []
-        print(trip)
-        print("set main")
-        for i,val in enumerate(trip):
-            re.append(list(val))
-        re = np.array(re)
-        np.savetxt('Triplets4.txt', re, fmt='%d', delimiter=" ")
     else:
         return 401
-    # make 2 types of triplets from the dataset less than the threshold
-    #print(tripletsFromLess1)
-    #(tripletsFromLess2)
-
-    # Writing Triplets from Less in 2 parts
-    np.savetxt('Triplets1.txt', tripletsFromLess1, fmt='%d', delimiter=" ")
-    np.savetxt('Triplets2.txt', tripletsFromLess2, fmt='%d', delimiter=" ")
-
-    # Working with dataset more than the threshold
+        # TODO: when entering triple file as hyde file, this does not throw an error, why?
     
+    # Add all triplets that indicate a hybrid relationship given p-value
+    for i in range(len(tripletsFromLess1)):
+        trip.add(tuple(tripletsFromLess1[i]))
+    for j in range(len(tripletsFromLess2)):
+        trip.add(tuple(tripletsFromLess2[j]))
 
-    np.savetxt('Triplets3.txt', tripletsFromMore1, fmt='%d', delimiter=" ")
-
-    #print(tripletsFromMore1)
-
-    read_files = ['Triplets4.txt']
-
-    with open("HydeToTriplets.txt", "wb") as outfile:
-        for f in read_files:
-            with open(f, "rb") as infile:
-                outfile.write(infile.read())
+    # TODO: add newick format backbone tree as an option for user input
+    userVals = []
+    if len(backbonefile) > 0:
+        userVals = backBoneToTriplets(backbonefile) 
+    
+    # if backbone tree is provided, use backbone (nexus/parenthetical) 
+    # throw away any "tripletsfrommore" (don't use at all)
+    if len(userVals) > 0:
+        # trips = triplets from less, triplets from more, PLUS backbone triplets
+        for triple in userVals:
+            trip.add(triple)
+    else: # else, use only one "triplet from more" per combination of three taxa. 
+        # use the format of the hyde file to advantage
+        oldleaf1 = ""
+        oldleaf2 = ""
+        oldoutgroup = ""
+        for k in range(len(tripletsFromMore1)):
+            leaf1 = tripletsFromMore1[k][0]
+            leaf2 = tripletsFromMore1[k][1]
+            outgroup = tripletsFromMore1[k][2]
+            # if trip contains a triple with values in "tripletsFromMore1", do not add.
+            old_triple = [oldleaf1, oldleaf2, oldoutgroup]
+            if containsTriple(old_triple, leaf1, leaf2, outgroup):
+                print('old taxa are same as new taxa, skip line, old triple is', old_triple,
+                      '\n new triple is', leaf1, leaf2, outgroup)
+            elif containsTriple(trip, leaf1, leaf2, outgroup):
+                print('trip contains', leaf1, leaf2, outgroup)
+            else:
+                trip.add(tuple(leaf1,leaf2,outgroup))
+            oldleaf1 = leaf1
+            oldleaf2 = leaf2
+            oldoutgroup = outgroup
+            
+    with open("HydeToTriplets.txt", "w") as outfile:
+        for triple in trip:
+            outfile.write(str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n")
     outfile.close()
     removeDupTriplets("HydeToTriplets.txt")
     return 0
@@ -326,8 +301,8 @@ def retainActualLabelDot(fileName):
     with open('cExample1_m.dot', 'w+') as f:
         f.write(dotFormat)
 
-def backBoneToTriplets():
-    cmd = 'java -jar NewickToTriplet.jar < userTriplets.txt > NewickToTriplet.txt'
+def backBoneToTriplets(filename):
+    cmd = 'java -jar NewickToTriplet.jar < ' + filename + ' > NewickToTriplet.txt'
     os.system(cmd)
     userTriplets = set()
     with open("NewickToTriplet.txt") as f:
@@ -340,6 +315,7 @@ def backBoneToTriplets():
             currLine[i] = int(currLine[i])
         userTriplets.add(tuple(currLine))
     return userTriplets
+
 def retainActualLabels2(fileName):
     dotFormat = ''
     dictionary = {}
