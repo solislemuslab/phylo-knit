@@ -14,7 +14,6 @@ import ParentheticalToDot
 def isDup(pairs, a, b):
     for pair in pairs:
         if a in pair and b in pair:
-            #print(a, " is a, ", b, " is b, and these are in ", pair)
             return 1
     return 0
 
@@ -39,11 +38,11 @@ def removeDupTriplets(filename):
                 print("duplicate in " , pairs, " and ", leaf1, leaf2)
             else: # not a duplicate, add to set of leaf pairs with that outgroup.
                 file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
-                pairs.append(leaf1 + "," + leaf2)
+                pairs.append([leaf1, leaf2])
             result[outgroup] = pairs
         else: # create new outgroup->pairs dict entry
             file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
-            result[outgroup] = [leaf1 + "," + leaf2]
+            result[outgroup] = [[leaf1, leaf2]]
     file.close()
     print("This is the triplet result", result)
 
