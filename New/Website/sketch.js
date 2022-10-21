@@ -356,7 +356,6 @@ function selectInputType(val) {
         divText.style.visibility ="visible";
         symbolElement.style.visibility = "visible";
         newickField.style.visibility = "visible"; // for optional backbone tree
-        // backboneNewick.style.visibility = "visible";
         let fileDiv = document.getElementById("file");
         if (fileDiv.style.display === "none") {
             fileDiv.style.display = "block";
@@ -459,7 +458,12 @@ var svg = d3.select("body").select("svg")
         }
     } else if (selectedDropDown === "HYDE format") {
         threshold = document.getElementById("textThreshold").value;
-        pushHydeToServer(globalhydeFileData, threshold);
+        var parentheticalText = document.getElementById("parenthetical").value; //optional backbone
+        console.log("parenthetical text input is " + parentheticalText);
+        if (parentheticalText === "") {
+            parentheticalText = "";
+        }
+        pushHydeToServer(globalhydeFileData, threshold, parentheticalText);
     } else if (selectedDropDown == "Triplets") {
         paraText = document.getElementsByClassName("text")[0].innerHTML;
         console.log(paraText)
@@ -626,13 +630,16 @@ function getLeafUpdate(origNewick,removedVals) {
 
 
 
-function pushHydeToServer(hydeInput, thresh) {
+function pushHydeToServer(hydeInput, thresh, eNewick) {
     var data = JSON.stringify({
         text: hydeInput,
     });
     flag = 0;
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/uploadHyde/" + thresh);
+    if (eNewick === "") {
+        eNewick = "none_provided";
+    }
+    request.open("POST", "http://127.0.0.1:5001/uploadHyde/" + thresh + "/" + eNewick);
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.send(data);

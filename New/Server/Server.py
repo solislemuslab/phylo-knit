@@ -118,22 +118,24 @@ def getParenthetical():
 
 
 # POST
-@app.route('/uploadHyde/<thresh>', methods=['POST'])
+@app.route('/uploadHyde/<thresh>/<eNewick>', methods=['POST'])
 @cross_origin()
-def uploadHyde(thresh):
+def uploadHyde(thresh, eNewick):
     json = request.get_json()
     if len(json['text']) == 0:
         return jsonify({'error': 'File format is incorrect'}), 401
 
     hyde = json['text']
-
+    
+    print('parenthetical =', eNewick)
     print('Threshold =', thresh)
 
     print(hyde)
     with open('HydeInput.txt', 'w+') as f:
         f.write(hyde)
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
-    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh))
+    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh), eNewick)
+
     '''
     try:
         if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
@@ -186,7 +188,6 @@ def uploadTripletsAndReturnDot():
     predicts requested text whether it is ham or spam
     :return: json
     """
-    # TODO: as of oct 19, triple file 
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
@@ -207,7 +208,6 @@ def uploadTripletsAndReturnDot():
     print("triplets to dot is \n", dotFile, "\n end")
     with open('upload.dot', 'w+') as f:
         f.write(dotFile)
-
 
     return jsonify({'stat': "executing",'newick':convertor.reader()})
     #return dotFile

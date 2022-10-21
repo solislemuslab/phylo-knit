@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import pydot
 
-# import ParentheticalToDot
 # from Launcher import removeDup
 import ParentheticalToDot
 
@@ -63,7 +62,7 @@ def containsTriple(triple_set, leaf1, leaf2, outgroup):
 #
 # unfiltered HyDe files contain all possible triples, which will result in an arbitrary tree. 
 # thus a backbone is necessary to provide an informative tree. 
-def parseHydeToTriplets(fileName, threshold, backbonefile="userTriplets.txt"):
+def parseHydeToTriplets(fileName, threshold, backboneNewick):
     f = open(fileName,'r')
     lines = f.readlines()
     result = []
@@ -104,8 +103,15 @@ def parseHydeToTriplets(fileName, threshold, backbonefile="userTriplets.txt"):
 
     # TODO: add newick format backbone tree as an option for user input
     userVals = []
-    if len(backbonefile) > 0:
-        userVals = backBoneToTriplets(backbonefile) 
+    print("backboneNewick is :", backboneNewick)
+    if backboneNewick != "none_provided":
+        # create new file to write backbone tree to 
+        # so it can be read by parenthetical convertor
+        parenthetical_file_name = "parentheticalFile.txt"
+        with open(parenthetical_file_name, "w+") as eNewickFile:
+            eNewickFile.write(backboneNewick)
+        userVals = backBoneToTriplets(parenthetical_file_name)
+        eNewickFile.close()
     
     # if backbone tree is provided, use backbone (nexus/parenthetical) 
     # throw away any "tripletsfrommore" (don't use at all)
@@ -149,7 +155,7 @@ def returnParentheticalFormat(fileName):
             parentheticalFormat = line[28:]
             # print(parentheticalFormat)
             # print(line.rstrip())
-    return parentheticalFormat.rstrip()
+    return parentheticalFormat.strip()
 
 
 def convertDotToPNG(fileName):
@@ -186,7 +192,6 @@ def parentheticalFormatToPNG(parentheticalFormat, flag=''):
     # then use the julia command
     cmd = 'julia plot-network.jl NetworkParen.net ' + flag
     os.system(cmd)
-
     # assumes that the triplets are in the parenthetical format in hte NetworkParen.net text file
 
 
@@ -209,12 +214,10 @@ update oct19: Lev1athan output shows that:
 following this, we attempt to remove duplicate triplets before calling Lev1athan
 """
 
-
 def tripletsToDot(tripletsFName):
     removeDupTriplets(filename=tripletsFName)
     cmd = 'java -jar Lev1athan.jar ' + tripletsFName + ' > cExample1.dot --nopostprocess'
     os.system(cmd)
-
 
 def symbolReplacement(inputStr):
     outputStr = ""
@@ -236,7 +239,8 @@ def symbolReplacement(inputStr):
 
     return outputStr
 
-
+# TODO: test to see if remove nodes function works
+# it doesnt ... :( 
 def removeNodes(nodes):
     output = ''
     nodes = nodes.split(',')
@@ -312,7 +316,8 @@ def backBoneToTriplets(filename):
             continue
         currLine = line.strip().split()
         for i in range(len(currLine)):
-            currLine[i] = int(currLine[i])
+            # should not only be reading as int TODO: figure out why we are converting
+            currLine[i] = (currLine[i]).strip()
         userTriplets.add(tuple(currLine))
     return userTriplets
 
