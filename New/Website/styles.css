@@ -101,18 +101,21 @@ h1, h2, h3, h4, h5, h6 {
     color: rgba(0, 0, 0, 0.51);
 }
 
+/* choose file button */
 .chooseButton {
+    right: 20px;
+    padding-left:0;
     display: inline-block;
     margin-top: 190px;
-    margin-left: -370px;
+    margin-left: -390px;
     color: #34495e;
     cursor: pointer;
-    text-align: left;
+    text-align: center;
     overflow: hidden;
     position: absolute;
     background: #dce4ec;
     border-radius: 25px;
-    width: 10%;
+    width: 205px;
     visibility: hidden;
 
 }
@@ -180,6 +183,7 @@ h1, h2, h3, h4, h5, h6 {
     /*transform: translateX(-50%);*/
 }
 
+/* loading animation */
 .container {
     visibility: hidden;
     position: relative;
