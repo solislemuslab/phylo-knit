@@ -26,7 +26,7 @@ var refresher = document.getElementById("refresh");
 var globalhydeFileData = "";
 var originalNewick = "";
 
-
+// initialize variables
 function varSetup(){
     btnUpdateNet.disabled = true;
     textThresh.style.visibility = "hidden";
@@ -333,9 +333,10 @@ function dragended(d) {
 var bool = 0;
 var selectedDropDown = "Triplets";
 
+// creates choose file button
 function setup() {
     noCanvas();
-    inp = createFileInput(gotFile, "multiple");
+    inp = createFileInput(gotFile);
     inp.position(400, 80);
     inp.addClass("btn  btn-tertiary  btn-round chooseButton");
     inp.attribute("id", "file");
@@ -354,7 +355,8 @@ function selectInputType(val) {
         textThresh.style.visibility = "visible";
         divText.style.visibility ="visible";
         symbolElement.style.visibility = "visible";
-        newickField.style.visibility = "hidden";
+        newickField.style.visibility = "visible"; // for optional backbone tree
+        // backboneNewick.style.visibility = "visible";
         let fileDiv = document.getElementById("file");
         if (fileDiv.style.display === "none") {
             fileDiv.style.display = "block";
@@ -595,7 +597,7 @@ function gotFile(file) {
 }
 
 
-
+// remove unchecked leaves and create new visualization
 function getLeafUpdate(origNewick,removedVals) {
     var data = JSON.stringify({
         source: origNewick,
@@ -661,6 +663,8 @@ function pushHydeToServer(hydeInput, thresh) {
     tempNodeText.remove();
 
 }
+
+// creates parenthetical 
 function pushParentheticalToServer(parenthetical) {
     var data = JSON.stringify({
         text: parenthetical,
