@@ -269,6 +269,7 @@ def newickToDot(newick):
         text_file.write(dotFomat)
 
 
+#TODO: these retain label functions don't work with integers.
 def returnReducedDotFile(fileName):
     retainActualLabels2(fileName)
 
@@ -295,6 +296,7 @@ def checkTripletErrors(triplets):
         '''
     return 0
 
+#TODO: these retain label functions don't work with integers.
 def retainActualLabelDot(fileName):
     dotFormat = ''
 
