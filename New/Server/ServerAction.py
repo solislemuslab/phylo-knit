@@ -88,9 +88,9 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
         tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
     # Newer HyDe format that contains site pattern frequencies
     elif len(dataset.columns) == 21:
-        dataset = pd.read_table(fileName, delim_whitespace=True, header=None,skiprows=[0])
-        datasetLess = dataset.loc[dataset[4] < threshold]
-        datasetMore = dataset.loc[dataset[4] > threshold]
+        dataset = pd.read_table(fileName, delim_whitespace=True, dtype={'P1': str, 'Hybrid': str, 'P2': str, 'Pvalue':float } )
+        datasetLess = dataset.loc[dataset['Pvalue'] < threshold]
+        datasetMore = dataset.loc[dataset['Pvalue'] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
         tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
