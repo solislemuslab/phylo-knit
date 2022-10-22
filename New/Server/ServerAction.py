@@ -50,8 +50,11 @@ def removeDupTriplets(filename):
 # these can erroneously add hybrid relationships
 def containsTriple(triple_set, leaf1, leaf2, outgroup):
     for triplet in triple_set:
+        print(triplet , "is triplet. does it have", leaf1, leaf2, outgroup)
         if leaf1 in triplet and leaf2 in triplet and outgroup in triplet:
+            print("true")
             return 1
+        print("false")
     return 0
 
 # From a HyDe output file (fileName) and a p-value (threshold), 
@@ -73,7 +76,7 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
     tripletsFromLess2 = ""
     tripletsFromMore1 = ""
 
-    trip = set() # storage for all triples
+    trip = [] # storage for all triples
     
     # Older HyDe format that lists only putative parents, hybrid, z scores and p-values
     if len(dataset.columns) == 8:
@@ -97,11 +100,10 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
     
     # Add all triplets that indicate a hybrid relationship given p-value
     for i in range(len(tripletsFromLess1)):
-        trip.add(tuple(tripletsFromLess1[i]))
+        trip.append([tripletsFromLess1[i][0], tripletsFromLess1[i][1], tripletsFromLess1[i][2]])
     for j in range(len(tripletsFromLess2)):
-        trip.add(tuple(tripletsFromLess2[j]))
+        trip.append([tripletsFromLess2[j][0], tripletsFromLess2[j][1], tripletsFromLess2[j][2]])
 
-    # TODO: add newick format backbone tree as an option for user input
     userVals = []
     print("backboneNewick is :", backboneNewick)
     if backboneNewick != "none_provided":
@@ -113,30 +115,31 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
         userVals = backBoneToTriplets(parenthetical_file_name)
         eNewickFile.close()
     
-    # if backbone tree is provided, use backbone (nexus/parenthetical) 
+    # if backbone tree is provided, use backbone (nexus/parenthetical)
     # throw away any "tripletsfrommore" (don't use at all)
     if len(userVals) > 0:
         # trips = triplets from less, triplets from more, PLUS backbone triplets
         for triple in userVals:
-            trip.add(triple)
+            trip.append([str(triple[0]), str(triple[1]), str(triple[2])])
     else: # else, use only one "triplet from more" per combination of three taxa. 
         # use the format of the hyde file to advantage
         oldleaf1 = ""
         oldleaf2 = ""
         oldoutgroup = ""
         for k in range(len(tripletsFromMore1)):
-            leaf1 = tripletsFromMore1[k][0]
-            leaf2 = tripletsFromMore1[k][1]
-            outgroup = tripletsFromMore1[k][2]
+            leaf1 = str(tripletsFromMore1[k][0])
+            leaf2 = str(tripletsFromMore1[k][1])
+            outgroup = str(tripletsFromMore1[k][2])
             # if trip contains a triple with values in "tripletsFromMore1", do not add.
-            old_triple = [oldleaf1, oldleaf2, oldoutgroup]
+            old_triple = [[oldleaf1, oldleaf2, oldoutgroup]]
             if containsTriple(old_triple, leaf1, leaf2, outgroup):
                 print('old taxa are same as new taxa, skip line, old triple is', old_triple,
                       '\n new triple is', leaf1, leaf2, outgroup)
             elif containsTriple(trip, leaf1, leaf2, outgroup):
                 print('trip contains', leaf1, leaf2, outgroup)
             else:
-                trip.add(tuple(leaf1,leaf2,outgroup))
+                trip.append([leaf1, leaf2, outgroup])
+                print(trip, "is tripfile")
             oldleaf1 = leaf1
             oldleaf2 = leaf2
             oldoutgroup = outgroup
