@@ -9,3 +9,5 @@ ParsingTxt/__pycache__/ServerAction.cpython-37.pyc
 .idea/workspace.xml
 .idea/workspace.xml
 .Rproj.user
+.vs
+.DS_Store
