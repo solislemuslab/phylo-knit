@@ -1,0 +1,14 @@
+// NewickToTriplet.jj Version 1.0, 21st September 2009
+// Note: this program reads its input from stdin, not from a file, so if the program
+// seems to have hung then that is probably the reason.
+// Each triplet will receive a weight equal to the number of input trees it is in.
+// Leaf 'A' gets internal number 1
+// Leaf 'B' gets internal number 2
+// Leaf 'C' gets internal number 3
+// Leaf 'D' gets internal number 4
+// Processing the triplets from tree 1...
+// Note: no triplet on leaves A B C in this tree
+// Note: no triplet on leaves A B D in this tree
+// ...done
+C D A
+C D B
