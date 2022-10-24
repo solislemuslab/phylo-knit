@@ -11,3 +11,5 @@ ParsingTxt/__pycache__/ServerAction.cpython-37.pyc
 .Rproj.user
 .vs
 .DS_Store
+.idea
+__pycache__
