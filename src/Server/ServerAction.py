@@ -261,10 +261,7 @@ def newickToDot(newick):
     with open("upload.dot", "w+") as text_file:
         text_file.write(dotFomat)
 
-
-#TODO: these retain label functions don't work with integers.
-# retain label function needs to 
-# currently is called in Server.py as returnReducedDotFile(cExample1.dot) - output of ??
+# takes cExample1.dot and converts it to cExample1_m.dot
 def returnReducedDotFile(fileName):
     retainActualLabels2(fileName)
 
@@ -291,7 +288,9 @@ def checkTripletErrors(triplets):
         '''
     return 0
 
-#TODO: these retain label functions don't work with integers.
+# replaces any internally labeled nodes with prefix "internal" 
+# TODO: see how well this works with networks > 1000 internal nodes, 
+# or nets with "1001" as leaf (non-internal) label
 def retainActualLabelDot(fileName):
     dotFormat = ''
 
