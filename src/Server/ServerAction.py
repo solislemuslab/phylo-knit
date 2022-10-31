@@ -43,18 +43,16 @@ def removeDupTriplets(filename):
             file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
             result[outgroup] = [[leaf1, leaf2]]
     file.close()
-    print("This is the triplet result", result)
+    #print("This is the triplet result", result)
 
 # ensures duplicate triples do not get added when parsing through HyDe file.
 # when provided without a backbone tree
 # these can erroneously add hybrid relationships
 def containsTriple(triple_set, leaf1, leaf2, outgroup):
     for triplet in triple_set:
-        print(triplet , "is triplet. does it have", leaf1, leaf2, outgroup)
+        #print(triplet , "is triplet. does it have", leaf1, leaf2, outgroup)
         if leaf1 in triplet and leaf2 in triplet and outgroup in triplet:
-            print("true")
             return 1
-        print("false")
     return 0
 
 # From a HyDe output file (fileName) and a p-value (threshold), 
@@ -121,8 +119,7 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
         # trips = triplets from less, triplets from more, PLUS backbone triplets
         for triple in userVals:
             trip.append([str(triple[0]), str(triple[1]), str(triple[2])])
-    else: # else, use only one "triplet from more" per combination of three taxa. 
-        # use the format of the hyde file to advantage
+    else: 
         oldleaf1 = ""
         oldleaf2 = ""
         oldoutgroup = ""
@@ -132,12 +129,8 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
             outgroup = str(tripletsFromMore1[k][2])
             # if trip contains a triple with values in "tripletsFromMore1", do not add.
             old_triple = [[oldleaf1, oldleaf2, oldoutgroup]]
-            if containsTriple(old_triple, leaf1, leaf2, outgroup):
-                print('old taxa are same as new taxa, skip line, old triple is', old_triple,
-                      '\n new triple is', leaf1, leaf2, outgroup)
-            elif containsTriple(trip, leaf1, leaf2, outgroup):
-                print('trip contains', leaf1, leaf2, outgroup)
-            else:
+            if not (containsTriple(trip, leaf1, leaf2, outgroup) or 
+                    containsTriple(old_triple, leaf1, leaf2, outgroup)):
                 trip.append([leaf1, leaf2, outgroup])
                 print(trip, "is tripfile")
             oldleaf1 = leaf1
@@ -270,6 +263,8 @@ def newickToDot(newick):
 
 
 #TODO: these retain label functions don't work with integers.
+# retain label function needs to 
+# currently is called in Server.py as returnReducedDotFile(cExample1.dot) - output of ??
 def returnReducedDotFile(fileName):
     retainActualLabels2(fileName)
 
@@ -333,12 +328,12 @@ def retainActualLabels2(fileName):
     for line in list(open(fileName)):
         temp = re.search(r'("[0-9]+)', line)
         if temp:
-            actualName = temp.group(1)
+            actualName = temp.group(1) 
             temp2 = re.search(r'(\d+[\s]\[)', line)
             fakeName = temp2.group(1)
             # print(found[1] + "  :  " + found2[:-1])
 
-            dictionary[fakeName[:-1].strip()] = actualName[1]
+            dictionary[fakeName[:-1].strip()] = actualName[1:] 
 
     print(dictionary)
     # newLine = ''
