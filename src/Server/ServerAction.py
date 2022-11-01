@@ -288,21 +288,13 @@ def checkTripletErrors(triplets):
         '''
     return 0
 
-# replaces any internally labeled nodes with prefix "internal" 
+# replaces any internal nodes labeled (1###) with prefix "internal" 
 # TODO: see how well this works with networks > 1000 internal nodes, 
 # or nets with "1001" as leaf (non-internal) label
-def retainActualLabelDot(fileName):
-    dotFormat = ''
 
-    for line in list(open(fileName)):
-        line = re.sub(r"(1[0-9][0-9][0-9])", r"internal\1", line)
+# 1002 [shape=point];   ------->    internal1002 [shape=point];
+# 1000 -> 1001 -------> internal1000 -> internal1001
 
-        dotFormat += line
-        # if line.__contains__('{') or line.__contains__('}') or line.__contains__('->'):
-        #     dotFormat += line
-
-    with open('cExample1_m.dot', 'w+') as f:
-        f.write(dotFormat)
 
 def backBoneToTriplets(filename):
     cmd = 'java -jar NewickToTriplet.jar < ' + filename + ' > NewickToTriplet.txt'
@@ -332,7 +324,10 @@ def retainActualLabels2(fileName):
             fakeName = temp2.group(1)
             # print(found[1] + "  :  " + found2[:-1])
 
-            dictionary[fakeName[:-1].strip()] = actualName[1:] 
+            dictionary[fakeName[:-1].strip()] = actualName[1:]
+        if line.__contains__('[shape=point]'): # internal node
+            temp = re.search(r'([0-9]+)', line)
+            dictionary[temp.group()] = str('internal' + temp.group())
 
     print(dictionary)
     # newLine = ''
@@ -350,8 +345,6 @@ def retainActualLabels2(fileName):
 
     with open('cExample1_m.dot', 'w+') as f:
         f.write(dotFormat)
-
-    retainActualLabelDot('cExample1_m.dot')
 
 
 if __name__ == '__main__':
