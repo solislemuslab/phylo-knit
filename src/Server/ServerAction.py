@@ -263,7 +263,7 @@ def newickToDot(newick):
 
 # takes cExample1.dot and converts it to cExample1_m.dot
 def returnReducedDotFile(fileName):
-    retainActualLabels2(fileName)
+    retainActualLabels(fileName)
 
     dotFormat = ''
     for line in list(open('cExample1_m.dot')):
@@ -288,13 +288,6 @@ def checkTripletErrors(triplets):
         '''
     return 0
 
-# replaces any internal nodes labeled (1###) with prefix "internal" 
-# TODO: see how well this works with networks > 1000 internal nodes, 
-# or nets with "1001" as leaf (non-internal) label
-
-# 1002 [shape=point];   ------->    internal1002 [shape=point];
-# 1000 -> 1001 -------> internal1000 -> internal1001
-
 
 def backBoneToTriplets(filename):
     cmd = 'java -jar NewickToTriplet.jar < ' + filename + ' > NewickToTriplet.txt'
@@ -312,7 +305,7 @@ def backBoneToTriplets(filename):
         userTriplets.add(tuple(currLine))
     return userTriplets
 
-def retainActualLabels2(fileName):
+def retainActualLabels(fileName):
     dotFormat = ''
     dictionary = {}
 
