@@ -92,8 +92,6 @@ Of course, This is a very basic overview of the project and this guide will slow
 
 4. JRE 8 & JDK. To check try ```java --version``` or ```java -version```
 
-5. [JQuery](https://jquery.com)
-
 
 
 
