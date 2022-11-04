@@ -25,6 +25,7 @@ var createNetworkSelector = document.getElementById("createNetwork");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
 var displayedLeaves = document.getElementById("displayed-leaves");
+var newickWarningLabel = document.getElementById("newick-warning");
 
 // values for storing input data
 var globalhydeFileData = "";
@@ -337,6 +338,9 @@ function dragended(d) {
 
 // this function adjusts the left-side buttons when the user chooses a different input type
 function selectInputType(val) {
+    // hide the Newick `;` warning, if it was there
+    newickWarningLabel.style.visibility = "hidden";
+
     selectedDropDown = val;
     if (val === "HYDE format") {
         document.getElementById("instruct").innerHTML =
@@ -430,6 +434,9 @@ function createboxes() {
 
 // ------left off here
 function onClickCreateNetwork() {
+    // hide the Newick `;` warning, if it was visible
+    newickWarningLabel.style.visibility = "hidden";
+
     var svg = d3.select("body").select("svg")
     createNetworkSelector.disabled = true;
     document.getElementById("loader").style.visibility = "visible";

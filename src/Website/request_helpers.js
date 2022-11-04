@@ -190,14 +190,18 @@ function pushChangeRootToServer(flag, tripRoot) {
         }
     }
     if (formatType === "pf"){
-
-            var pText = document.getElementById("parenthetical").value;
+            var pText = document.getElementById("parenthetical");
             var parData = document.getElementsByClassName("text")[0];
 
-            if (pText === "" && (parData=== undefined|| parData.innerHTML === undefined || typeof parData === "undefined" || parData.innerHTML.length === 0 )) {
+            if (pText.value === "" && (parData=== undefined|| parData.innerHTML === undefined || typeof parData === "undefined" || parData.innerHTML.length === 0 )) {
                 errMsg =
                 "Parenthical format was not found. Please choose a Parenthical file or enter Newick format and try again";
                 errors = 1;
+            }
+            // if the Newick is missing a semicolon: add a semicolon
+            if(pText.value[pText.value.length-1] != ';') {
+                pText.value = pText.value + ';';
+                newickWarningLabel.style.visibility = "visible";
             }
         
     }
