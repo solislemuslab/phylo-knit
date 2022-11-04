@@ -13,3 +13,4 @@ ParsingTxt/__pycache__/ServerAction.cpython-37.pyc
 .DS_Store
 .idea
 __pycache__
+src/Server/upload.dot
