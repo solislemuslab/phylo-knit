@@ -24,6 +24,7 @@ var newickField = document.getElementById("parenthetical");
 var createNetworkSelector = document.getElementById("createNetwork");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
+var displayedLeaves = document.getElementById("displayed-leaves");
 
 // values for storing input data
 var globalhydeFileData = "";
@@ -38,22 +39,25 @@ var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom])
 var fill = d3.scaleOrdinal(d3.schemeCategory20);
 var force = d3.forceSimulation();
 
+// 
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+// this is the chart where nodes and links are drawn, contained w/in `svg`
 var chart = $("#chartId"),
     aspect = chart.width() / chart.height(),
     container = chart.parent();
 
+// we want to resize the chart whenever the window is resized
 $(window).on("resize", function () {
     var targetWidth = container.width();
     chart.attr("width", targetWidth);
     chart.attr("height", Math.round(targetWidth / aspect));
 }).trigger("resize");
 
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
-
-var colorD3 = d3.scaleOrdinal(d3.schemeCategory20);
-
+// this variable essentially instantiates the physics of d3's chart
+// ...I think...
 var simulation = d3
     .forceSimulation()
     .force(
@@ -72,6 +76,10 @@ var simulation = d3
 
 // Main function for generating the D3 graph
 function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddSelected) {
+    // clear the current list of nodes
+    // (semi-experimental, not sure how this will interact with existing code)
+    nodeVal = [];
+
     // if the chart is already populated, clear it.
     if (!isAddSelected) {
         removeGraph();
@@ -188,11 +196,6 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         console.log(targetVals)
         //getLeafUpdate(sourceVals,targetVals);
 
-    
-        // -----------
-        //  I believe right now that the following block is what is populating the D3 graph
-        //  and generating visuals; gonna try changing this stuff up
-        // -----------
         var path = svg
             .append("svg:g")
             .attr("class", "links")
@@ -308,6 +311,8 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
     });
 }
 
+// Some event handlers
+// -------------------------------------------------------
 function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -324,21 +329,11 @@ function dragended(d) {
     d.fx = null;
     d.fy = null;
 }
+// -------------------------------------------------------
 
-//End of D3 code
-var bool = 0;
-var selectedDropDown = "Triplets";
 
-// creates choose file button
-function setup() {
-    noCanvas();
-    inp = createFileInput(gotFile);
-    inp.position(400, 80);
-    inp.addClass("btn  btn-tertiary  btn-round chooseButton");
-    inp.attribute("id", "file");
-    textAlign(CENTER);
-    textSize(50);
-}
+
+// ------------------ End of D3 code ---------------------
 
 // this function adjusts the left-side buttons when the user chooses a different input type
 function selectInputType(val) {
@@ -387,12 +382,24 @@ function selectInputType(val) {
     }
 }
 
+// simulates a click...not sure why, but that's what it does...
 function simulateClick(x, y) {
     jQuery(document.elementFromPoint(315, 205)).click();
 }
 
+// Populates the "Displayed Leaves" box
 function createboxes() {
-    createNetworkSelector.disabled = true;
+    // Enable the create network button.
+    // Why was this disabled up to this point to begin with?
+    // Who knows.
+    createNetworkSelector.disabled = false;
+    
+    // Clear the box, except for its title.
+    var childList = displayedLeaves.children;
+    for(var i = childList.length-1; i>1; i--) {
+        displayedLeaves.removeChild(childList[i]);
+    }
+    
     totalLeafNodes = [];
     btnUpdateNet.disabled = false;
     nodeVal.forEach(function (element) {
@@ -407,35 +414,23 @@ function createboxes() {
         checkbox.value = element;
         checkbox.checked = true;
 
-        checkbox.onclick = checking;
         paraDiv = document.createElement("p");
         var text = document.createTextNode("" + element);
         paraDiv.appendChild(text);
         if (!paraDiv.textContent.includes("Hash")) {
             totalLeafNodes.push(paraDiv.textContent);
         }
-        if (
-            !paraDiv.textContent.includes("Hash") &&
-            !paraDiv.textContent.includes("internal")
-        ) {
-            document.getElementById("placeholder").appendChild(checkbox);
-            document.getElementById("placeholder").appendChild(paraDiv);
-            document.getElementById("placeholder").appendChild(linebreak);
+        if (!paraDiv.textContent.includes("Hash") && !paraDiv.textContent.includes("internal")) {
+            displayedLeaves.appendChild(linebreak);
+            displayedLeaves.appendChild(checkbox);
+            displayedLeaves.appendChild(paraDiv);
         }
-
     });
 }
 
-function checking() {
-    if (this.checked) {
-        nodesCheckedStr += this.id.toString() + ",";
-    }
-    // alert(nodesCheckedStr);
-}
-
+// ------left off here
 function onClickCreateNetwork() {
-var svg = d3.select("body").select("svg")
-    newickField.disabled = true;
+    var svg = d3.select("body").select("svg")
     createNetworkSelector.disabled = true;
     document.getElementById("loader").style.visibility = "visible";
     document.getElementById("instruct").innerHTML = "";
@@ -443,7 +438,7 @@ var svg = d3.select("body").select("svg")
         return;
     }
     if (selectedDropDown === "pf") {
-        var parentheticalText = document.getElementById("parenthetical").value;
+        var parentheticalText = newickField.value;
         if (parentheticalText === "") {
             paraText = document.getElementsByClassName("text")[0].innerHTML;
             console.log("paraText");
@@ -454,7 +449,7 @@ var svg = d3.select("body").select("svg")
         }
     } else if (selectedDropDown === "HYDE format") {
         threshold = document.getElementById("textThreshold").value;
-        var parentheticalText = document.getElementById("parenthetical").value; //optional backbone
+        var parentheticalText = newickField.value;      //optional backbone
         console.log("parenthetical text input is " + parentheticalText);
         if (parentheticalText === "") {
             parentheticalText = "";
@@ -469,12 +464,14 @@ var svg = d3.select("body").select("svg")
     createboxes();
 }
 
+// changes the root node; not actually called anywhere yet.
 function changeRootAction() {
     var flag = inputForFlag.value();
     var tripRoot = input2.value();
     pushChangeRootToServer(flag, tripRoot);
 }
 
+// called when "Update Network" is pressed; only selected leaves are kept in the network
 function removeNodesAction() {
     nodesCheckedStr = nodesCheckedStr.substr(0, nodesCheckedStr.length - 1);
     console.log(nodesCheckedStr);
@@ -600,7 +597,8 @@ function gotFile(file) {
 }
 
 
-// remove unchecked leaves and create new visualization
+// removes unchecked leaves before the new visualization is created
+// (after pressing "Update Network")
 function getLeafUpdate(origNewick,removedVals) {
     var data = JSON.stringify({
         source: origNewick,
@@ -617,20 +615,9 @@ function getLeafUpdate(origNewick,removedVals) {
     function processRequest(e) {}
 }
 
-
-
-
-
-
-
-varSetup();
-
+// sets up the "Download Image" button to download the image of the network
 document.getElementById("dwn-btn").addEventListener("click", function(){
     var text = newickFr;
     var filename = "Newick.txt";
     download(filename, text);
 }, false);
-
-// document.getElementsByClassName("text")[0].id = "nodeTxt";
-// paraGraph = document.getElementById("nodeTxt");
-// paraGraph.remove();
