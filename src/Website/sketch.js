@@ -423,7 +423,9 @@ function createboxes() {
     });
 }
 
-// ------left off here
+
+// called when the "Create Network" button is pressed;
+// does all the calls that populate the D3 graph
 function onClickCreateNetwork() {
     var svg = d3.select("body").select("svg")
 
@@ -518,14 +520,9 @@ function removeGraph() {
     $("#chartId").empty();
 }
 
-// re-create the graph
-// (associated with the Update Network button)
-function refreshGraph() {
-    createD3Graph();
-}
-
 // removes unchecked leaves before the new visualization is created
-// (after pressing "Update Network")
+// called from within the removeNodesAction() function, which is called
+// when the "Update Network" button is pressed
 function getLeafUpdate(origNewick,removedVals) {
     var data = JSON.stringify({
         source: origNewick,
