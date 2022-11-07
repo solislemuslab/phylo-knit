@@ -100,8 +100,6 @@ function pushStringToServer(triplets) {
             document.getElementById("loader").style.visibility = "hidden";
             document.getElementById("instruct").innerHTML =
                 "Error in file input please try uploading a file in the correct triplet format";
-
-            // document.write("<p>Error : " + request.status + "," + request.statusText);
         }
     }
 }
@@ -201,7 +199,7 @@ function pushChangeRootToServer(flag, tripRoot) {
             // if the Newick is missing a semicolon: add a semicolon
             if(pText.value[pText.value.length-1] != ';') {
                 pText.value = pText.value + ';';
-                newickWarningLabel.style.visibility = "visible";
+                document.getElementById("instruct").innerHTML = "(NOTICE: Semi-colon auto-appended to Newick)";
             }
         
     }

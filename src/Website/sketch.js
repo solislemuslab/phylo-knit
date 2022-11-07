@@ -25,7 +25,6 @@ var createNetworkSelector = document.getElementById("createNetwork");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
 var displayedLeaves = document.getElementById("displayed-leaves");
-var newickWarningLabel = document.getElementById("newick-warning");
 
 // values for storing input data
 var globalhydeFileData = "";
@@ -338,9 +337,6 @@ function dragended(d) {
 
 // this function adjusts the left-side buttons when the user chooses a different input type
 function selectInputType(val) {
-    // hide the Newick `;` warning, if it was there
-    newickWarningLabel.style.visibility = "hidden";
-
     selectedDropDown = val;
     if (val === "HYDE format") {
         document.getElementById("instruct").innerHTML =
@@ -434,16 +430,24 @@ function createboxes() {
 
 // ------left off here
 function onClickCreateNetwork() {
-    // hide the Newick `;` warning, if it was visible
-    newickWarningLabel.style.visibility = "hidden";
-
     var svg = d3.select("body").select("svg")
+
+    // don't let the user press the create network button again while we're working...
     createNetworkSelector.disabled = true;
+
+    // show the loading icon and clear out any previous warning messages
     document.getElementById("loader").style.visibility = "visible";
     document.getElementById("instruct").innerHTML = "";
+    
+    // if the user input is bad, quit the fxn. the `testUserInput` fxn will
+    // provide the proper error message on its own
     if (testUserInput(selectedDropDown) > 0) {
         return;
     }
+
+    // according to which input type is selected, push the input data to the server,
+    // and then generate the Displayed Leaves box
+    // each of the `pushXToServer(...)` functions will call `createD3Graph` if no errors occur
     if (selectedDropDown === "pf") {
         var parentheticalText = newickField.value;
         if (parentheticalText === "") {
