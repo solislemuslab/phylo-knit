@@ -14,52 +14,50 @@ var totalLeafNodes = [];
 var trackRemovedNodes = [];
 var trackRemovedLinks = [];
 var newickFr = "";
+
+// Page elements for later reference
 var btnUpdateNet = document.getElementById("updateNetwork");
 var textThresh = document.getElementById("textThreshold");
 var divText = document.getElementById("textDiv");
 var symbolElement = document.getElementById("symb");
 var newickField = document.getElementById("parenthetical");
 var createNetworkSelector = document.getElementById("createNetwork");
-var parentheticalSelector = document.getElementById("parenthetical");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
+var displayedLeaves = document.getElementById("displayed-leaves");
+
+// values for storing input data
 var globalhydeFileData = "";
 var originalNewick = "";
 
-// initialize variables
-function varSetup(){
-    btnUpdateNet.disabled = true;
-    textThresh.style.visibility = "hidden";
-    divText.style.visibility = "hidden";
-    symbolElement.style.visibility = "hidden";
-    newickField.style.visibility = "hidden";
-    createNetworkSelector.disabled = true;
-    parentheticalSelector.style.visibility = "hidden";
-    refresher.disabled = true;
-}
+// zoom constants
+var min_zoom = 0.1;
+var max_zoom = 7;
 
-function formdata() {
-    var firstname1 = document.getElementById("rNodes").value;
-    alert(firstname1);
-}
+// specify d3 elements
+var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom])
+var fill = d3.scaleOrdinal(d3.schemeCategory20);
+var force = d3.forceSimulation();
 
-var chart = $("#chartId"),
-    aspect = chart.width() / chart.height(),
-    container = chart.parent();
-$(window)
-    .on("resize", function () {
-        var targetWidth = container.width();
-        chart.attr("width", targetWidth);
-        chart.attr("height", Math.round(targetWidth / aspect));
-    })
-    .trigger("resize");
-
+// 
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
-var colorD3 = d3.scaleOrdinal(d3.schemeCategory20);
+// this is the chart where nodes and links are drawn, contained w/in `svg`
+var chart = $("#chartId"),
+    aspect = chart.width() / chart.height(),
+    container = chart.parent();
 
+// we want to resize the chart whenever the window is resized
+$(window).on("resize", function () {
+    var targetWidth = container.width();
+    chart.attr("width", targetWidth);
+    chart.attr("height", Math.round(targetWidth / aspect));
+}).trigger("resize");
+
+// this variable essentially instantiates the physics of d3's chart
+// ...I think...
 var simulation = d3
     .forceSimulation()
     .force(
@@ -75,15 +73,18 @@ var simulation = d3
     .force("collide", d3.forceCollide(50))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-function createD3Graph(
-    nodesRemoveArr,
-    newCheckedArray,
-    isRemoveSelected,
-    isAddSelected
-) {
+
+// Main function for generating the D3 graph
+function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddSelected) {
+    // clear the current list of nodes
+    // (semi-experimental, not sure how this will interact with existing code)
+    nodeVal = [];
+
+    // if the chart is already populated, clear it.
     if (!isAddSelected) {
         removeGraph();
     }
+
     document.getElementById("loader").style.visibility = "hidden";
     selectbutton.disabled = true;
     refresher.style.visibility = "visible";
@@ -98,15 +99,12 @@ function createD3Graph(
         console.log(graph);
 
         for (var i = 0; i < graph.links.length; i++) {
-            if (
-                typeof targetCounts.get(graph.links[i].target) === "undefined"
-            ) {
+            if (typeof targetCounts.get(graph.links[i].target) === "undefined") {
                 temp = [graph.links[i].source];
                 targetCounts.set(graph.links[i].target, temp);
-            } else if (
-                targetCounts
-                    .get(graph.links[i].target)
-                    .includes(graph.links[i].source)
+            } else if (targetCounts
+                      .get(graph.links[i].target)
+                      .includes(graph.links[i].source)
             ) {
                 continue;
             } else {
@@ -116,6 +114,7 @@ function createD3Graph(
             }
         }
         console.log(targetCounts);
+
         // build the arrow.
         svg.append("svg:defs")
             .selectAll("marker")
@@ -192,11 +191,11 @@ function createD3Graph(
 
         // Pass all data variables through here for leaf file update
        
+        console.log("SOURCEVALS-TARGETVALS")
         console.log(sourceVals)
         console.log(targetVals)
         //getLeafUpdate(sourceVals,targetVals);
 
-    
         var path = svg
             .append("svg:g")
             .attr("class", "links")
@@ -312,6 +311,8 @@ function createD3Graph(
     });
 }
 
+// Some event handlers
+// -------------------------------------------------------
 function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -328,22 +329,13 @@ function dragended(d) {
     d.fx = null;
     d.fy = null;
 }
+// -------------------------------------------------------
 
-//End of D3 code
-var bool = 0;
-var selectedDropDown = "Triplets";
 
-// creates choose file button
-function setup() {
-    noCanvas();
-    inp = createFileInput(gotFile);
-    inp.position(400, 80);
-    inp.addClass("btn  btn-tertiary  btn-round chooseButton");
-    inp.attribute("id", "file");
-    textAlign(CENTER);
-    textSize(50);
-}
 
+// ------------------ End of D3 code ---------------------
+
+// this function adjusts the left-side buttons when the user chooses a different input type
 function selectInputType(val) {
     selectedDropDown = val;
     if (val === "HYDE format") {
@@ -383,7 +375,6 @@ function selectInputType(val) {
         textThresh.style.visibility = "hidden";
         divText.style.visibility = "hidden";
         newickField.style.visibility = "visible";
-        parentheticalSelector.style.visibility = "visible";
         createNetworkSelector.style.visibility = "visible";
         let fileDiv = document.getElementById("file");
         fileDiv.style.visibility = "visible";
@@ -391,12 +382,19 @@ function selectInputType(val) {
     }
 }
 
-function simulateClick(x, y) {
-    jQuery(document.elementFromPoint(315, 205)).click();
-}
-
+// Populates the "Displayed Leaves" box
 function createboxes() {
-    createNetworkSelector.disabled = true;
+    // Enable the create network button.
+    // Why was this disabled up to this point to begin with?
+    // Who knows.
+    createNetworkSelector.disabled = false;
+    
+    // Clear the box, except for its title.
+    var childList = displayedLeaves.children;
+    for(var i = childList.length-1; i>1; i--) {
+        displayedLeaves.removeChild(childList[i]);
+    }
+    
     totalLeafNodes = [];
     btnUpdateNet.disabled = false;
     nodeVal.forEach(function (element) {
@@ -411,43 +409,44 @@ function createboxes() {
         checkbox.value = element;
         checkbox.checked = true;
 
-        checkbox.onclick = checking;
         paraDiv = document.createElement("p");
         var text = document.createTextNode("" + element);
         paraDiv.appendChild(text);
         if (!paraDiv.textContent.includes("Hash")) {
             totalLeafNodes.push(paraDiv.textContent);
         }
-        if (
-            !paraDiv.textContent.includes("Hash") &&
-            !paraDiv.textContent.includes("internal")
-        ) {
-            document.getElementById("placeholder").appendChild(checkbox);
-            document.getElementById("placeholder").appendChild(paraDiv);
-            document.getElementById("placeholder").appendChild(linebreak);
+        if (!paraDiv.textContent.includes("Hash") && !paraDiv.textContent.includes("internal")) {
+            displayedLeaves.appendChild(linebreak);
+            displayedLeaves.appendChild(checkbox);
+            displayedLeaves.appendChild(paraDiv);
         }
-
     });
 }
 
-function checking() {
-    if (this.checked) {
-        nodesCheckedStr += this.id.toString() + ",";
-    }
-    // alert(nodesCheckedStr);
-}
 
+// called when the "Create Network" button is pressed;
+// does all the calls that populate the D3 graph
 function onClickCreateNetwork() {
-var svg = d3.select("body").select("svg")
-    parentheticalSelector.disabled = true;
+    var svg = d3.select("body").select("svg")
+
+    // don't let the user press the create network button again while we're working...
     createNetworkSelector.disabled = true;
+
+    // show the loading icon and clear out any previous warning messages
     document.getElementById("loader").style.visibility = "visible";
     document.getElementById("instruct").innerHTML = "";
-    if (TestUserInput(selectedDropDown) > 0) {
+    
+    // if the user input is bad, quit the fxn. the `testUserInput` fxn will
+    // provide the proper error message on its own
+    if (testUserInput(selectedDropDown) > 0) {
         return;
     }
+
+    // according to which input type is selected, push the input data to the server,
+    // and then generate the Displayed Leaves box
+    // each of the `pushXToServer(...)` functions will call `createD3Graph` if no errors occur
     if (selectedDropDown === "pf") {
-        var parentheticalText = document.getElementById("parenthetical").value;
+        var parentheticalText = newickField.value;
         if (parentheticalText === "") {
             paraText = document.getElementsByClassName("text")[0].innerHTML;
             console.log("paraText");
@@ -458,7 +457,7 @@ var svg = d3.select("body").select("svg")
         }
     } else if (selectedDropDown === "HYDE format") {
         threshold = document.getElementById("textThreshold").value;
-        var parentheticalText = document.getElementById("parenthetical").value; //optional backbone
+        var parentheticalText = newickField.value;      //optional backbone
         console.log("parenthetical text input is " + parentheticalText);
         if (parentheticalText === "") {
             parentheticalText = "";
@@ -473,12 +472,14 @@ var svg = d3.select("body").select("svg")
     createboxes();
 }
 
+// changes the root node; not actually called anywhere yet.
 function changeRootAction() {
     var flag = inputForFlag.value();
     var tripRoot = input2.value();
     pushChangeRootToServer(flag, tripRoot);
 }
 
+// called when "Update Network" is pressed; only selected leaves are kept in the network
 function removeNodesAction() {
     nodesCheckedStr = nodesCheckedStr.substr(0, nodesCheckedStr.length - 1);
     console.log(nodesCheckedStr);
@@ -513,95 +514,15 @@ function removeNodesAction() {
     createD3Graph(uncheckedNodes, uniqueArray, true, false);
 }
 
-function addNodesAction() {
-    nodesCheckedStr = nodesCheckedStr.substr(0, nodesCheckedStr.length - 1);
-    console.log(nodesCheckedStr);
-    var newCheckedNodes = nodesCheckedStr.split(",");
-    var uncheckedNodes = [];
-    var checkedNodes = [];
 
-    for (let i = 0; i < totalLeafNodes.length; i++) {
-        var test = document.getElementById(totalLeafNodes[i]);
-        console.log(test.checked);
-        if (!test.checked) {
-            uncheckedNodes.push(totalLeafNodes[i]);
-        } else {
-            checkedNodes.push(totalLeafNodes[i]);
-        }
-    }
-
-    for (let i = 0; i < newCheckedNodes.length; i++) {
-        var test = document.getElementById(newCheckedNodes[i]);
-
-        if (newCheckedNodes[i] == "" || !test.checked) {
-            newCheckedNodes.splice(i, 1);
-        }
-    }
-
-    uniqueArray = newCheckedNodes.filter(function (item, pos, self) {
-        return self.indexOf(item) == pos;
-    });
-    createD3Graph(uncheckedNodes, uniqueArray, false, true);
-}
-
+// clear the chart
 function removeGraph() {
     $("#chartId").empty();
 }
 
-function refreshGraph() {
-    createD3Graph();
-}
-
-// file is a p5.File object that has metadata, and the file's contents
-function gotFile(file) {
-
-    refresher.disabled = false;
-    selectbutton.disabled = true;
-    refresher.disabled = false;
-    var fileDiv = createDiv(
-        file.name +
-            " " +
-            file.type +
-            " " +
-            file.subtype +
-            " " +
-            file.size +
-            " bytes"
-    );
-    fileDiv.style.visibility = "hidden";
-    fileDiv.class("files");
-    var hideinfo = document.getElementsByClassName("files");
-    if (file.type === "image") {
-        alert("image not accepted");
-    } else if (file.type === "text") {
-        if (selectedDropDown === "HYDE format") {
-            var par = createP(file.data);
-            par.class("text");
-            var texts = selectAll(".text");
-            paraText = document.getElementsByClassName("text")[0].innerHTML;
-            globalhydeFileData = paraText;
-        } else if (selectedDropDown == "Triplets") {
-            // Make a paragraph of text
-            var par = createP(file.data);
-            par.class("text");
-            var texts = selectAll(".text");
-            var paraText = document.getElementsByClassName("text").innerHTML;
-            // paraText = document.getElementsByClassName('text')[0].innerHTML;
-
-            // pushStringToServer(paraText);
-        } else if (selectedDropDown == "pf") {
-            // Make a paragraph of text
-            var par = createP(file.data);
-            par.class("text");
-            var texts = selectAll(".text");
-            var paraText = document.getElementsByClassName("text").innerHTML;
-        }
-    }
-    var boxnums = document.getElementsByClassName("boxText1");
-}
-
-
-// remove unchecked leaves and create new visualization
+// removes unchecked leaves before the new visualization is created
+// called from within the removeNodesAction() function, which is called
+// when the "Update Network" button is pressed
 function getLeafUpdate(origNewick,removedVals) {
     var data = JSON.stringify({
         source: origNewick,
@@ -615,238 +536,5 @@ function getLeafUpdate(origNewick,removedVals) {
     request.send(data);
     console.log(data);
 
-    function processRequest(e) {
-        console.log("check ");
-        // var x = JSON.parse(request.responseText);
-        // newickFr = x.newick
-
-        //alert(e);
-        // document.write("This is Working <p>");
-       
-   
-
+    function processRequest(e) {}
 }
-}
-
-
-
-function pushHydeToServer(hydeInput, thresh, eNewick) {
-    var data = JSON.stringify({
-        text: hydeInput,
-    });
-    flag = 0;
-    var request = new XMLHttpRequest();
-    if (eNewick === "") {
-        eNewick = "none_provided";
-    }
-    request.open("POST", "http://127.0.0.1:5001/uploadHyde/" + thresh + "/" + eNewick);
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-    console.log(data);
-
-    function processRequest(e) {
-        console.log("check ");
-        var x = JSON.parse(request.responseText);
-        originalNewick = x.newick;
-        newickFr = originalNewick; 
-
-        //alert(e);
-        // document.write("This is Working <p>");
-        if (request.readyState === 4 && request.status === 200) {
-            document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("dwn-div").style.visibility = "visible";
-            document.getElementById("downloadPng").style.visibility = "visible";
-            createD3Graph();
-        } else if (request.status === 401) {
-            reqStatus = request.status;
-            document.getElementById("loader").style.visibility = "hidden";
-            document.getElementById("instruct").innerHTML =
-                "Error in file input please try uploading a file in the correct HYDE format";
-        }
-    }
-    paraT = document.getElementsByClassName("text")[0].id = "nodeTxt";
-    var tempNodeText = document.getElementById("nodeTxt");
-    tempNodeText.remove();
-
-}
-
-// creates parenthetical 
-function pushParentheticalToServer(parenthetical) {
-    var data = JSON.stringify({
-        text: parenthetical,
-    });
-
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/uploadNewick/");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            var x = JSON.parse(request.responseText);
-            newickFr = x.newick    
-            document.getElementById("downloadPng").style.visibility = "visible"
-
-            createD3Graph();
-            var x = JSON.parse(request.responseText);
-            newickFr = x.newick
-    
-        } else if (request.readyState === 4) {
-        }
-    }
-}
-
-function pushStringToServer(triplets) {
-    var data = JSON.stringify({
-        text: triplets,
-    });
-
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/upload/");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            var x = JSON.parse(request.responseText);
-            newickFr = x.newick
-    
-            document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("dwn-div").style.visibility = "visible";
-
-            document.getElementById("downloadPng").style.visibility = "visible";
-            createD3Graph();
-        } else if (request.status === 401) {
-            reqStatus = request.status;
-            document.getElementById("loader").style.visibility = "hidden";
-            document.getElementById("instruct").innerHTML =
-                "Error in file input please try uploading a file in the correct triplet format";
-
-            // document.write("<p>Error : " + request.status + "," + request.statusText);
-        }
-    }
-}
-
-function pushLeavesToServer(leaves) {
-    var data = JSON.stringify({
-        text: leaves,
-    });
-
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/uploadLeaves/");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            createD3Graph();
-        } else if (request.readyState == 4) {
-        }
-    }
-}
-
-function pushChangeRootToServer(flag, tripRoot) {
-    var data = JSON.stringify({
-        text: flag,
-    });
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5000/changeRoot/" + tripRoot);
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            var response = request.responseText;
-            var img = createImg();
-            img.class("thumb");
-            document
-                .getElementsByClassName("thumb")[0]
-                .setAttribute("src", "data:image/png;base64," + response);
-        } else if (request.readyState === 4) {
-        }
-    }
-}
-
-/** 
- * This method is responsible to test the inputs of the user and return errors on the website.It checks things such as missing input values and return personalized error messages.
- * This method is a front-end check (values inputted or files inputted) and the back-end user input testing relates to files format/standards
- * @param formatType : Chosen file format (triplet,parenthetical,Hyde)
- */
-function TestUserInput(formatType) {
-    var errMsg = "";
-    var errors = 0;
-    if (formatType === "HYDE format") {
-        var threshold = document.getElementById("textThreshold").value;
-        var hydeData = globalhydeFileData;
-
-        if (threshold.length === 0) {
-            errMsg =
-                "The Threshold value is missing for the Hyde Format Please try again ";
-            errors = 1;
-        }
-        if (isNaN(threshold)) {
-            errMsg = 
-                "The p-value is not a number. Please try again.";
-            errors = 1;
-        }
-        if (hydeData === undefined || typeof hydeData === "undefined" || hydeData.length === 0) {
-            errMsg =
-                "The Hyde format file was not uploaded. Please choose a hyde file and try again";
-            errors = 1;
-        }
-    }
-    if (formatType === "Triplets"){
-        var tripData = document.getElementsByClassName("text")[0];
-        console.log("reached over here ")
-        if (tripData === undefined|| tripData.innerHTML === undefined || typeof tripData === "undefined" || tripData.innerHTML.length === 0) {
-            errMsg =
-                "The Triplet format file was not uploaded. Please choose a Triplet file and try again";
-            errors = 1;
-        }
-    }
-    if (formatType === "pf"){
-
-            var pText = document.getElementById("parenthetical").value;
-            var parData = document.getElementsByClassName("text")[0];
-
-            if (pText === "" && (parData=== undefined|| parData.innerHTML === undefined || typeof parData === "undefined" || parData.innerHTML.length === 0 )) {
-                errMsg =
-                "Parenthical format was not found. Please choose a Parenthical file or enter Newick format and try again";
-                errors = 1;
-            }
-        
-    }
-    if (errors > 0) {
-        document.getElementById("loader").style.visibility = "hidden";
-        document.getElementById("instruct").innerHTML = errMsg;
-        return errors;
-    }
-}
-function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-}
-varSetup();
-
-document.getElementById("dwn-btn").addEventListener("click", function(){
-    var text = newickFr;
-    var filename = "Newick.txt";
-    download(filename, text);
-}, false);
-
-// document.getElementsByClassName("text")[0].id = "nodeTxt";
-// paraGraph = document.getElementById("nodeTxt");
-// paraGraph.remove();
