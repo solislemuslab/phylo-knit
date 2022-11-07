@@ -517,36 +517,6 @@ function removeNodesAction() {
     createD3Graph(uncheckedNodes, uniqueArray, true, false);
 }
 
-function addNodesAction() {
-    nodesCheckedStr = nodesCheckedStr.substr(0, nodesCheckedStr.length - 1);
-    console.log(nodesCheckedStr);
-    var newCheckedNodes = nodesCheckedStr.split(",");
-    var uncheckedNodes = [];
-    var checkedNodes = [];
-
-    for (let i = 0; i < totalLeafNodes.length; i++) {
-        var test = document.getElementById(totalLeafNodes[i]);
-        console.log(test.checked);
-        if (!test.checked) {
-            uncheckedNodes.push(totalLeafNodes[i]);
-        } else {
-            checkedNodes.push(totalLeafNodes[i]);
-        }
-    }
-
-    for (let i = 0; i < newCheckedNodes.length; i++) {
-        var test = document.getElementById(newCheckedNodes[i]);
-
-        if (newCheckedNodes[i] == "" || !test.checked) {
-            newCheckedNodes.splice(i, 1);
-        }
-    }
-
-    uniqueArray = newCheckedNodes.filter(function (item, pos, self) {
-        return self.indexOf(item) == pos;
-    });
-    createD3Graph(uncheckedNodes, uniqueArray, false, true);
-}
 
 // clear the chart
 function removeGraph() {
