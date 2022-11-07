@@ -382,11 +382,6 @@ function selectInputType(val) {
     }
 }
 
-// simulates a click...not sure why, but that's what it does...
-function simulateClick(x, y) {
-    jQuery(document.elementFromPoint(315, 205)).click();
-}
-
 // Populates the "Displayed Leaves" box
 function createboxes() {
     // Enable the create network button.
@@ -546,10 +541,3 @@ function getLeafUpdate(origNewick,removedVals) {
 
     function processRequest(e) {}
 }
-
-// sets up the "Download Image" button to download the image of the network
-document.getElementById("dwn-btn").addEventListener("click", function(){
-    var text = newickFr;
-    var filename = "Newick.txt";
-    download(filename, text);
-}, false);

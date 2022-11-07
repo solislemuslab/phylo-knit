@@ -155,11 +155,12 @@ $(function () {
 <script src="request_helpers.js" type="text/javascript"></script>
 <script src="sketch.js" type="text/javascript"></script>
 <script>
-    function saveImg(){
-    svg = document.getElementsByTagName("svg")
-    saveSvgAsPng(svg[0],"pic.png")
-    }
-
+// sets up the "Download Image" button to download the image of the network
+document.getElementById("dwn-btn").addEventListener("click", function(){
+    var text = newickFr;
+    var filename = "Newick.txt";
+    download(filename, text);
+}, false);
 </script>
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 </html>
