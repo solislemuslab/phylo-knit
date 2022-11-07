@@ -529,55 +529,6 @@ function refreshGraph() {
     createD3Graph();
 }
 
-// file is a p5.File object that has metadata, and the file's contents
-function gotFile(file) {
-
-    refresher.disabled = false;
-    selectbutton.disabled = true;
-    refresher.disabled = false;
-    var fileDiv = createDiv(
-        file.name +
-            " " +
-            file.type +
-            " " +
-            file.subtype +
-            " " +
-            file.size +
-            " bytes"
-    );
-    fileDiv.style.visibility = "hidden";
-    fileDiv.class("files");
-    var hideinfo = document.getElementsByClassName("files");
-    if (file.type === "image") {
-        alert("image not accepted");
-    } else if (file.type === "text") {
-        if (selectedDropDown === "HYDE format") {
-            var par = createP(file.data);
-            par.class("text");
-            var texts = selectAll(".text");
-            paraText = document.getElementsByClassName("text")[0].innerHTML;
-            globalhydeFileData = paraText;
-        } else if (selectedDropDown == "Triplets") {
-            // Make a paragraph of text
-            var par = createP(file.data);
-            par.class("text");
-            var texts = selectAll(".text");
-            var paraText = document.getElementsByClassName("text").innerHTML;
-            // paraText = document.getElementsByClassName('text')[0].innerHTML;
-
-            // pushStringToServer(paraText);
-        } else if (selectedDropDown == "pf") {
-            // Make a paragraph of text
-            var par = createP(file.data);
-            par.class("text");
-            var texts = selectAll(".text");
-            var paraText = document.getElementsByClassName("text").innerHTML;
-        }
-    }
-    var boxnums = document.getElementsByClassName("boxText1");
-}
-
-
 // removes unchecked leaves before the new visualization is created
 // (after pressing "Update Network")
 function getLeafUpdate(origNewick,removedVals) {
