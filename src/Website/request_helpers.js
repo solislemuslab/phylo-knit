@@ -157,7 +157,8 @@ function pushChangeRootToServer(flag, tripRoot) {
 
         if (threshold.length === 0) {
             errMsg =
-                "The Threshold value is missing for the Hyde Format Please try again ";
+                "The Threshold value is missing for the Hyde Format; please try again ";
+            createNetworkSelector.disabled = false;
             errors = 1;
         }
         if (isNaN(threshold)) {

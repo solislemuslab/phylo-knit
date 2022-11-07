@@ -55,7 +55,7 @@ var chart = $("#chartId"),
 
 // we want to resize the chart whenever the window is resized
 $(window).on("resize", function () {
-    var targetWidth = container.width();
+    var targetWidth = container.width() * 0.8;
     chart.attr("width", targetWidth);
     chart.attr("height", Math.round(targetWidth / aspect));
 }).trigger("resize");
