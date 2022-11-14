@@ -167,7 +167,7 @@ h1, h2, h3, h4, h5, h6 {
 .nodes text {
     fill: #000;
     font: 10px sans-serif;
-    pointer-events: none;
+    pointer-events: all;
 }
 
 #chartId {

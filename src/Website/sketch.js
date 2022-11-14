@@ -81,7 +81,6 @@ var simulation = d3
 // Main function for generating the D3 graph
 function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddSelected) {
     // clear the current list of nodes
-    // (semi-experimental, not sure how this will interact with existing code)
     nodeVal = [];
 
     // if the chart is already populated, clear it.
@@ -118,27 +117,6 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             }
         }
         console.log(targetCounts);
-
-        // build the arrow.
-        svg.append("svg:defs")
-            .selectAll("marker")
-            .data(["end"]) // Different link/path types can be defined here
-            .enter()
-            .append("svg:marker") // This section adds in the arrows
-            .attr("id", String)
-            .attr("viewBox", "10 10 10 10")
-            .attr("refX", 15)
-            .attr("refY", -0.5)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto")
-            .attr("preserveAspectRatio", "xMinYMin meet")
-
-            .append("svg:path")
-
-            .append("div")
-            .append("rect")
-            .attr("d", "M0,-5L10,0L0,5");
 
         if (isRemoveSelected) {
             for (let i = 0; i < graph.nodes.length; i++) {
@@ -207,7 +185,9 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             .data(graph.links)
             .enter()
             .append("svg:path")
-            .attr("marker-end", "url(#end)");
+            .attr("marker-end", "url(#end)")
+            .attr("fill", "none")
+            .attr("stroke", "black");
         nodeNum = graph.nodes.length;
 
         var node = svg
