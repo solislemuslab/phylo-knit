@@ -26,7 +26,7 @@ var displayedLeaves = document.getElementById("displayed-leaves");
 
 // zoom constants
 var min_zoom = 0.1;
-var max_zoom = 7;
+var max_zoom = 1;
 
 // specify d3 elements
 var fill = d3.scaleOrdinal(d3.schemeCategory20);
@@ -237,7 +237,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
 
         // stops the upper left hand corner bug (though the result still isn't amazing)
         simulation.alpha(0.3).restart();
-        svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2));
+        svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.15));
 
         function ticked() {
             path.attr("d", function (d) {
@@ -278,7 +278,7 @@ function dragended(d) {
     d.fy = null;
 }
 
-var zoom = d3.zoom().on('zoom', function() {
+var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom]).on('zoom', function() {
     d3.select('svg g.links').attr('transform', d3.event.transform);
     d3.select('svg g.nodes').attr('transform', d3.event.transform);
 });
