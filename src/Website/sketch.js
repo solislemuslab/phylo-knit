@@ -29,7 +29,6 @@ var min_zoom = 0.1;
 var max_zoom = 7;
 
 // specify d3 elements
-var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom])
 var fill = d3.scaleOrdinal(d3.schemeCategory20);
 var force = d3.forceSimulation();
 
@@ -51,7 +50,7 @@ var svg = d3.select("svg"),
 // this is the chart where nodes and links are drawn, contained w/in `svg`
 var chart = $("#chartId"),
     aspect = chart.width() / chart.height(),
-    container = chart.parent();
+    container = chart.parent(); 
 
 // we want to resize the chart whenever the window is resized
 $(window).on("resize", function () {
@@ -61,21 +60,7 @@ $(window).on("resize", function () {
 }).trigger("resize");
 
 // this variable essentially instantiates the physics of d3's chart
-// ...I think...
-var simulation = d3
-    .forceSimulation()
-    .force(
-        "link",
-        d3
-            .forceLink()
-            .distance(100)
-            .id(function (d) {
-                return d.id;
-            })
-    )
-    .force("charge", d3.forceManyBody().strength(-10))
-    .force("collide", d3.forceCollide(50))
-    .force("center", d3.forceCenter(width / 2, height / 2));
+var simulation = d3.forceSimulation()
 
 
 // Main function for generating the D3 graph
@@ -192,6 +177,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
 
         var node = svg
             .append("g")
+            .attr("class", "nodes")
             .selectAll("circle")
             .data(graph.nodes)
             .enter()
@@ -251,12 +237,13 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         simulation.nodes(graph.nodes).on("tick", ticked);
         console.log("link check")
         console.log(graph.links)
-        // simulation = d3.forceSimulation(data['nodes'])
-        //     .force('link', d3.forceLink(data.edges).id(function(n) {return n.id; }))
-        // simulation.force("link").links(graph.links);
-        simulation.force('link', d3.forceLink(graph.links).id(function(n) {return n.id; }))
-        simulation.force('charge', d3.forceManyBody())
-        simulation.force('center', d3.forceCenter(width / 2, height / 2));
+
+        // These functions set of the physics between nodes
+        simulation.force('link', d3.forceLink(graph.links).distance(150).id(n => n.id))     // edges
+        simulation.force('charge', d3.forceManyBody().strength(0));                         // node repulsion/attraction
+        simulation.force('center', d3.forceCenter(width / 2, height / 2));                  // network centering
+        simulation.force('collision', d3.forceCollide().radius(25));                        // stop collisions
+
         let linkGen = d3
             .linkVertical()
             .x(function (d) {
@@ -301,6 +288,9 @@ function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
+
+    console.log("DRAGSTARTED");
+    console.log(d);
 }
 
 function dragged(d) {
@@ -313,6 +303,11 @@ function dragended(d) {
     d.fx = null;
     d.fy = null;
 }
+
+d3.select('svg').call(d3.zoom().on('zoom', function() {
+        d3.select('svg g.links').attr('transform', d3.event.transform);
+        d3.select('svg g.nodes').attr('transform', d3.event.transform);
+    }))
 // -------------------------------------------------------
 
 
