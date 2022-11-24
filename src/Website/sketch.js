@@ -156,13 +156,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             targetVals = targetVals + " " + graph.links[i].target
         }
 
-        // Pass all data variables through here for leaf file update
-       
-        console.log("SOURCEVALS-TARGETVALS")
-        console.log(sourceVals)
-        console.log(targetVals)
-        //getLeafUpdate(sourceVals,targetVals);
-
+        // add all of the links (paths) to the svg and set their attributes
         var path = svg
             .append("svg:g")
             .attr("class", "links")
@@ -175,6 +169,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             .attr("stroke", "black");
         nodeNum = graph.nodes.length;
 
+        // add all of the nodes to the svg and set their attributes
         var node = svg
             .append("g")
             .attr("class", "nodes")
@@ -188,13 +183,10 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
                 var valueOfNode = d.id.toString();
                 if (!reg1000P.test(valueOfNode))
                     nodeVal.push(valueOfNode);
-                return (!reg1000P.test(valueOfNode) ||
-                    valueOfNode === "internal1000") &&
-                    !regInternalHybrid.test(valueOfNode)
-                    ? 30
-                    : 30;
+                return 75;
             })
-
+            .attr("d.x", width/2)
+            .attr("d.y", height/2)
             .style("fill", function (d) {
                 if (removeNodeBool === false) {
                     createboxes();
@@ -219,16 +211,15 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
                     : "blue";
                 
             })
-            .call(
-                d3
-                    .drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended)
             );
         node.append("text")
             .attr("x", 12)
-            .attr("dy", ".35em")
+            .attr("dy", ".05em")
+            .style("font", "44px times")
             .text(function (d) {
                 var valueOfNode = d.id.toString();
                 return d.id;
@@ -239,28 +230,14 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         console.log(graph.links)
 
         // These functions set of the physics between nodes
-        simulation.force('link', d3.forceLink(graph.links).distance(150).id(n => n.id))     // edges
-        simulation.force('charge', d3.forceManyBody().strength(0));                         // node repulsion/attraction
-        simulation.force('center', d3.forceCenter(width / 2, height / 2));                  // network centering
+        simulation.force('link', d3.forceLink(graph.links).distance(50).id(n => n.id))     // edges
+        simulation.force('charge', d3.forceManyBody().strength(-10000));                     // node repulsion/attraction
+        // simulation.force('center', d3.forceCenter(width / 2, height / 2).strength(0));                  // network centering
         simulation.force('collision', d3.forceCollide().radius(25));                        // stop collisions
 
-        let linkGen = d3
-            .linkVertical()
-            .x(function (d) {
-                return d.x;
-            })
-            .y(function (d) {
-                return d.y;
-            });
-
-        var linkRad = d3
-            .linkRadial()
-            .angle(function (d) {
-                return d.x;
-            })
-            .radius(function (d) {
-                return d.y;
-            });
+        // stops the upper left hand corner bug (though the result still isn't amazing)
+        simulation.alpha(0.3).restart();
+        svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2));
 
         function ticked() {
             path.attr("d", function (d) {
@@ -288,9 +265,6 @@ function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
-
-    console.log("DRAGSTARTED");
-    console.log(d);
 }
 
 function dragged(d) {
@@ -304,10 +278,11 @@ function dragended(d) {
     d.fy = null;
 }
 
-d3.select('svg').call(d3.zoom().on('zoom', function() {
-        d3.select('svg g.links').attr('transform', d3.event.transform);
-        d3.select('svg g.nodes').attr('transform', d3.event.transform);
-    }))
+var zoom = d3.zoom().on('zoom', function() {
+    d3.select('svg g.links').attr('transform', d3.event.transform);
+    d3.select('svg g.nodes').attr('transform', d3.event.transform);
+});
+d3.select('svg').call(zoom);
 // -------------------------------------------------------
 
 
