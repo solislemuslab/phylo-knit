@@ -26,7 +26,7 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
         console.log("check ");
         console.log(request.responseText);
         var x = JSON.parse(request.responseText);
-        
+
         if(typeof(x.newick) != 'undefined')
             lastGeneratedNewick = x.newick;
 
@@ -61,6 +61,7 @@ function pushParentheticalToServer(parenthetical) {
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
+            console.log(x);
             document.getElementById("downloadPng").style.visibility = "visible"
 
             createD3Graph();
