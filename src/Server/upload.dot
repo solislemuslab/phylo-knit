@@ -1,6 +1,22 @@
 strict digraph G1 {
-internal1001 -> B
-internal1001 -> A
-internal1000 -> C
 internal1000 -> internal1001
+internal1000 -> internal1003
+internal1001 -> 9
+internal1003 -> 2
+internal1003 -> internal1005
+internal1005 -> 3
+internal1005 -> internal1007
+internal1007 -> 1
+internal1007 -> internal1009
+internal1009 -> 4
+internal1009 -> internal1011
+internal1011 -> 8
+internal1011 -> internal1013
+internal1013 -> 6
+internal1013 -> internal1015
+internal1015 -> 5
+internal1015 -> internal1017
+internal1017 -> 7
+internal1017 -> internal1001
+internal1001 -> 9
 }

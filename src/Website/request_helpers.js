@@ -26,6 +26,9 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
         console.log("check ");
         console.log(request.responseText);
         var x = JSON.parse(request.responseText);
+        
+        if(typeof(x.newick) != 'undefined')
+            lastGeneratedNewick = x.newick;
 
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById("dwn-btn").style.visibility = "visible";
@@ -84,6 +87,8 @@ function pushTripletsToServer(triplets) {
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
+            if(typeof(x.newick) != 'undefined')
+                lastGeneratedNewick = x.newick;
     
             document.getElementById("dwn-btn").style.visibility = "visible";
             document.getElementById("dwn-div").style.visibility = "visible";
@@ -237,6 +242,10 @@ function saveImg() {
     }
 }
 
+// Function for downloading Newick
+function downloadNewick() {
+    download("eNewick.txt", lastGeneratedNewick);
+}
 
 // Below are the functions that handle actual exporting:
 // getSVGString ( svgNode ) and svgString2Image( svgString, width, height, format, callback )

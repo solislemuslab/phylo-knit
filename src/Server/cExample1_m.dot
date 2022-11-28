@@ -4,63 +4,63 @@
 // SUMMARY: Input had 9 leaves.
 // USER-SETTING: Will *not* post-process output to collapse edges.
 // COMMENT: Triplet set is already dense.
-// SUMMARY: There are 241 triplets in the input.
-// SUMMARY: Total weight of input triplets is 241.
+// SUMMARY: There are 210 triplets in the input.
+// SUMMARY: Total weight of input triplets is 210.
 // SUMMARY: (Before post-processing)
-// SUMMARY: We got 112 units of triplet weight, that's 46.47% of total weight.
-// SUMMARY: In total 129 units of triplet weight were -not- consistent with the ouput network.
+// SUMMARY: We got 112 units of triplet weight, that's 53.33% of total weight.
+// SUMMARY: In total 98 units of triplet weight were -not- consistent with the ouput network.
 // SUMMARY: Output network contained 0 triplets -not- in the original input.
-// SUMMARY: The symmetric difference is thus 129 + (1 * 0) = 129
+// SUMMARY: The symmetric difference is thus 98 + (1 * 0) = 98
 // SUMMARY: (After post-processing)
 strict digraph G1 {
 edge [fontsize=8]
-labelbox [shape=box, width=0.4, label="File: HydeToTriplets.txt\nNumber of triplets: 241\nWeight of triplets: 241\nOverall %: 46.47%"];
+labelbox [shape=box, width=0.4, label="File: HydeToTriplets.txt\nNumber of triplets: 210\nWeight of triplets: 210\nOverall %: 53.33%"];
 internal1000 [shape=point];
 internal1001 [shape=point];
 9 [shape=box, width=0.3, label="9\n(66.66%)"];
 internal1003 [shape=point];
-2 [shape=box, width=0.3, label="2\n(43.75%)"];
+2 [shape=box, width=0.3, label="2\n(48.61%)"];
 internal1005 [shape=point];
-4 [shape=box, width=0.3, label="4\n(43.75%)"];
+3 [shape=box, width=0.3, label="3\n(52.23%)"];
 internal1007 [shape=point];
-8 [shape=box, width=0.3, label="8\n(43.75%)"];
+1 [shape=box, width=0.3, label="1\n(50.0%)"];
 internal1009 [shape=point];
-3 [shape=box, width=0.3, label="3\n(42.16%)"];
+4 [shape=box, width=0.3, label="4\n(53.03%)"];
 internal1011 [shape=point];
-5 [shape=box, width=0.3, label="5\n(43.2%)"];
+8 [shape=box, width=0.3, label="8\n(51.47%)"];
 internal1013 [shape=point];
-6 [shape=box, width=0.3, label="6\n(44.87%)"];
+6 [shape=box, width=0.3, label="6\n(52.23%)"];
 internal1015 [shape=point];
-7 [shape=box, width=0.3, label="7\n(43.75%)"];
+5 [shape=box, width=0.3, label="5\n(51.47%)"];
 internal1017 [shape=point];
-1 [shape=box, width=0.3, label="1\n(45.45%)"];
+7 [shape=box, width=0.3, label="7\n(51.47%)"];
 internal1000 -> internal1001
 internal1000 -> internal1003
 internal1001 -> 9
 internal1003 -> 2
 internal1003 -> internal1005
-internal1005 -> 4
+internal1005 -> 3
 internal1005 -> internal1007
-internal1007 -> 8
+internal1007 -> 1
 internal1007 -> internal1009
-internal1009 -> 3
+internal1009 -> 4
 internal1009 -> internal1011
-internal1011 -> 5
+internal1011 -> 8
 internal1011 -> internal1013
 internal1013 -> 6
 internal1013 -> internal1015
-internal1015 -> 7
+internal1015 -> 5
 internal1015 -> internal1017
-internal1017 -> 1
+internal1017 -> 7
 internal1017 -> internal1001
 internal1001 -> 9
 }
-// SUMMARY: eNewick output: ((9)#H1,(2,(4,(8,(3,(5,(6,(7,(1,#H1)))))))));
-// SUMMARY: In total 129 units of triplet weight were -not- consistent with the ouput network.
+// SUMMARY: eNewick output: ((9)#H1,(2,(3,(1,(4,(8,(6,(5,(7,#H1)))))))));
+// SUMMARY: In total 98 units of triplet weight were -not- consistent with the ouput network.
 // SUMMARY: Output network contained 0 triplets -not- in the original input.
 // SUMMARY: Weight of missing triplets before contraction minus weight of missing triplets afterwards: 0
 // SUMMARY: Number of surplus triplets before contraction minus number of surplus triplets afterwards: 0
-// CONCLUSION: After post-processing we got 112 units of triplet weight, that's 46.47% of total weight (before post-processing this was 46.47%).
-// CONCLUSION: After post-processing the symmetric difference is thus 129 + (1 * 0) = 129 (before post-processing this was 129)
-// STAT: PERCENTAGE = 46.47
-// STAT: NETWORK-TRIPLET SD = 129
+// CONCLUSION: After post-processing we got 112 units of triplet weight, that's 53.33% of total weight (before post-processing this was 53.33%).
+// CONCLUSION: After post-processing the symmetric difference is thus 98 + (1 * 0) = 98 (before post-processing this was 98)
+// STAT: PERCENTAGE = 53.33
+// STAT: NETWORK-TRIPLET SD = 98

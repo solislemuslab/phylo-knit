@@ -101,10 +101,9 @@
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom" style="margin-top: 7px;">
   <div class="col-md-3 btn mb-2 mb-md-0 btn-tertiary btn-block btn-round" id = "dwn-div" style="left: 2%;visibility: hidden;">
-    <input class  = "v" type="button" id="dwn-btn" value="Download Parenthetical">
+    <button type="button" class="btn mb-2 mb-md-0 btn-tertiary btn-block btn-round v" style = "right:2%; visibility: hidden;" onclick="downloadNewick()" id = "dwn-btn"><span>Download eNewick</span> 
       <div class="icon icon-round d-flex align-items-center justify-content-center">
         <i class="ion-ios-cloud-download"></i>
-
       </div>
     </button>
   </div>
@@ -153,14 +152,6 @@ $(function () {
 <script src = "downloadSVG.js"></script>
 <script src="request_helpers.js" type="text/javascript"></script>
 <script src="sketch.js" type="text/javascript"></script>
-<script>
-// sets up the "Download Image" button to download the image of the network
-document.getElementById("dwn-btn").addEventListener("click", function(){
-    var text = newickFr;
-    var filename = "Newick.txt";
-    download(filename, text);
-}, false);
-</script>
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 
 </html>
