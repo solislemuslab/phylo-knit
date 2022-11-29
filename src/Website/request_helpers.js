@@ -234,6 +234,11 @@ function download(filename, text) {
 // http://bl.ocks.org/Rokotyan/0556f8facbaf344507cdc45dc3622177
 // ---------------------------------------------------------------------------
 
+// Function for downloading Newick
+function downloadNewick() {
+    download("eNewick.txt", lastGeneratedNewick);
+}
+
 function saveImg() {
     var svgString = getSVGString(d3.select('svg').node()); 
     svgString2Image(svgString, 2*width, 2*height, 'png', save);
@@ -243,10 +248,7 @@ function saveImg() {
     }
 }
 
-// Function for downloading Newick
-function downloadNewick() {
-    download("eNewick.txt", lastGeneratedNewick);
-}
+
 
 // Below are the functions that handle actual exporting:
 // getSVGString ( svgNode ) and svgString2Image( svgString, width, height, format, callback )
