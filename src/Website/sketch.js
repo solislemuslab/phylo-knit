@@ -66,22 +66,23 @@ var svg = d3.select("svg"),
 
 // function to set up the legend; this is called right away at startup and after the chart is cleared
 var legendContainer;
+var LEGEND_CIRCLE_RADIUS = 6;
 function setupLegend() {
     legendContainer = svg.append("g")
         .attr("class", "legend");
     // Background
     legendContainer.append("rect").attr("x", -10).attr("y", -10).attr("width", 150).attr("height", 100).style("stroke", "black").style("fill", "white");
     // Internal nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", 6).style("fill", "#C5C5C5").style("stroke", "black");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#C5C5C5").style("stroke", "black");
     legendContainer.append("text").attr("x", 25).attr("y", 36).text("Internal Nodes").style("font-size", "15px").attr("alignment-baseline","middle");
     // Leaves
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", 6).style("fill", "#648FFF").style("stroke", "black");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#648FFF").style("stroke", "black");
     legendContainer.append("text").attr("x", 25).attr("y", 56).text("Leaves").style("font-size", "15px").attr("alignment-baseline","middle");
     // Hybrid Nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", 6).style("fill", "#DC267F").style("stroke", "black");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#DC267F").style("stroke", "black");
     legendContainer.append("text").attr("x", 25).attr("y", 76).text("Hybrid Nodes").style("font-size", "15px").attr("alignment-baseline","middle");
     // Root Node
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", 6).style("fill", "#FFB000").style("stroke", "black");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#FFB000").style("stroke", "black");
     legendContainer.append("text").attr("x", 25).attr("y", 16).text("Root Node").style("font-size", "15px").attr("alignment-baseline","middle");
 }
 setupLegend();
@@ -100,8 +101,16 @@ $(window).on("resize", function () {
 
 // this variable essentially instantiates the physics of d3's chart
 var simulation = d3.forceSimulation()
+// simulation global variables
+var LINK_DISTANCE = 50;
+var LINK_STRENGTH = 0.5;
+var MANY_BODY_STRENGTH = -1000;
+var COLLISION_RADIUS = 25;
+var FORCEX_STRENGTH = 0;
+var FORCEY_STRENGTH = 0;
+var NODE_RADIUS = 75;
 
-
+var GRAPH;
 // Main function for generating the D3 graph
 function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddSelected) {
     // clear the current list of nodes
@@ -124,6 +133,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         }
         console.log("graph prints");
         console.log(graph);
+        GRAPH = graph;
 
         for (var i = 0; i < graph.links.length; i++) {
             if (typeof targetCounts.get(graph.links[i].target) === "undefined") {
@@ -208,7 +218,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             .attr("marker-end", "url(#end)")
             .attr("fill", "none")
             .style("stroke", "black")
-            .style("stroke-width", 3)
+            .style("stroke-width", 4)
         nodeNum = graph.nodes.length;
 
         // add all of the nodes to the svg and set their attributes
@@ -225,7 +235,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
                 var valueOfNode = d.id.toString();
                 if (!isInternalNode(valueOfNode))
                     nodeVal.push(valueOfNode);
-                return 75;
+                return NODE_RADIUS;
             })
             .attr("d.x", width/2)
             .attr("d.y", height/2)
@@ -248,7 +258,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
                 
             })
             .style("stroke", "black")
-            .style("stroke-width", 2)
+            .style("stroke-width", 4)
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -267,8 +277,6 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
                 } else if(isHybridNode(valueOfNode)) {
                     return "#" + d.id.substr(4, d.id.length-4);
                 } else if(isNamedInternalNode(valueOfNode)) {
-                    console.log("NAMED INTERNAL LK:DSAJF:LKJDA:FLKJSD");
-                    console.log(valueOfNode);
                     return d.id.substr(8, d.id.length-8);
                 }
                 return d.id;
@@ -279,12 +287,16 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         console.log(graph.links)
 
         // These functions set of the physics between nodes
-        simulation.force('link', d3.forceLink(graph.links).distance(100).id(n => n.id).strength(0.5))     // edges
-        simulation.force('charge', d3.forceManyBody().strength(-1000));                     // node repulsion/attraction
+        simulation.force('link', d3.forceLink(graph.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges
+        simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));                     // node repulsion/attraction
         // simulation.force('center', d3.forceCenter(width / 2, height / 2).strength(0));                  // network centering
-        simulation.force('collision', d3.forceCollide().radius(25));                        // stop collisions
+        simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));                        // stop collisions
+        simulation.force('forceX', d3.forceX().strength(FORCEX_STRENGTH));
+        simulation.force('forceY', d3.forceY().strength(FORCEY_STRENGTH));
 
         // stops the upper left hand corner bug (though the result still isn't amazing)
+        // it seems that running `simulation.alpha(1).restart()` multiple times after initialization leads to good results
+        // check out: https://github.com/d3/d3/issues/1519 perhaps
         simulation.alpha(1).restart();
         svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.15));
 
@@ -551,3 +563,89 @@ function getLeafUpdate(origNewick,removedVals) {
 
     function processRequest(e) {}
 }
+
+
+// these are the functions that go w/ the sliders to adjust values
+// var LINK_DISTANCE = 50;
+// var LINK_STRENGTH = 0.5;
+// var MANY_BODY_STRENGTH = -1000;
+// var COLLISION_RADIUS = 25;
+// var FORCEX_STRENGTH = 0;
+// var FORCEY_STRENGTH = 0;
+
+function updateManyBodyStr() {
+    var sliderval = parseFloat($("#many-body-str-slider")[0].value);
+    MANY_BODY_STRENGTH = sliderval;
+    simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
+    $('#many-body-str-slider-value')[0].innerHTML="Many Body Strength: " + sliderval;
+}
+
+function updateLinkDistance() {
+    var sliderval = parseFloat($("#link-distance-slider")[0].value);
+    LINK_DISTANCE = sliderval;
+    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    $('#link-distance-slider-value')[0].innerHTML="Link Distance: " + sliderval;
+}
+
+function updateLinkStrength() {
+    var sliderval = parseFloat($("#link-strength-slider")[0].value) / 1000;
+    LINK_DISTANCE = sliderval;
+    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    $('#link-strength-slider-value')[0].innerHTML="Link Strength: " + sliderval;
+}
+
+function updateCollisionRadius() {
+    var sliderval = parseFloat($("#collision-radius-slider")[0].value);
+    COLLISION_RADIUS = sliderval;
+    simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
+    $('#collision-radius-slider-value')[0].innerHTML="Collision Radius: " + sliderval;
+}
+
+function updateNodeRadius() {
+    var sliderval = parseFloat($("#node-radius-slider")[0].value);
+    NODE_RADIUS = sliderval;
+    d3.selectAll("circle").attr("r", function(d) {
+        // only want to change the radius of the non-legend nodes
+        if(typeof d != "undefined")
+            return NODE_RADIUS;
+        return LEGEND_CIRCLE_RADIUS;
+    }).style("stroke-width", function(d) {
+        // only want to change the stroke on the non-legend nodes
+        if(typeof d != "undefined")
+            return NODE_RADIUS/20;
+        return 1;
+    });
+    d3.selectAll("path").style("stroke-width",NODE_RADIUS/20)
+    $('#node-radius-slider-value')[0].innerHTML="Node Radius: " + sliderval;
+}
+
+function setStaticSettings() {
+    // TODO: adjust the min/max zoom so that you can actually view things better from this setting
+    // ALSO: when this is set, change the zoom to be appropriate for the node sizes
+    MANY_BODY_STRENGTH = -10000;
+    LINK_DISTANCE = 900;
+    COLLISION_RADIUS = 900;
+    NODE_RADIUS = 500;
+
+    simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
+    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    d3.selectAll("circle").attr("r", function(d) {
+        // only want to change the radius of the non-legend nodes
+        if(typeof d != "undefined")
+            return NODE_RADIUS;
+        return LEGEND_CIRCLE_RADIUS;
+    }).style("stroke-width", function(d) {
+        // only want to change the stroke on the non-legend nodes
+        if(typeof d != "undefined")
+            return NODE_RADIUS/20;
+        return 1;
+    });
+    d3.selectAll("path").style("stroke-width",NODE_RADIUS/20)
+    d3.selectAll("svg text").style("font", function() {
+        return(d3.select(this).attr("x") == 12 ? "400px times" : "15px")
+    })
+    simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
+    simulation.alpha(1).restart();
+}
+
+// LINK_DISTANCE 50, LINK_STRENGTH 0.5, MANY_BODY_STRENGTH -1000, COLLISION_RADIUS 25, FORCEX/Y_STRENGTH
