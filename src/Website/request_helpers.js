@@ -27,6 +27,9 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
         console.log(request.responseText);
         var x = JSON.parse(request.responseText);
 
+        if(typeof(x.newick) != 'undefined')
+            lastGeneratedNewick = x.newick;
+
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById("dwn-btn").style.visibility = "visible";
             document.getElementById("dwn-div").style.visibility = "visible";
@@ -58,6 +61,7 @@ function pushParentheticalToServer(parenthetical) {
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
+            console.log(x);
             document.getElementById("downloadPng").style.visibility = "visible"
 
             createD3Graph();
@@ -84,6 +88,8 @@ function pushTripletsToServer(triplets) {
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
+            if(typeof(x.newick) != 'undefined')
+                lastGeneratedNewick = x.newick;
     
             document.getElementById("dwn-btn").style.visibility = "visible";
             document.getElementById("dwn-div").style.visibility = "visible";
@@ -228,6 +234,11 @@ function download(filename, text) {
 // http://bl.ocks.org/Rokotyan/0556f8facbaf344507cdc45dc3622177
 // ---------------------------------------------------------------------------
 
+// Function for downloading Newick
+function downloadNewick() {
+    download("eNewick.txt", lastGeneratedNewick);
+}
+
 function saveImg() {
     var svgString = getSVGString(d3.select('svg').node()); 
     svgString2Image(svgString, 2*width, 2*height, 'png', save);
@@ -236,6 +247,7 @@ function saveImg() {
         saveAs(dataBlob, 'img.png');
     }
 }
+
 
 
 // Below are the functions that handle actual exporting:

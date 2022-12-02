@@ -263,6 +263,7 @@ def newickToDot(newick):
 
 # takes cExample1.dot and converts it to cExample1_m.dot
 def returnReducedDotFile(fileName):
+    print("calling returnReducedDotFile")
     retainActualLabels(fileName)
 
     dotFormat = ''
@@ -310,14 +311,22 @@ def retainActualLabels(fileName):
     dictionary = {}
 
     for line in list(open(fileName)):
-        temp = re.search(r'("[0-9]+)', line)
-        if temp:
+        # search line by line to identify 
+        # will work with taxa named with characters, numbers, underscores, and dashes
+        temp = re.search(r'("[A-z0-9_-]+)', line) 
+        if re.search(r'(labelbox)', line):
+            print()
+        elif temp:
             actualName = temp.group(1) 
+            print("actual name is ", actualName[1:])
             temp2 = re.search(r'(\d+[\s]\[)', line)
             fakeName = temp2.group(1)
+            print("fake name is ", fakeName[:-1].strip())
             # print(found[1] + "  :  " + found2[:-1])
-
-            dictionary[fakeName[:-1].strip()] = actualName[1:]
+            
+            # remove \n if necessary from end of name
+            dictionary[fakeName[:-1].strip()] = actualName[1:].strip("\\n")
+            
         if line.__contains__('[shape=point]'): # internal node
             temp = re.search(r'([0-9]+)', line)
             dictionary[temp.group()] = str('internal' + temp.group())
