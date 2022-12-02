@@ -1,6 +1,10 @@
 strict digraph G1 {
-internal1001 -> B
-internal1001 -> A
-internal1000 -> C
-internal1000 -> internal1001
+internal100 -> internal100
+internal100 -> internal100
+internal1001 -> Hoplonomia_elliotii
+internal1001 -> Acunomia_melanderi
+internal93 -> internal100
+internal93 -> internal100
+internal1000 -> internal100
+internal1000 -> internal100
 }

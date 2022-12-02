@@ -1,66 +1,90 @@
 // LEV1ATHAN Version 1.0, 21 september 2009
 // COMMENT: Pre-processing the input file to count the leaves
-// COMMENT: Pre-processing showed that there are 9 leaves in the input.
-// SUMMARY: Input had 9 leaves.
+// COMMENT: Pre-processing showed that there are 14 leaves in the input.
+// SUMMARY: Input had 14 leaves.
 // USER-SETTING: Will *not* post-process output to collapse edges.
 // COMMENT: Triplet set is already dense.
-// SUMMARY: There are 241 triplets in the input.
-// SUMMARY: Total weight of input triplets is 241.
+// SUMMARY: There are 490 triplets in the input.
+// SUMMARY: Total weight of input triplets is 490.
 // SUMMARY: (Before post-processing)
-// SUMMARY: We got 112 units of triplet weight, that's 46.47% of total weight.
-// SUMMARY: In total 129 units of triplet weight were -not- consistent with the ouput network.
-// SUMMARY: Output network contained 0 triplets -not- in the original input.
-// SUMMARY: The symmetric difference is thus 129 + (1 * 0) = 129
+// SUMMARY: We got 325 units of triplet weight, that's 66.32% of total weight.
+// SUMMARY: In total 165 units of triplet weight were -not- consistent with the ouput network.
+// SUMMARY: Output network contained 198 triplets -not- in the original input.
+// SUMMARY: The symmetric difference is thus 165 + (1 * 198) = 363
 // SUMMARY: (After post-processing)
 strict digraph G1 {
 edge [fontsize=8]
-labelbox [shape=box, width=0.4, label="File: HydeToTriplets.txt\nNumber of triplets: 241\nWeight of triplets: 241\nOverall %: 46.47%"];
+labelbox [shape=box, width=0.4, label="File: HydeToTriplets.txt\nNumber of triplets: 490\nWeight of triplets: 490\nOverall %: 66.32%"];
 internal1000 [shape=point];
 internal1001 [shape=point];
-9 [shape=box, width=0.3, label="9\n(66.66%)"];
+internal1002 [shape=point];
 internal1003 [shape=point];
-2 [shape=box, width=0.3, label="2\n(43.75%)"];
+internal1004 [shape=point];
 internal1005 [shape=point];
-4 [shape=box, width=0.3, label="4\n(43.75%)"];
-internal1007 [shape=point];
-8 [shape=box, width=0.3, label="8\n(43.75%)"];
-internal1009 [shape=point];
-3 [shape=box, width=0.3, label="3\n(42.16%)"];
-internal1011 [shape=point];
-5 [shape=box, width=0.3, label="5\n(43.2%)"];
-internal1013 [shape=point];
-6 [shape=box, width=0.3, label="6\n(44.87%)"];
-internal1015 [shape=point];
-7 [shape=box, width=0.3, label="7\n(43.75%)"];
+internal1006 [shape=point];
+2 [shape=box, width=0.3, label="2\n(78.37%)"];
+internal1008 [shape=point];
+9 [shape=box, width=0.3, label="9\n(80.55%)"];
+12 [shape=box, width=0.3, label="12\n(77.98%)"];
+10 [shape=box, width=0.3, label="10\n(63.86%)"];
+internal1012 [shape=point];
+8 [shape=box, width=0.3, label="8\n(60.82%)"];
+11 [shape=box, width=0.3, label="11\n(63.63%)"];
+13 [shape=box, width=0.3, label="13\n(66.39%)"];
+1 [shape=box, width=0.3, label="1\n(65.04%)"];
 internal1017 [shape=point];
-1 [shape=box, width=0.3, label="1\n(45.45%)"];
+7 [shape=box, width=0.3, label="7\n(63.0%)"];
+internal1019 [shape=point];
+3 [shape=box, width=0.3, label="3\n(59.22%)"];
+internal1021 [shape=point];
+6 [shape=box, width=0.3, label="6\n(62.88%)"];
+internal1023 [shape=point];
+4 [shape=box, width=0.3, label="4\n(61.76%)"];
+internal1025 [shape=point];
+internal1026 [shape=point];
+5 [shape=box, width=0.3, label="5\n(63.0%)"];
+14 [shape=box, width=0.3, label="14\n(58.42%)"];
 internal1000 -> internal1001
-internal1000 -> internal1003
-internal1001 -> 9
-internal1003 -> 2
-internal1003 -> internal1005
-internal1005 -> 4
-internal1005 -> internal1007
-internal1007 -> 8
-internal1007 -> internal1009
-internal1009 -> 3
-internal1009 -> internal1011
-internal1011 -> 5
-internal1011 -> internal1013
-internal1013 -> 6
-internal1013 -> internal1015
-internal1015 -> 7
-internal1015 -> internal1017
-internal1017 -> 1
-internal1017 -> internal1001
-internal1001 -> 9
+internal1000 -> internal1017
+internal1001 -> internal1002
+internal1001 -> 1
+internal1002 -> internal1003
+internal1002 -> 13
+internal1003 -> internal1004
+internal1003 -> internal1012
+internal1004 -> internal1005
+internal1004 -> 10
+internal1005 -> internal1006
+internal1006 -> 2
+internal1006 -> internal1008
+internal1008 -> 9
+internal1008 -> 12
+internal1012 -> 8
+internal1012 -> 11
+internal1017 -> 7
+internal1017 -> internal1019
+internal1019 -> 3
+internal1019 -> internal1021
+internal1021 -> 6
+internal1021 -> internal1023
+internal1023 -> 4
+internal1023 -> internal1025
+internal1025 -> internal1026
+internal1025 -> internal1005
+internal1026 -> 5
+internal1026 -> 14
+internal1005 -> internal1006
+internal1006 -> 2
+internal1006 -> internal1008
+internal1008 -> 9
+internal1008 -> 12
 }
-// SUMMARY: eNewick output: ((9)#H1,(2,(4,(8,(3,(5,(6,(7,(1,#H1)))))))));
-// SUMMARY: In total 129 units of triplet weight were -not- consistent with the ouput network.
-// SUMMARY: Output network contained 0 triplets -not- in the original input.
+// SUMMARY: eNewick output: (((((((2,(9,12)))#H1,10),(8,11)),13),1),(7,(3,(6,(4,((5,14),#H1))))));
+// SUMMARY: In total 165 units of triplet weight were -not- consistent with the ouput network.
+// SUMMARY: Output network contained 198 triplets -not- in the original input.
 // SUMMARY: Weight of missing triplets before contraction minus weight of missing triplets afterwards: 0
 // SUMMARY: Number of surplus triplets before contraction minus number of surplus triplets afterwards: 0
-// CONCLUSION: After post-processing we got 112 units of triplet weight, that's 46.47% of total weight (before post-processing this was 46.47%).
-// CONCLUSION: After post-processing the symmetric difference is thus 129 + (1 * 0) = 129 (before post-processing this was 129)
-// STAT: PERCENTAGE = 46.47
-// STAT: NETWORK-TRIPLET SD = 129
+// CONCLUSION: After post-processing we got 325 units of triplet weight, that's 66.32% of total weight (before post-processing this was 66.32%).
+// CONCLUSION: After post-processing the symmetric difference is thus 165 + (1 * 198) = 363 (before post-processing this was 363)
+// STAT: PERCENTAGE = 66.32
+// STAT: NETWORK-TRIPLET SD = 363
