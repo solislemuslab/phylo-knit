@@ -144,6 +144,7 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
     removeDupTriplets("HydeToTriplets.txt")
     return 0
 
+# retreives the parenthetical format from the file created by Lev1athan
 def returnParentheticalFormat(fileName):
     parentheticalFormat = ''
     for line in reversed(list(open(fileName))):

@@ -176,8 +176,8 @@ def uploadParentheticalAndReturnDot():
     print(parenthetical)
 
     ParentheticalConvertorNaman.newickToDot(parenthetical)
-
-    return jsonify({'stat': "executing",'newick':convertor.reader()})
+    # parenthetical convertor uploads as upload.dot
+    return jsonify({'stat': "executing",'newick':convertor.reader("upload.dot")})
 
 
 # POST
