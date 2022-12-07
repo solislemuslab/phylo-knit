@@ -42,7 +42,7 @@ def returnDictionary(newick):
             while j != "(":
                 val += j
                 try:
-                    j = stack.pop()  # throws errors when lacking parentheses, and then we don't clear global variables    
+                    j = stack.pop()  # throws errors when lacking parentheses, and then we don't clear global variables   
                 except:
                     print("stack.pop() unable to be completed.")
                     raise Exception("ParentheticalConvertorNaman.py unable to complete tree creation")
@@ -95,14 +95,15 @@ def dictToDot(dict):
     # print('diction: ', dict)
     dotString = 'strict digraph G1 {' + '\n'
 
-    for key, value in dict.items():
-        if key == "internal" + str(count - 1):
-            key = "internal1000"
-        elif key.find("#") > -1:
+    for key, value in dict.items(): # 
+        print("key is ", key)
+        #if key == "internal" + str(count - 1): # if unnamed root node
+        #    key = "internal1000"
+        if key.find("#") > -1:
             key = "" + key
             key = key.replace("internal#", "Hash")
             key = key.replace("#", "Hash")
-        for i in value:
+        for i in value: 
             if i.find("#") > -1:
                 i = "" + i
                 i = i.replace("internal#", "Hash")
