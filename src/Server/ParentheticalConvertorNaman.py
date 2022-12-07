@@ -41,7 +41,11 @@ def returnDictionary(newick):
             j = stack.pop()
             while j != "(":
                 val += j
-                j = stack.pop()
+                try:
+                    j = stack.pop()  # throws errors when lacking parentheses, and then we don't clear global variables    
+                except:
+                    print("stack.pop() unable to be completed.")
+                    raise Exception("ParentheticalConvertorNaman.py unable to complete tree creation")
             val += j
             val = val[::-1]
             listVals = readParameters(val)
@@ -114,14 +118,19 @@ def dictToDot(dict):
 
 
 def newickToDot(newick):
-    newick = re.sub(":[0-9]+[eE1\-\.]*[0-9]*", "", newick) 
-    try:
-        diction = returnDictionary(newick)
-        dictToDot(diction)
-        # print(diction)
-    except:
-        print("unable to create full dictionary from input newick format, aborting process")
+    newick = re.sub(":[0-9]+[eE1\-\.]*[0-9]*", "", newick)
+    
     global Graph, count, stack
+    # clear global variables at the start of every call
+    
+    stack = []
+    count = 1001
+    Graph = {}
+    diction = returnDictionary(newick)
+    dictToDot(diction)
+    # print(diction)
+    
+    # clear global variables when call is completed
     count = 1001
     Graph = {}
     stack = []
@@ -130,8 +139,9 @@ def newickToDot(newick):
 
 
 if __name__ == '__main__':
-    newick = "(X,(Y,Z))W;"
+    print()
+    #newick = "(X,(Y,Z))W;"
     # newick = "((A:1, B:4.1):4, C:5e-1);"
 
-    print(newick)
-    newickToDot(newick)
+    #print(newick)
+    #newickToDot(newick)

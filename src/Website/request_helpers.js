@@ -39,7 +39,7 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
             reqStatus = request.status;
             document.getElementById("loader").style.visibility = "hidden";
             document.getElementById("instruct").innerHTML =
-                "Error in file input please try uploading a file in the correct HYDE format";
+                "Error in file input. Please try uploading a file in the correct HYDE format";
         }
     }
 
@@ -68,6 +68,13 @@ function pushParentheticalToServer(parenthetical) {
             var x = JSON.parse(request.responseText);
     
         } else if (request.readyState === 4) {
+        } else if (request.status === 401) {
+            
+            reqStatus = request.status;
+            document.getElementById("loader").style.visibility = "hidden";
+            document.getElementById("instruct").innerHTML =
+                "Error in file input. Please try uploading a file in the correct parenthetical format," +
+                " it is possible that parentheses are missing";
         }
     }
 }
@@ -100,7 +107,7 @@ function pushTripletsToServer(triplets) {
             reqStatus = request.status;
             document.getElementById("loader").style.visibility = "hidden";
             document.getElementById("instruct").innerHTML =
-                "Error in file input please try uploading a file in the correct triplet format";
+                "Error in file input. Please try uploading a file in the correct triplet format";
         }
     }
 }
