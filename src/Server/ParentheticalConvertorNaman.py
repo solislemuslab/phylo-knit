@@ -114,14 +114,19 @@ def dictToDot(dict):
 
 
 def newickToDot(newick):
-    newick = re.sub(":[0-9]+[eE1\-\.]*[0-9]*", "", newick)
-    diction = returnDictionary(newick)
-    dictToDot(diction)
-    # print(diction)
+    newick = re.sub(":[0-9]+[eE1\-\.]*[0-9]*", "", newick) 
+    try:
+        diction = returnDictionary(newick)
+        dictToDot(diction)
+        # print(diction)
+    except:
+        print("unable to create full dictionary from input newick format, aborting process")
     global Graph, count, stack
     count = 1001
     Graph = {}
     stack = []
+        
+
 
 
 if __name__ == '__main__':
