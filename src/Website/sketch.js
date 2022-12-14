@@ -102,13 +102,15 @@ $(window).on("resize", function () {
 // this variable essentially instantiates the physics of d3's chart
 var simulation = d3.forceSimulation()
 // simulation global variables
-var LINK_DISTANCE = 50;
+var LINK_DISTANCE = 150;
 var LINK_STRENGTH = 0.5;
 var MANY_BODY_STRENGTH = -1000;
 var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
 var NODE_RADIUS = 75;
+var FORCEX_X = 0;
+var FORCEY_Y = 0;
 
 var GRAPH;
 // Main function for generating the D3 graph
@@ -291,8 +293,8 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));                     // node repulsion/attraction
         // simulation.force('center', d3.forceCenter(width / 2, height / 2).strength(0));                  // network centering
         simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));                        // stop collisions
-        simulation.force('forceX', d3.forceX().strength(FORCEX_STRENGTH));
-        simulation.force('forceY', d3.forceY().strength(FORCEY_STRENGTH));
+        simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
+        simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 
         // stops the upper left hand corner bug (though the result still isn't amazing)
         // it seems that running `simulation.alpha(1).restart()` multiple times after initialization leads to good results
@@ -589,7 +591,7 @@ function updateLinkDistance() {
 
 function updateLinkStrength() {
     var sliderval = parseFloat($("#link-strength-slider")[0].value) / 1000;
-    LINK_DISTANCE = sliderval;
+    LINK_STRENGTH = sliderval;
     simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
     $('#link-strength-slider-value')[0].innerHTML="Link Strength: " + sliderval;
 }
@@ -617,6 +619,38 @@ function updateNodeRadius() {
     });
     d3.selectAll("path").style("stroke-width",NODE_RADIUS/20)
     $('#node-radius-slider-value')[0].innerHTML="Node Radius: " + sliderval;
+}
+
+function updateForceXX() {
+    var sliderval = parseFloat($("#forcex-x-slider")[0].value);
+    FORCEX_X = sliderval;
+    simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
+    $('#forcex-x-slider-value')[0].innerHTML="ForceX X-value: " + sliderval;
+
+    simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
+}
+
+function updateForceYY() {
+    var sliderval = parseFloat($("#forcey-y-slider")[0].value);
+    FORCEY_Y = sliderval;
+    simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_Y));
+    $('#forcey-y-slider-value')[0].innerHTML="ForceY Y-value: " + sliderval;
+}
+
+function updateForceXStrength() {
+    var sliderval = parseFloat($("#forcex-strength-slider")[0].value)/1000;
+    FORCEX_STRENGTH = sliderval;
+    simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
+    $('#forcex-strength-slider-value')[0].innerHTML="ForceX Strength: " + sliderval;
+
+    simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
+}
+
+function updateForceYStrength() {
+    var sliderval = parseFloat($("#forcey-strength-slider")[0].value)/1000;
+    FORCEY_STRENGTH = sliderval;
+    simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
+    $('#forcey-strength-slider-value')[0].innerHTML="ForceY Strength: " + sliderval;
 }
 
 function setStaticSettings() {
@@ -648,4 +682,29 @@ function setStaticSettings() {
     simulation.alpha(1).restart();
 }
 
-// LINK_DISTANCE 50, LINK_STRENGTH 0.5, MANY_BODY_STRENGTH -1000, COLLISION_RADIUS 25, FORCEX/Y_STRENGTH
+function setTreelikeSettings() {
+    // This will make heavy use of forceX, forceY, maybe forceCenter, 
+    // and there will have to be some putzing around w/ forcing the root
+    // node to stay in place, while also forcing the other nodes to be
+    // repulsed from the root
+    simulation.force("treelikeX", d3.forceX().x(0).strength(function(d) {
+        if(typeof d != undefined && d.id == "internal1000")
+            return 1;
+        return 0;
+    }));
+    simulation.force("treelikeY", d3.forceY().y(function(d) {
+        if(typeof d != undefined && d.id == "internal1000")
+            return 0;
+        return 50;
+    }).strength(function(d) {
+        if(typeof d != undefined && d.id == "internal1000")
+            return 1;
+        return 0.1;
+    }));
+}
+
+// Resource for grouping nodes (can be used to repel all other nodes from the root in the treelike settings)
+// https://bl.ocks.org/XavierGimenez/a8e8c5e9aed71ba96bd52332682c0399
+
+// Resource for creating dropdowns/sliders/etc. on top of the d3 graph
+// https://bl.ocks.org/XavierGimenez/a8e8c5e9aed71ba96bd52332682c0399

@@ -169,6 +169,22 @@
     <input type="range" min="0" max="500" value="75" style="width:500px;" oninput="updateNodeRadius()" id="node-radius-slider">
     <p id="node-radius-slider-value">Node Radius: 75</p>
     <br>
+    <!-- ForceX X-value -->
+    <input type="range" min="-1000" max="1000" value="0" style="width:500px;" oninput="updateForceXX()" id="forcex-x-slider">
+    <p id="forcex-x-slider-value">ForceX X-value: 0</p>
+    <br>
+    <!-- ForceY Y-value -->
+    <input type="range" min="-1000" max="1000" value="0" style="width:500px;" oninput="updateForceYY()" id="forcey-y-slider">
+    <p id="forcey-y-slider-value">ForceY Y-value: 0</p>
+    <br>
+    <!-- ForceX strength -->
+    <input type="range" min="-1000" max="1000" value="0" style="width:500px;" oninput="updateForceXStrength()" id="forcex-strength-slider">
+    <p id="forcex-strength-slider-value">ForceX strength: 0</p>
+    <br>
+    <!-- ForceY strength -->
+    <input type="range" min="-1000" max="1000" value="0" style="width:500px;" oninput="updateForceYStrength()" id="forcey-strength-slider">
+    <p id="forcey-strength-slider-value">ForceY strength: 0</p>
+    <br>
     <!-- Restart simulation button -->
     <button type="button" onclick="simulation.alpha(1).restart()">Restart</button>
     <button type="button" onclick="setStaticSettings()">Set Style: STATIC</button>
