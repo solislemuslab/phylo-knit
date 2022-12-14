@@ -148,7 +148,9 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
     selectbutton.disabled = true;
     d3.dot("http://localhost:5001/readDot", function (error, graph) {
         if (error) {
-            alert(error);
+            alert("An error was encountered with your input. See the console for more details.");
+            console.log(error);
+            return;
         }
         console.log("graph prints");
         console.log(graph);
@@ -517,6 +519,11 @@ function onClickCreateNetwork() {
     // if we're reading parenthetical text, that's easy; do that and leave.
     if(selectedDropDown == "pf" && newickField.value != "") {
         pushParentheticalToServer(newickField.value);
+        return;
+    } else if(newickField.value == "" && currFile == undefined) {
+        // there is no input yet.
+        document.getElementById("instruct").innerHTML = "No input selected; please select some input then try again.";
+        document.getElementById("loader").style.visibility = "hidden";
         return;
     }
     
