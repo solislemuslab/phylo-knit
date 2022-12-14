@@ -445,7 +445,12 @@ function createboxes() {
         paraDiv.appendChild(text);
         
         // Set the new elements' classes so they can be easily removed later
+        // the setAttributes('from', element); makes it easy to filter out the individual
+        // elements with JQuery when the user is searching
         linebreak.className = checkbox.className = paraDiv.className = text.className = "dl-removable";
+        linebreak.setAttribute('from', element.toLowerCase());
+        checkbox.setAttribute('from', element.toLowerCase());
+        paraDiv.setAttribute('from', element.toLowerCase());
 
         if (!paraDiv.textContent.includes("Hash")) {
             totalLeafNodes.push(paraDiv.textContent);
@@ -456,6 +461,22 @@ function createboxes() {
             displayedLeaves.appendChild(paraDiv);
         }
     });
+
+    filterLeafBox();
+}
+
+function filterLeafBox() {
+    // TODO: case doesn't matter
+    // get the user's search input
+    var searchText = $('.input')[0].value.toLowerCase();
+
+    // filter everything that does not match this
+    if(searchText == "") {
+        $('.dl-removable').show();
+    } else {
+        $('.dl-removable:not([from*="' + searchText + '"])').hide();
+        $('.dl-removable[from*="' + searchText + '"]').show();
+    }
 }
 
 
