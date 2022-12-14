@@ -1,7 +1,7 @@
 import re
 import os
-def reader():
-    filepath = 'cExample1.dot'
+def reader(filepath='cExample1.dot'):
+    #filepath = 'cExample1.dot'
     newick = ""
     with open(filepath) as fp:
         line = fp.readline()

@@ -41,7 +41,11 @@ def returnDictionary(newick):
             j = stack.pop()
             while j != "(":
                 val += j
-                j = stack.pop()
+                try:
+                    j = stack.pop()  # throws errors when lacking parentheses, and then we don't clear global variables   
+                except:
+                    print("stack.pop() unable to be completed.")
+                    raise Exception("ParentheticalConvertorNaman.py unable to complete tree creation")
             val += j
             val = val[::-1]
             listVals = readParameters(val)
@@ -91,14 +95,15 @@ def dictToDot(dict):
     # print('diction: ', dict)
     dotString = 'strict digraph G1 {' + '\n'
 
-    for key, value in dict.items():
-        if key == "internal" + str(count - 1):
-            key = "internal1000"
-        elif key.find("#") > -1:
+    for key, value in dict.items(): # 
+        print("key is ", key)
+        #if key == "internal" + str(count - 1): # if unnamed root node
+        #    key = "internal1000"
+        if key.find("#") > -1:
             key = "" + key
             key = key.replace("internal#", "Hash")
             key = key.replace("#", "Hash")
-        for i in value:
+        for i in value: 
             if i.find("#") > -1:
                 i = "" + i
                 i = i.replace("internal#", "Hash")
@@ -115,18 +120,29 @@ def dictToDot(dict):
 
 def newickToDot(newick):
     newick = re.sub(":[0-9]+[eE1\-\.]*[0-9]*", "", newick)
+    
+    global Graph, count, stack
+    # clear global variables at the start of every call
+    
+    stack = []
+    count = 1001
+    Graph = {}
     diction = returnDictionary(newick)
     dictToDot(diction)
     # print(diction)
-    global Graph, count, stack
+    
+    # clear global variables when call is completed
     count = 1001
     Graph = {}
     stack = []
+        
+
 
 
 if __name__ == '__main__':
-    newick = "(X,(Y,Z))W;"
+    print()
+    #newick = "(X,(Y,Z))W;"
     # newick = "((A:1, B:4.1):4, C:5e-1);"
 
-    print(newick)
-    newickToDot(newick)
+    #print(newick)
+    #newickToDot(newick)

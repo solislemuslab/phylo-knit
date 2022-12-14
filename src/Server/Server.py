@@ -175,9 +175,12 @@ def uploadParentheticalAndReturnDot():
     #parenthetical = ServerAction.symbolReplacement(parenthetical)
     print(parenthetical)
 
-    ParentheticalConvertorNaman.newickToDot(parenthetical)
-
-    return jsonify({'stat': "executing",'newick':convertor.reader()})
+    try: 
+        ParentheticalConvertorNaman.newickToDot(parenthetical)
+        # parenthetical convertor uploads as upload.dot
+        return jsonify({'stat': "executing",'newick':convertor.reader("upload.dot")})
+    except:
+        return jsonify({'error': 'File format is incorrect'}), 401
 
 
 # POST
