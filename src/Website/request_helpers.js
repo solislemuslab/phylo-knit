@@ -49,7 +49,7 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
 // Sends parenthetical input to the server and draws the resulting network if there is one, else throws an error
 function pushParentheticalToServer(parenthetical) {
     var data = JSON.stringify({
-        text: parenthetical,
+        text: parenthetical.replaceAll(" ", ""),
     });
 
     var request = new XMLHttpRequest();
