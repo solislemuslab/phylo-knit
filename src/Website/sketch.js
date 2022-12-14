@@ -67,23 +67,40 @@ var svg = d3.select("svg"),
 // function to set up the legend; this is called right away at startup and after the chart is cleared
 var legendContainer;
 var LEGEND_CIRCLE_RADIUS = 6;
+var LEGEND_ENABLED = true;
 function setupLegend() {
     legendContainer = svg.append("g")
         .attr("class", "legend");
     // Background
-    legendContainer.append("rect").attr("x", -10).attr("y", -10).attr("width", 150).attr("height", 100).style("stroke", "black").style("fill", "white");
+    legendContainer.append("rect").attr("x", -10).attr("y", -10).attr("width", 150).attr("height", 100).style("stroke", "black").style("fill", "white").attr("class", "legend-item");
     // Internal nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#C5C5C5").style("stroke", "black");
-    legendContainer.append("text").attr("x", 25).attr("y", 36).text("Internal Nodes").style("font-size", "15px").attr("alignment-baseline","middle");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#C5C5C5").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("text").attr("x", 25).attr("y", 36).text("Internal Nodes").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Leaves
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#648FFF").style("stroke", "black");
-    legendContainer.append("text").attr("x", 25).attr("y", 56).text("Leaves").style("font-size", "15px").attr("alignment-baseline","middle");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#648FFF").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("text").attr("x", 25).attr("y", 56).text("Leaves").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Hybrid Nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#DC267F").style("stroke", "black");
-    legendContainer.append("text").attr("x", 25).attr("y", 76).text("Hybrid Nodes").style("font-size", "15px").attr("alignment-baseline","middle");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#DC267F").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("text").attr("x", 25).attr("y", 76).text("Hybrid Nodes").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Root Node
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#FFB000").style("stroke", "black");
-    legendContainer.append("text").attr("x", 25).attr("y", 16).text("Root Node").style("font-size", "15px").attr("alignment-baseline","middle");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#FFB000").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("text").attr("x", 25).attr("y", 16).text("Root Node").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
+
+    // this fxn is called everytime the graph is redrawn, but if the legend is
+    // currently disabled, we want to hide all of these elements
+    if(!LEGEND_ENABLED)
+        $('.legend-item').hide();
+}
+function toggleLegend() {
+    if(LEGEND_ENABLED) {
+        LEGEND_ENABLED = false;
+        $('.legend-item').hide();
+        $('#legend-toggle-button')[0].innerHTML = 'Legend: OFF';
+    } else {
+        LEGEND_ENABLED = true;
+        $('.legend-item').show();
+        $('#legend-toggle-button')[0].innerHTML = 'Legend: ON';
+    }
 }
 setupLegend();
 
