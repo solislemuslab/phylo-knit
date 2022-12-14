@@ -17,7 +17,7 @@ var trackRemovedLinks = [];
 function isInternalNode(node_name) { return reg1000P.test(node_name); }
 function isHybridNode(node_name) { return regHash.test(node_name); }
 function isNamedInternalNode(node_name) { return regNamedInternal.test(node_name); }
-function isRootNode(node_name) { return node_name == "internal1000"; }
+function isRootNode(node_name) { return node_name == ROOT_NAME; }
 
 // Node colors
 HYBRID_COLOR = "#DC267F"
@@ -198,6 +198,14 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         console.log("GRAPH HERE")
         console.log(graph)
 
+        // figure out which node is the root node
+        for(var i = 0; i < graph.nodes.length; i++) {
+            if(targetCounts.get(graph.nodes[i].id) == undefined) {
+                ROOT_NAME = graph.nodes[i].id;
+                break;
+            }
+        }
+
         // Get source and target updates
         var targetVals = ""
         var sourceVals = ""
@@ -241,6 +249,7 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
             })
             .attr("d.x", width/2)
             .attr("d.y", height/2)
+            .attr("node_name", function(d) { return d.id.toString(); })
             .style("fill", function (d) {
                 if (removeNodeBool === false) {
                     createboxes();
@@ -301,6 +310,9 @@ function createD3Graph(nodesRemoveArr, newCheckedArray, isRemoveSelected, isAddS
         // check out: https://github.com/d3/d3/issues/1519 perhaps
         simulation.alpha(1).restart();
         svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.15));
+
+        // set up the Displayed Leaves list
+        createboxes();
 
         // raise the legend above everything else
         legendContainer.raise();
@@ -405,23 +417,22 @@ function selectInputType(val) {
 // Populates the "Displayed Leaves" box
 function createboxes() {
     // Enable the create network button.
-    // Why was this disabled up to this point to begin with?
-    // Who knows.
     createNetworkSelector.disabled = false;
     
-    // Clear the box, except for its title.
-    var childList = displayedLeaves.children;
-    for(var i = childList.length-1; i>1; i--) {
-        displayedLeaves.removeChild(childList[i]);
-    }
+    // Clear the box of removables
+    console.log("REMOVING dl-removables");
+    console.log($('.dl-removable'));
+    $('.dl-removable').remove()
     
+    // Populate the list of leaves
     totalLeafNodes = [];
     btnUpdateNet.disabled = false;
     nodeVal.forEach(function (element) {
         console.log("element: " + element);
 
-        linebreak = document.createElement("hr");
-
+        // Create all the new elements for the displayed leaves box
+        var linebreak = document.createElement("hr");
+        
         var checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.name = element;
@@ -432,6 +443,10 @@ function createboxes() {
         paraDiv = document.createElement("p");
         var text = document.createTextNode("" + element);
         paraDiv.appendChild(text);
+        
+        // Set the new elements' classes so they can be easily removed later
+        linebreak.className = checkbox.className = paraDiv.className = text.className = "dl-removable";
+
         if (!paraDiv.textContent.includes("Hash")) {
             totalLeafNodes.push(paraDiv.textContent);
         }
@@ -491,9 +506,6 @@ function onClickCreateNetwork() {
             // triplets
             pushTripletsToServer(fileText);
         }
-
-        // populate the leaf box
-        createboxes();
     }
     fr.readAsText(currFile);
 }
