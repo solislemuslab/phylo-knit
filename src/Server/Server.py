@@ -1,4 +1,20 @@
 import base64
+
+#####
+# Required on the server:
+# * Julia (duh)
+# * julia package for Python (duh)
+# * PhyloNetworks package for Julia
+# * first-time setup: open Python, then:
+#     - import julia
+#     - julia.install(julia=<julia_exec_path>)
+####
+import julia
+from julia import Pkg
+Pkg.activate("PhyloNetworks")
+from julia.PhyloNetworks import rootatnode_b, deleteleaf_b, readTopology, writeTopology
+from julia import Main as Julia
+
 from ete3 import Tree
 import os
 from flask import Flask, request, Response
@@ -155,6 +171,39 @@ def uploadHyde(thresh, eNewick):
     print(dotFile)
     return jsonify({'stat': "executing",'newick':convertor.reader()})
 
+# TODO: check for errors from PhyloNetworks (not sure how to do this via PyJulia, probably just the usual Python try-except clause)
+# POST
+@app.route('/getUserAdjustedParenthetical/', methods=['POST'])
+@cross_origin()
+def getUserAdjustedParenthetical():
+    # The parenthetical to be adjusted is in request.get_json()
+    json = request.get_json()
+
+    if len(json['text']) == 0:
+        return 'error invalid input'
+    parenthetical = json['text']
+
+    # Load the parenthetical into Julia
+    print("parenthetical: \"", parenthetical, "\"", sep="")
+    net = readTopology(parenthetical)
+
+    print("re-rooting...")
+    # re-root the network
+    if len(json['new_root']) != 0:
+        new_root = json['new_root']
+        rootatnode_b(net, new_root)
+
+    print("removing leaves...")
+    # removed_nodes should be a string of leaf names
+    if len(json['removed_nodes']) != 0:
+        removed_nodes = json['removed_nodes']
+
+        for node_name in removed_nodes:
+            deleteleaf_b(net, node_name, keeporiginalroot=False)
+    print("Returning ", writeTopology(net))
+
+    return jsonify({'stat':"executing",'adjusted_newick':writeTopology(net)})
+            
 
 # POST
 @app.route('/uploadNewick/', methods=['POST'])

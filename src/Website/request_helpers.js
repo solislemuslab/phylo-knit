@@ -2,7 +2,7 @@
  *  This file contains all functions that communicate with the server (and the function for downloading the SVG).
  *  Most functions just send the input data to the server and then draw the graph.
  * 
- * The image downloading fxn is also included at the end of the file.
+ *  The image downloading fxn is also included at the end of the file.
  */
 
 
@@ -45,6 +45,40 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
 
 }
 
+// Not fully implemented; still in testing form.
+function pushUserAdjustments() {
+    var data = JSON.stringify({
+        "text": "((A,B),C);",
+        "removed_nodes": ["B"],
+        "new_root":"C"
+    })
+
+    function processRequest(e) {
+        if (request.readyState === 4 && request.status === 200) {
+            var x = JSON.parse(request.responseText);
+            console.log(x);
+            document.getElementById("downloadPng").style.visibility = "visible"
+
+            createD3Graph();
+            var x = JSON.parse(request.responseText);
+    
+        } else if (request.readyState === 4) {
+        } else if (request.status === 401) {
+            
+            reqStatus = request.status;
+            document.getElementById("loader").style.visibility = "hidden";
+            document.getElementById("instruct").innerHTML =
+                "Error in file input. Please try uploading a file in the correct parenthetical format," +
+                " it is possible that parentheses are missing";
+        }
+    }
+
+    var request = new XMLHttpRequest();
+    request.open("POST", "http://127.0.0.1:5001/getUserAdjustedParenthetical/");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("readystatechange", processRequest, false);
+    request.send(data);
+}
 
 // Sends parenthetical input to the server and draws the resulting network if there is one, else throws an error
 function pushParentheticalToServer(parenthetical) {
