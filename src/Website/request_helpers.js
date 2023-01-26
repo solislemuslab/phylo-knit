@@ -27,12 +27,13 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
         console.log(request.responseText);
         var x = JSON.parse(request.responseText);
 
-        if(typeof(x.newick) != 'undefined')
-            lastGeneratedNewick = x.newick;
+        if(typeof(x.newick) != 'undefined') {
+            originalNewick = x.newick;
+            userAdjustedNewick = "";
+        }
 
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("dwn-div").style.visibility = "visible";
             document.getElementById("downloadPng").style.visibility = "visible";
             createD3Graph();
         } else if (request.status === 401) {
@@ -45,43 +46,11 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
 
 }
 
-// Not fully implemented; still in testing form.
-function pushUserAdjustments() {
-    var data = JSON.stringify({
-        "text": "((A,B),C);",
-        "removed_nodes": ["B"],
-        "new_root":"C"
-    })
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            var x = JSON.parse(request.responseText);
-            console.log(x);
-            document.getElementById("downloadPng").style.visibility = "visible"
-
-            createD3Graph();
-            var x = JSON.parse(request.responseText);
-    
-        } else if (request.readyState === 4) {
-        } else if (request.status === 401) {
-            
-            reqStatus = request.status;
-            document.getElementById("loader").style.visibility = "hidden";
-            document.getElementById("instruct").innerHTML =
-                "Error in file input. Please try uploading a file in the correct parenthetical format," +
-                " it is possible that parentheses are missing";
-        }
-    }
-
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/getUserAdjustedParenthetical/");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-}
-
 // Sends parenthetical input to the server and draws the resulting network if there is one, else throws an error
-function pushParentheticalToServer(parenthetical) {
+function pushParentheticalToServer(parenthetical, updateLeafBox) {
+    if(typeof(updateLeafBox) == "undefined")
+        updateLeafBox = true;
+
     var data = JSON.stringify({
         text: parenthetical.replaceAll(" ", ""),
     });
@@ -96,11 +65,17 @@ function pushParentheticalToServer(parenthetical) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
-            document.getElementById("downloadPng").style.visibility = "visible"
-
-            createD3Graph();
-            var x = JSON.parse(request.responseText);
-    
+            document.getElementById("dwn-btn").style.visibility = "visible";
+            document.getElementById("downloadPng").style.visibility = "visible";
+            createD3Graph(updateLeafBox);
+            
+            // if updateLeafBox is false then we are just updating to a user adjustment,
+            // so this is the edited Newick
+            if(updateLeafBox) {
+                originalNewick = parenthetical.replaceAll(" ", "");
+                userAdjustedNewick = "";
+            } else
+                userAdjustedNewick = parenthetical.replaceAll(" ", "")
         } else if (request.readyState === 4) {
         } else if (request.status === 401) {
             
@@ -129,11 +104,12 @@ function pushTripletsToServer(triplets) {
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
-            if(typeof(x.newick) != 'undefined')
-                lastGeneratedNewick = x.newick;
+            if(typeof(x.newick) != 'undefined') {
+                originalNewick = x.newick;
+                userAdjustedNewick = "";
+            }
     
             document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("dwn-div").style.visibility = "visible";
 
             document.getElementById("downloadPng").style.visibility = "visible";
             createD3Graph();
@@ -142,51 +118,6 @@ function pushTripletsToServer(triplets) {
             document.getElementById("loader").style.visibility = "hidden";
             document.getElementById("instruct").innerHTML =
                 "Error in file input. Please try uploading a file in the correct triplet format";
-        }
-    }
-}
-
-
-// not sure this is actually used anywhere at the moment??
-function pushLeavesToServer(leaves) {
-    var data = JSON.stringify({
-        text: leaves,
-    });
-
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/uploadLeaves/");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            createD3Graph();
-        } else if (request.readyState == 4) {
-        }
-    }
-}
-
-
-function pushChangeRootToServer(flag, tripRoot) {
-    var data = JSON.stringify({
-        text: flag,
-    });
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5000/changeRoot/" + tripRoot);
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
-            var response = request.responseText;
-            var img = createImg();
-            img.class("thumb");
-            document
-                .getElementsByClassName("thumb")[0]
-                .setAttribute("src", "data:image/png;base64," + response);
-        } else if (request.readyState === 4) {
         }
     }
 }
@@ -277,7 +208,10 @@ function download(filename, text) {
 
 // Function for downloading Newick
 function downloadNewick() {
-    download("eNewick.txt", lastGeneratedNewick);
+    if(userAdjustedNewick != "")
+        download("eNewick.txt", userAdjustedNewick);
+    else
+        download("eNewick.txt", originalNewick);
 }
 
 function saveImg() {

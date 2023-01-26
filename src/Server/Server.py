@@ -10,8 +10,13 @@ import base64
 #     - julia.install(julia=<julia_exec_path>)
 ####
 import julia
+from julia.api import Julia
+### Nathan's Mac only:
+jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
+
 from julia import Pkg
 Pkg.activate("PhyloNetworks")
+from julia import Julia
 from julia.PhyloNetworks import rootatnode_b, deleteleaf_b, readTopology, writeTopology
 from julia import Main as Julia
 
@@ -171,6 +176,7 @@ def uploadHyde(thresh, eNewick):
     print(dotFile)
     return jsonify({'stat': "executing",'newick':convertor.reader()})
 
+
 # TODO: check for errors from PhyloNetworks (not sure how to do this via PyJulia, probably just the usual Python try-except clause)
 # POST
 @app.route('/getUserAdjustedParenthetical/', methods=['POST'])
@@ -183,15 +189,21 @@ def getUserAdjustedParenthetical():
         return 'error invalid input'
     parenthetical = json['text']
 
-    # Load the parenthetical into Julia
-    print("parenthetical: \"", parenthetical, "\"", sep="")
-    net = readTopology(parenthetical)
+    try:
+        # Load the parenthetical into Julia
+        print("parenthetical: \"", parenthetical, "\"", sep="")
+        net = readTopology(parenthetical)
+    except:
+        return jsonify({'result':'error','errmsg':"Failed to read parenthetical format of \"" + parenthetical + "\""})
 
     print("re-rooting...")
     # re-root the network
     if len(json['new_root']) != 0:
         new_root = json['new_root']
-        rootatnode_b(net, new_root)
+        try:
+            rootatnode_b(net, new_root)
+        except:
+            return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
 
     print("removing leaves...")
     # removed_nodes should be a string of leaf names
@@ -199,11 +211,15 @@ def getUserAdjustedParenthetical():
         removed_nodes = json['removed_nodes']
 
         for node_name in removed_nodes:
-            deleteleaf_b(net, node_name, keeporiginalroot=False)
+            try:
+                deleteleaf_b(net, node_name, keeporiginalroot=False)
+            except:
+                return jsonify({'result':'error','errmsg':"Failed when removing node " + node_name})
+
     print("Returning ", writeTopology(net))
 
-    return jsonify({'stat':"executing",'adjusted_newick':writeTopology(net)})
-            
+    return jsonify({'result':'success','newick':writeTopology(net)})
+
 
 # POST
 @app.route('/uploadNewick/', methods=['POST'])
@@ -296,5 +312,7 @@ def receiveDot2():
     # with open("upload1.dot", "r") as newickField:
     return jsonify({'dotData':quotifyTheFile("upload.dot")})
 
+# ISSUE: threaded=False seems to be required right now for PyJulia to work,
+#        but this also seems to make the server intermittently but consistently hang...
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5001)
+    app.run(host='127.0.0.1', port=5001, threaded=False)
