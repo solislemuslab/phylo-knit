@@ -2441,6 +2441,11 @@
 
     const dotparser = d3dotparser1;
 
+    var loadFromString = function(string) {
+        var converter = simple;
+        return converter(dotparser.parse(string));
+    }
+
     var load = function(url, converter, callback) {
         if (arguments.length < 3) callback = converter, converter = simple;
         var r = d3
@@ -2487,5 +2492,6 @@
     'use strict';
 
     d3.dot = load;
+    d3.dot_from_string = loadFromString;
 
 })));

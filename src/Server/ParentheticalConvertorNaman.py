@@ -87,7 +87,7 @@ def readParameters(input):
     return listOfvals
 
 
-def dictToDot(dict):
+def getDotFromDict(dict):
     global count
     global Graph
     global stack
@@ -113,8 +113,7 @@ def dictToDot(dict):
     dotString += '}'
     print(dotString)
 
-    with open('upload.dot', 'w') as f:
-        f.write(dotString)
+    return dotString
 
 
 
@@ -128,13 +127,15 @@ def newickToDot(newick):
     count = 1001
     Graph = {}
     diction = returnDictionary(newick)
-    dictToDot(diction)
+    dotString = getDotFromDict(diction)
     # print(diction)
     
     # clear global variables when call is completed
     count = 1001
     Graph = {}
     stack = []
+
+    return dotString
         
 
 

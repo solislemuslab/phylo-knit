@@ -11,8 +11,11 @@ import base64
 ####
 import julia
 from julia.api import Julia
-### Nathan's Mac only:
-jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
+try:
+    ### Nathan's Mac only:
+    jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
+except:
+    jl = Julia()
 
 from julia import Pkg
 Pkg.activate("PhyloNetworks")
@@ -84,6 +87,12 @@ def updateNewick():
    
     return jsonify({'stat': "executing",'newick':t.write()})
     '''
+
+# PING/PONG
+@app.route('/ping/', methods=['GET'])
+@cross_origin()
+def ping():
+    return "pong"
 
 # POST
 @app.route('/uploadLeaves/', methods=['POST'])
@@ -238,12 +247,13 @@ def uploadParentheticalAndReturnDot():
 
     # print(parenthetical)
     #parenthetical = ServerAction.symbolReplacement(parenthetical)
+    
     print(parenthetical)
 
     try: 
-        ParentheticalConvertorNaman.newickToDot(parenthetical)
+        dotString = ParentheticalConvertorNaman.newickToDot(parenthetical)
         # parenthetical convertor uploads as upload.dot
-        return jsonify({'stat': "executing",'newick':convertor.reader("upload.dot")})
+        return jsonify({'stat': "executing",'dot': dotString})
     except:
         return jsonify({'error': 'File format is incorrect'}), 401
 
@@ -279,38 +289,6 @@ def uploadTripletsAndReturnDot():
 
     return jsonify({'stat': "executing",'newick':convertor.reader()})
     #return dotFile
-
-
-# GET
-@app.route('/readDot')
-@cross_origin()
-def receiveDot():
-    print('Sending Dot')
-    # TODO change done
-    # dotFile = returnReducedDotFile('cExample1.dot')
-
-    # with open('upload.dot', 'w+') as newickField:
-    #     newickField.write(dotFile)
-
-    # with open("upload1.dot", "r") as newickField:
-    print("IN receiveDot")
-    print(quotifyTheFile('upload.dot'))
-    return Response(quotifyTheFile('upload.dot'), mimetype='text/plain')
-
-    # return "working"
-
-@app.route('/readDot2')
-@cross_origin()
-def receiveDot2():
-    print('Sending Dot')
-    # TODO change done
-    # dotFile = returnReducedDotFile('cExample1.dot')
-
-    # with open('upload.dot', 'w+') as newickField:
-    #     newickField.write(dotFile)
-
-    # with open("upload1.dot", "r") as newickField:
-    return jsonify({'dotData':quotifyTheFile("upload.dot")})
 
 # ISSUE: threaded=False seems to be required right now for PyJulia to work,
 #        but this also seems to make the server intermittently but consistently hang...

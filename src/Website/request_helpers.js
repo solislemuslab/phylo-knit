@@ -67,7 +67,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
             console.log(x);
             document.getElementById("dwn-btn").style.visibility = "visible";
             document.getElementById("downloadPng").style.visibility = "visible";
-            createD3Graph(updateLeafBox);
+            createD3Graph(updateLeafBox, x["dot"]);
             
             // if updateLeafBox is false then we are just updating to a user adjustment,
             // so this is the edited Newick
@@ -78,7 +78,6 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
                 userAdjustedNewick = parenthetical.replaceAll(" ", "")
         } else if (request.readyState === 4) {
         } else if (request.status === 401) {
-            
             reqStatus = request.status;
             document.getElementById("loader").style.visibility = "hidden";
             document.getElementById("instruct").innerHTML =
