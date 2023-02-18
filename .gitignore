@@ -14,4 +14,11 @@ ParsingTxt/__pycache__/ServerAction.cpython-37.pyc
 .idea
 __pycache__
 src/Server/*.dot
+src/Server/node_modules/
+src/Server/*.json
+src/Website/.idea/
+src/Website/css/
+src/Website/fonts/
+src/Website/js/
+src/Website/libraries/
 src/Server/*.txt
