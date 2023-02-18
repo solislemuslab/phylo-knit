@@ -20,22 +20,25 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.send(data);
-    console.log(data);
 
+    var alreadySent = false;  // we usually receive the response twice, so let's only send once.
     function processRequest(e) {
+        if(request.responseText == "")
+            return;
         console.log("check ");
         console.log(request.responseText);
         var x = JSON.parse(request.responseText);
 
         if(typeof(x.newick) != 'undefined') {
-            originalNewick = x.newick;
+            originalNewick = x.newick.trim();
             userAdjustedNewick = "";
         }
 
         if (request.readyState === 4 && request.status === 200) {
-            document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("downloadPng").style.visibility = "visible";
-            createD3Graph();
+            pushParentheticalToServer(originalNewick);
+            // document.getElementById("dwn-btn").style.visibility = "visible";
+            // document.getElementById("downloadPng").style.visibility = "visible";
+            // createD3Graph(true, x['dotString']);
         } else if (request.status === 401) {
             reqStatus = request.status;
             document.getElementById("loader").style.visibility = "hidden";
@@ -72,7 +75,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
             // if updateLeafBox is false then we are just updating to a user adjustment,
             // so this is the edited Newick
             if(updateLeafBox) {
-                originalNewick = parenthetical.replaceAll(" ", "");
+                originalNewick = parenthetical.replaceAll(" ", "").trim();
                 userAdjustedNewick = "";
             } else
                 userAdjustedNewick = parenthetical.replaceAll(" ", "")
@@ -104,7 +107,7 @@ function pushTripletsToServer(triplets) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
             if(typeof(x.newick) != 'undefined') {
-                originalNewick = x.newick;
+                originalNewick = x.newick.trim();
                 userAdjustedNewick = "";
             }
     
@@ -210,7 +213,7 @@ function downloadNewick() {
     if(userAdjustedNewick != "")
         download("eNewick.txt", userAdjustedNewick);
     else
-        download("eNewick.txt", originalNewick);
+        download("eNewick.txt", originalNewick.trim());
 }
 
 function saveImg() {
