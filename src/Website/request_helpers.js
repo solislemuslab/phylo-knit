@@ -29,12 +29,12 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
         console.log(request.responseText);
         var x = JSON.parse(request.responseText);
 
-        if(typeof(x.newick) != 'undefined') {
-            originalNewick = x.newick.trim();
-            userAdjustedNewick = "";
-        }
-
         if (request.readyState === 4 && request.status === 200) {
+            if(typeof(x.newick) != 'undefined') {
+                originalNewick = x.newick.trim();
+                userAdjustedNewick = "";
+            }
+
             pushParentheticalToServer(originalNewick);
             // document.getElementById("dwn-btn").style.visibility = "visible";
             // document.getElementById("downloadPng").style.visibility = "visible";
@@ -110,11 +110,7 @@ function pushTripletsToServer(triplets) {
                 originalNewick = x.newick.trim();
                 userAdjustedNewick = "";
             }
-    
-            document.getElementById("dwn-btn").style.visibility = "visible";
-
-            document.getElementById("downloadPng").style.visibility = "visible";
-            createD3Graph();
+            pushParentheticalToServer(originalNewick);
         } else if (request.status === 401) {
             reqStatus = request.status;
             document.getElementById("loader").style.visibility = "hidden";

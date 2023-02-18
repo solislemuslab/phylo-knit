@@ -2,8 +2,8 @@ var nodeNum = 0;
 var nodeVal = [];
 var nodesCheckedStr = "";
 var paraText = "";
-var reg1000P = new RegExp("internal([0-9]{4})");
-var regNamedInternal = new RegExp("internal[a-zA-Z]");
+var reg1000P = new RegExp("internal([0-9]*)");
+var regNamedInternal = new RegExp("internal[a-zA-Z]*");
 var reqStatus;
 var regHash = new RegExp("Hash[A-Za-z]+");
 var targetCounts = new Map();
@@ -12,6 +12,11 @@ var removeNodeBool = false;
 var totalLeafNodes = [];
 var trackRemovedNodes = [];
 var trackRemovedLinks = [];
+
+// global for use later
+var GRAPH;
+var DISPLAY_NAMED_INTERNAL_NODE_NAMED = false;
+var STROKE_WIDTH = 4;
 
 // we want to test whether a node is internal/hybrid or not
 function isInternalNode(node_name) { return reg1000P.test(node_name); }
@@ -30,6 +35,9 @@ LEAF_COLOR = "#648FFF";
 // this is stored for the download parenthetical button
 var originalNewick;      // this value is updated in request_helpers.js
 var userAdjustedNewick = "";  // this value is updated in request_helpers.js
+
+var namedOriginalNewick;        // so that re-rooting is possible
+var namedUserAdjustedNewick;    // so that re-rooting is possible
 
 // Page elements for later reference
 var btnUpdateNet = document.getElementById("updateNetwork");
@@ -210,7 +218,7 @@ function createD3Graph(updateLeafBox, dotString) {
             .attr("marker-end", "url(#end)")
             .attr("fill", "none")
             .style("stroke", "black")
-            .style("stroke-width", 4)
+            .style("stroke-width", STROKE_WIDTH)
         nodeNum = graph.nodes.length;
 
         // add all of the nodes to the svg and set their attributes
@@ -247,7 +255,7 @@ function createD3Graph(updateLeafBox, dotString) {
                 
             })
             .style("stroke", "black")
-            .style("stroke-width", 4)
+            .style("stroke-width", STROKE_WIDTH)
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -267,7 +275,10 @@ function createD3Graph(updateLeafBox, dotString) {
                 } else if(isHybridNode(valueOfNode)) {
                     return "#" + d.id.substr(4, d.id.length-4);
                 } else if(isNamedInternalNode(valueOfNode)) {
-                    return d.id.substr(8, d.id.length-8);
+                    if(DISPLAY_NAMED_INTERNAL_NODE_NAMED)
+                        return d.id.substr(8, d.id.length-8);
+                    else
+                        return "";
                 }
                 return d.id;
             });
@@ -322,7 +333,7 @@ function createD3Graph(updateLeafBox, dotString) {
         }
     } catch(exceptionVar) {
         alert("An error was encountered with your input. See the console for more details.");
-        console.log(error);
+        console.log(exceptionVar);
         return;
     }
 }
@@ -336,10 +347,28 @@ function clicked(d) {
     // 2. something else already selected? select this, highlight this, unhighlight other
     // 3. this already selected? unselect this, unhighlight this, remove "change root" button
 
-    console.log("clicked ", d.id)
+    console.log("clicked", d.id)
+    if(highlightedNode == null || highlightedNode != d) {
+        highlightedNode = d;
 
-    if(highlightedNode == null) {
+        svg.selectAll("circle").filter(":not(.legend-item)")
+            .style("stroke-width", function(datum) {
+                if(datum.id == d.id) {
+                    return STROKE_WIDTH * 5;
+                } else {
+                    return STROKE_WIDTH;
+                }
+            });
+            $("rerootNetwork")[0].disabled = false;
+    } else if(highlightedNode == d) {
+        highlightedNode = null;
 
+        svg.selectAll("circle").filter(":not(.legend-item)")
+            .style("stroke-width", STROKE_WIDTH);
+        $("rerootNetwork")[0].disabled = true;
+    } else {
+        alert("Unknown case reached @ function clicked(d) {...}");
+        $("rerootNetwork")[0].disabled = true;
     }
 }
 
@@ -606,6 +635,10 @@ function updateNetwork() {
 
     // get the new root, if there is one
     // -- TO BE IMPLEMENTED --
+    // need to first implement the namedOriginalNewick and namedUserAdjustedNewick var saving things,
+    // and then implement this
+    // To this end, definitely change the node naming in `ParentheticalToNaman.py` for count=1001 to count=1
+    // then, the node names will already align with PhyloNetworks nameinternalnodes! (or similarly named method)
     new_root = "";
 
     // TODO: do a bad request that is guaranteed to cause an error to see how the server responds and
@@ -630,6 +663,7 @@ function updateNetwork() {
             console.log(x);
 
             if(x.result == 'success') {
+                ROOT_NAME = x['new_root'];
                 // push the parenthetical
                 pushParentheticalToServer(x.newick, false);
         
@@ -654,6 +688,42 @@ function updateNetwork() {
 function removeGraph() {
     $("#chartId").empty();
     setupLegend();
+}
+
+// to change node colors upon user update
+function triggerColorChange(whichNodes) {
+    if(whichNodes == 'root') {
+        ROOT_COLOR = $("#root_color")[0].value;
+    } else if(whichNodes == 'leaf') {
+        LEAF_COLOR = $("#leaf_color")[0].value;
+    } else if(whichNodes == 'hybrid') {
+        HYBRID_COLOR = $("#hybrid_color")[0].value;
+    } else if(whichNodes == 'internal') {
+        INTERNAL_COLOR = $("#internal_color")[0].value;
+    } else if(whichNodes == 'named internal') {
+        INTERNAL_NAMED_COLOR = $("named_internal_color")[0].value;
+    }
+
+    // reset all circle colors (except for the legend circles)
+    svg.selectAll("circle").filter(":not(.legend-item)").style("fill", function (d) {
+        try {
+            var valueOfNode = d.id.toString();
+
+            return isHybridNode(valueOfNode)
+                ? HYBRID_COLOR
+                : isRootNode(valueOfNode)
+                ? ROOT_COLOR
+                : isInternalNode(valueOfNode)
+                ? INTERNAL_COLOR
+                : isNamedInternalNode(valueOfNode)
+                ? INTERNAL_NAMED_COLOR
+                : LEAF_COLOR;
+        } catch(exceptVar) {
+            console.log(exceptVar);
+            return "#000000";
+        }
+    });
+        
 }
 
 
@@ -696,6 +766,7 @@ function updateCollisionRadius() {
 function updateNodeRadius() {
     var sliderval = parseFloat($("#node-radius-slider")[0].value);
     NODE_RADIUS = sliderval;
+    STROKE_WIDTH = NODE_RADIUS / 20;
     d3.selectAll("circle").attr("r", function(d) {
         // only want to change the radius of the non-legend nodes
         if(typeof d != "undefined")
@@ -704,10 +775,10 @@ function updateNodeRadius() {
     }).style("stroke-width", function(d) {
         // only want to change the stroke on the non-legend nodes
         if(typeof d != "undefined")
-            return NODE_RADIUS/20;
+            return STROKE_WIDTH;
         return 1;
     });
-    d3.selectAll("path").style("stroke-width",NODE_RADIUS/20)
+    d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
     $('#node-radius-slider-value')[0].innerHTML="Node Radius: " + sliderval;
 }
 
@@ -750,6 +821,7 @@ function setStaticSettings() {
     LINK_DISTANCE = 900;
     COLLISION_RADIUS = 900;
     NODE_RADIUS = 500;
+    STROKE_WIDTH = NODE_RADIUS / 20;
 
     simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
     simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
@@ -761,10 +833,10 @@ function setStaticSettings() {
     }).style("stroke-width", function(d) {
         // only want to change the stroke on the non-legend nodes
         if(typeof d != "undefined")
-            return NODE_RADIUS/20;
+            return STROKE_WIDTH;
         return 1;
     });
-    d3.selectAll("path").style("stroke-width",NODE_RADIUS/20)
+    d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
     d3.selectAll("svg text").style("font", function() {
         return(d3.select(this).attr("x") == 12 ? "400px times" : "15px")
     })

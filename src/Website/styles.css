@@ -1,4 +1,51 @@
 @charset "utf-8";
+/*
+ * Style menu dropdown things
+ */
+.dropdown {
+    float: left;
+    z-index: 5;
+    /* overflow: hidden; */
+}
+.dropdown .dropbtn {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 14px 16px;
+    background-color: inherit;
+    font: inherit;
+    margin: 0;
+}
+.dropdown-content {
+    display: none;
+    position: fixed;
+    padding: 12px;
+    left: 0;
+    top: inherit;
+    background-color: inherit;
+    font: inherit;
+    width: 100%;
+    box-shadow: 0px 8px 8px 0px rgba(0,0,0,0.5);
+
+    border-bottom: 1px solid black;
+}
+.dropdown:hover {
+    background-color: #212529;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+.dropdown-content div p {
+    color: white;
+}
+.dropdown:hover ~ #dropdown-border-style {
+    outline: 12px solid blue;
+}
+#dropdown-border-style {
+    border: 2222px solid red;
+    z-index: 100;
+}
+
 body {
     /*padding: 20px;*/
     margin: 0px;

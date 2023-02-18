@@ -1,9 +1,16 @@
 import os
 import re
 
+from io import StringIO
+
 import numpy as np
 import pandas as pd
 import pydot
+
+from uuid import uuid4
+
+def getRandomFileName():
+    return "." + str(uuid4()) + ".tmp"
 
 # from Launcher import removeDup
 import ParentheticalToDot
@@ -19,13 +26,15 @@ def isDup(pairs, a, b):
 # Removes duplicate triplets from a triplet file, overwriting the original file
 # where leaf1 leaf2 | outgroup is the pattern of each of the triples, we remove
 # duplicates as defined as (leaf1 leaf2 | outgroup) == (leaf2 leaf1 | outgroup)
-def removeDupTriplets(filename):
-    with open(filename) as f:
-        filecontents = f.readlines()
+def removeDupTriplets(tripletString):
     result = dict()
-    file = open(filename, "w")
+    toRemove = []
 
-    for triple in filecontents:
+    lines = tripletString.split("\n")
+    for triple in lines:
+        if triple.strip() == '':
+            continue
+
         outgroup = triple.split()[2]
         leaf1 = triple.split()[0]
         leaf2 = triple.split()[1]
@@ -34,16 +43,23 @@ def removeDupTriplets(filename):
             pairs = result[outgroup]
             if isDup(pairs, leaf1, leaf2):
                 # do not add duplicate triple to file
-                print("duplicate in " , pairs, " and ", leaf1, leaf2)
+                # print("duplicate in " , pairs, " and ", leaf1, leaf2)
+                toRemove.append(triple)
             else: # not a duplicate, add to set of leaf pairs with that outgroup.
-                file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
                 pairs.append([leaf1, leaf2])
             result[outgroup] = pairs
         else: # create new outgroup->pairs dict entry
-            file.write(leaf1 + " " + leaf2 + " " + outgroup + "\n")
             result[outgroup] = [[leaf1, leaf2]]
-    file.close()
-    #print("This is the triplet result", result)
+
+    # remove duplicates and return the string
+    for item in toRemove:
+        lines.remove(item)
+    newString = ""
+    for item in lines:
+        newString += item + "\n"
+
+    return newString
+
 
 # ensures duplicate triples do not get added when parsing through HyDe file.
 # when provided without a backbone tree
@@ -63,13 +79,15 @@ def containsTriple(triple_set, leaf1, leaf2, outgroup):
 #
 # unfiltered HyDe files contain all possible triples, which will result in an arbitrary tree. 
 # thus a backbone is necessary to provide an informative tree. 
-def parseHydeToTriplets(fileName, threshold, backboneNewick):
-    f = open(fileName,'r')
-    lines = f.readlines()
-    result = []
-    for x in lines:
-        result.append(x.split(" "))
-    dataset = pd.read_table(fileName, delim_whitespace=True, header=None)
+def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
+    # check if this is the old format
+    dataset = pd.read_table(StringIO(hydeContent), sep=" ", header=None)
+    if not len(dataset.columns) == 8:
+        # dataset could be delimited by tabs, spaces, ..., so we have to read like this
+        datareader = pd.read_table(StringIO(hydeContent), sep=None, iterator=True, engine='python') 
+        dataset = datareader.read()
+
+
     tripletsFromLess1 = ""
     tripletsFromLess2 = ""
     tripletsFromMore1 = ""
@@ -79,6 +97,10 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
     # Older HyDe format that lists only putative parents, hybrid, z scores and p-values
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'hybrid', 'a2', 'parent1', 'a4', 'parent2', 'z-score', 'p-value']
+        dataset['hybrid'] = dataset['hybrid'].astype(str, copy=False)
+        dataset['parent1'] = dataset['parent1'].astype(str, copy=False)
+        dataset['parent2'] = dataset['parent2'].astype(str, copy=False)
+
         datasetLess = dataset.loc[dataset['p-value'] < threshold]
         datasetMore = dataset.loc[dataset['p-value'] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
@@ -86,7 +108,10 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
         tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
     # Newer HyDe format that contains site pattern frequencies
     elif len(dataset.columns) == 21:
-        dataset = pd.read_table(fileName, delim_whitespace=True, dtype={'P1': str, 'Hybrid': str, 'P2': str, 'Pvalue':float } )
+        dataset['P1'] = dataset['P1'].astype(str, copy=False)
+        dataset['P2'] = dataset['P2'].astype(str, copy=False)
+        dataset['Hybrid'] = dataset['Hybrid'].astype(str, copy=False)
+
         datasetLess = dataset.loc[dataset['Pvalue'] < threshold]
         datasetMore = dataset.loc[dataset['Pvalue'] > threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
@@ -132,17 +157,18 @@ def parseHydeToTriplets(fileName, threshold, backboneNewick):
             if not (containsTriple(trip, leaf1, leaf2, outgroup) or 
                     containsTriple(old_triple, leaf1, leaf2, outgroup)):
                 trip.append([leaf1, leaf2, outgroup])
-                print(trip, "is tripfile")
             oldleaf1 = leaf1
             oldleaf2 = leaf2
             oldoutgroup = outgroup
             
-    with open("HydeToTriplets.txt", "w") as outfile:
-        for triple in trip:
-            outfile.write(str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n")
-    outfile.close()
-    removeDupTriplets("HydeToTriplets.txt")
-    return 0
+    triplets = ""
+    for triple in trip:
+        triplets += str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n"
+
+
+    print("\n\n------\ntriplets: ", triplets)
+    triplets = removeDupTriplets(triplets)
+    return triplets
 
 # retreives the parenthetical format from the file created by Lev1athan
 def returnParentheticalFormat(fileName):
@@ -155,43 +181,6 @@ def returnParentheticalFormat(fileName):
     return parentheticalFormat.strip()
 
 
-def convertDotToPNG(fileName):
-    (graph,) = pydot.graph_from_dot_file(fileName)
-    graph.write_png('cExample1.png')
-
-
-def convertDotToPNGJulia(fileName, flag=''):
-    paren = returnParentheticalFormat(fileName)
-    with open("NetworkParen.net", "w") as text_file:
-        text_file.write(paren)
-    # write it to a file
-    # then use the julia command
-    cmd = 'julia plot-network.jl NetworkParen.net ' + flag
-    os.system(cmd)
-
-
-def removeLeavesJulia(leafNodes):
-    with open("leaves.txt", "w") as text_file:
-        text_file.write(leafNodes)
-    # write it to a file
-    # then use the julia command
-    cmd = 'julia remove-leaves.jl  NetworkParen.net  leaves.txt'
-    os.system(cmd)
-    # convert Parenthetical format to png
-    cmd = 'julia plot-network.jl reduced-net.txt'
-    os.system(cmd)
-
-
-def parentheticalFormatToPNG(parentheticalFormat, flag=''):
-    with open("NetworkParen.net", "w") as text_file:
-        text_file.write(parentheticalFormat)
-    # write it to a file
-    # then use the julia command
-    cmd = 'julia plot-network.jl NetworkParen.net ' + flag
-    os.system(cmd)
-    # assumes that the triplets are in the parenthetical format in hte NetworkParen.net text file
-
-
 # converts
 def changeRoot(flag, newRoot):
     cmd = 'julia change-root.jl NetworkParen.net ' + flag + ' ' + newRoot + ' '
@@ -199,6 +188,23 @@ def changeRoot(flag, newRoot):
     # convert Parenthetical format to png
     cmd = 'julia plot-network.jl new-net.txt'
     os.system(cmd)
+
+
+def fetchNewick(levFile):
+    newick = ""
+
+    with open(levFile, 'r') as f:
+        lines = f.readlines()
+    
+    for line in lines:
+        if "eNewick output" in line.strip():
+            r = str(line.strip())
+            r = r.split(":")
+            #r[len(r)-1] = r[len(r)-1].replace(";","")
+            newick = r[len(r)-1]
+            break
+
+    return newick
 
 
 # julia change-root.jl test.net outgroup 3
@@ -211,10 +217,27 @@ update oct19: Lev1athan output shows that:
 following this, we attempt to remove duplicate triplets before calling Lev1athan
 """
 
-def tripletsToDot(tripletsFName):
-    removeDupTriplets(filename=tripletsFName)
-    cmd = 'java -jar Lev1athan.jar ' + tripletsFName + ' > cExample1.dot --nopostprocess'
+# This used to be triplets to dot BUT it turns out that the Newick output from Lev1athan is correct,
+# but the dot file output does not reflect what we want ours to look like. So, we just take the
+# newick and pass it back into our other machinery instead.
+def tripletsToNewick(tripletsString):
+    tripletsString = removeDupTriplets(tripletsString).strip()
+    trip_filename = getRandomFileName()
+
+    with open(trip_filename, "w+") as f:
+        f.write(tripletsString)
+
+    lev_filename = getRandomFileName()
+    cmd = 'java -jar Lev1athan.jar ' + trip_filename + ' > ' + lev_filename + ' --nopostprocess'
     os.system(cmd)
+
+    # dotString = returnReducedDotString(lev_filename)
+    newick = fetchNewick(lev_filename)
+
+    os.remove(trip_filename)
+    os.remove(lev_filename)
+
+    return newick
 
 def symbolReplacement(inputStr):
     outputStr = ""
@@ -236,39 +259,16 @@ def symbolReplacement(inputStr):
 
     return outputStr
 
-# TODO: test to see if remove nodes function works
-# it doesnt ... :( 
-def removeNodes(nodes):
-    output = ''
-    nodes = nodes.split(',')
 
-    with open("upload.dot", "r") as text_file:
-        for line in text_file:
-            try:
-                for n in nodes:
-                    if line.__contains__(" " + n + "\n"):
-                        raise Exception()
-            except Exception:
-                continue
-            output += line
-
-    print(output)
-    with open("upload.dot", "w+") as text_file:
-        text_file.write(output)
-
-
-def newickToDot(newick):
-    dotFomat = ParentheticalToDot.newickToActualLabels(newick)
-    with open("upload.dot", "w+") as text_file:
-        text_file.write(dotFomat)
-
-# takes cExample1.dot and converts it to cExample1_m.dot
-def returnReducedDotFile(fileName):
+def returnReducedDotString(fileName):
     print("calling returnReducedDotFile")
     retainActualLabels(fileName)
 
     dotFormat = ''
-    for line in list(open('cExample1_m.dot')):
+    with open(fileName, "r") as f:
+        lines = f.readlines()
+
+    for line in lines:
         if line.__contains__('{') or line.__contains__('}') or line.__contains__('->'):
             dotFormat += line
     return dotFormat.rstrip()
@@ -283,11 +283,6 @@ def checkTripletErrors(triplets):
         print(line)
         if len(line) != 3 and i != len(triplets_arr) - 1:
             return 401
-        '''
-        for j in range(len(line)):
-            if line[j].isnumeric() == False:
-                return 401
-        '''
     return 0
 
 
@@ -310,19 +305,26 @@ def backBoneToTriplets(filename):
 def retainActualLabels(fileName):
     dotFormat = ''
     dictionary = {}
+    print('retainActualLabels ___')
+    print(fileName)
 
-    for line in list(open(fileName)):
+    with open(fileName, "r") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        # print(line)
         # search line by line to identify 
         # will work with taxa named with characters, numbers, underscores, and dashes
         temp = re.search(r'("[A-z0-9_-]+)', line) 
         if re.search(r'(labelbox)', line):
-            print()
+            # print()
+            pass
         elif temp:
             actualName = temp.group(1) 
-            print("actual name is ", actualName[1:])
+            # print("actual name is ", actualName[1:])
             temp2 = re.search(r'(\d+[\s]\[)', line)
             fakeName = temp2.group(1)
-            print("fake name is ", fakeName[:-1].strip())
+            # print("fake name is ", fakeName[:-1].strip())
             # print(found[1] + "  :  " + found2[:-1])
             
             # remove \n if necessary from end of name
@@ -332,7 +334,9 @@ def retainActualLabels(fileName):
             temp = re.search(r'([0-9]+)', line)
             dictionary[temp.group()] = str('internal' + temp.group())
 
+    print('--------------')
     print(dictionary)
+    print('--------------')
     # newLine = ''
     # for line in open(fileName):
     with open(fileName, 'r') as file:
@@ -344,10 +348,9 @@ def retainActualLabels(fileName):
         fileStr = fileStr.replace(" " + key + "\n", " " + value + "Δ\n")
 
     fileStr = fileStr.replace('Δ', '')
-    dotFormat = fileStr
 
-    with open('cExample1_m.dot', 'w+') as f:
-        f.write(dotFormat)
+    with open(fileName, 'w+') as f:
+        f.write(fileStr)
 
 
 if __name__ == '__main__':

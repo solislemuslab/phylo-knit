@@ -124,26 +124,17 @@ def newickToDot(newick):
     # clear global variables at the start of every call
     
     stack = []
-    count = 1001
+    count = 1
     Graph = {}
     diction = returnDictionary(newick)
     dotString = getDotFromDict(diction)
     # print(diction)
     
     # clear global variables when call is completed
-    count = 1001
+    count = 1
     Graph = {}
     stack = []
 
     return dotString
-        
 
 
-
-if __name__ == '__main__':
-    print()
-    #newick = "(X,(Y,Z))W;"
-    # newick = "((A:1, B:4.1):4, C:5e-1);"
-
-    #print(newick)
-    #newickToDot(newick)

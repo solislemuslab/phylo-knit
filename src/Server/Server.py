@@ -9,7 +9,7 @@ import base64
 #     - import julia
 #     - julia.install(julia=<julia_exec_path>)
 ####
-import julia
+import traceback
 from julia.api import Julia
 try:
     ### Nathan's Mac only:
@@ -20,7 +20,7 @@ except:
 from julia import Pkg
 Pkg.activate("PhyloNetworks")
 from julia import Julia
-from julia.PhyloNetworks import rootatnode_b, deleteleaf_b, readTopology, writeTopology
+from julia.PhyloNetworks import rootatnode_b, deleteleaf_b, readTopology, writeTopology, nameinternalnodes_b
 from julia import Main as Julia
 
 from ete3 import Tree
@@ -54,98 +54,6 @@ def quotifyTheFile(fileName):
 
     return writeContent
 
-@app.route('/updateNewick/', methods=['POST'])
-@cross_origin()
-def updateNewick():
-    json = request.get_json()
-    source = json["source"]
-    target = json["target"]
-    tar = ""
-    for i in target:
-        tar = tar +" " + i
-    tar = tar.strip()
-    print("source",source,"target",target)
-    with open('tester.txt','r+') as myfile:
-        data = myfile.read()
-        myfile.seek(0)
-        myfile.write(source + " " + tar)
-        myfile.truncate()
-    cmd = 'julia tester.jl'
-    os.system(cmd)
-    first = ""
-    with open("hereTest.txt") as f:
-        lines = f.read() ##Assume the sample file has 3 lines
-        first = lines.split('\n', 1)[0]
-
-    return jsonify({'newick':first})
-    '''
-    connections = []
-    for i in range(len(source)):
-        connections.append(source[i]+ " " + target[i])
-    t = Tree.from_parent_child_table([line.split() for line in connections] )
-
-   
-    return jsonify({'stat': "executing",'newick':t.write()})
-    '''
-
-# PING/PONG
-@app.route('/ping/', methods=['GET'])
-@cross_origin()
-def ping():
-    return "pong"
-
-# POST
-@app.route('/uploadLeaves/', methods=['POST'])
-@cross_origin()
-def uploadLeavesToBeRemoved():
-    """
-    predicts requested text whether it is ham or spam
-    :return: json
-    """
-    json = request.get_json()
-    print(json)
-    if len(json['text']) == 0:
-        return 'error invalid input'
-
-    leaves = json['text']
-
-    print(leaves)
-
-    ServerAction.removeNodes(leaves)
-
-    return "working"
-
-
-@app.route('/changeRoot/<root>', methods=['POST'])
-def uploadRootToBeChanged(root):
-    print('root= ', root)
-    json = request.get_json()
-    print(json)
-    if len(json['text']) == 0:
-        return 'error invalid input'
-
-    flag = json['text']
-
-    print(flag)
-
-    ServerAction.changeRoot(flag, root)
-    with open("net.png", "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    print(encoded_string)
-    return encoded_string
-
-
-@app.route('/getParenthetical/')
-def getParenthetical():
-    """
-    this serves as a demo purpose
-    :param user:
-    :return: str
-    """
-    parenthetical = ServerAction.returnParentheticalFormat('cExample.dot')
-    print(parenthetical)
-    return "Hello parenthetical is here" + parenthetical
-
 
 # POST
 @app.route('/uploadHyde/<thresh>/<eNewick>', methods=['POST'])
@@ -160,30 +68,14 @@ def uploadHyde(thresh, eNewick):
     print('parenthetical =', eNewick)
     print('Threshold =', thresh)
 
-    print(hyde)
-    with open('HydeInput.txt', 'w+') as f:
-        f.write(hyde)
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
-    ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh), eNewick)
-
-    '''
-    try:
-        if ServerAction.parseHydeToTriplets("HydeInput.txt", float(thresh)) == 401:
-             return jsonify({'error': 'File format is incorrect'}), 401
-    except:
-        return jsonify({'error': 'File format is incorrect'}), 401
-    '''
+    triplets = ServerAction.parseHydeToTriplets(hyde, float(thresh), eNewick)
 
     # TODO: uncomment the following done
-    ServerAction.tripletsToDot('HydeToTriplets.txt')
-    # ServerAction.tripletsToDot('hydetotriplets.out')
-    dotFile = ServerAction.returnReducedDotFile('cExample1.dot')
+    print("uploadHyde.triplets: ", triplets)
+    newick = ServerAction.tripletsToNewick(triplets)
 
-    with open('upload.dot', 'w+') as f:
-        f.write(dotFile)
-    print("dot file")
-    print(dotFile)
-    return jsonify({'stat': "executing",'newick':convertor.reader()})
+    return jsonify({'stat':"executing", 'newick':newick})
 
 
 # TODO: check for errors from PhyloNetworks (not sure how to do this via PyJulia, probably just the usual Python try-except clause)
@@ -202,8 +94,21 @@ def getUserAdjustedParenthetical():
         # Load the parenthetical into Julia
         print("parenthetical: \"", parenthetical, "\"", sep="")
         net = readTopology(parenthetical)
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({'result':'error','errmsg':"Failed to read parenthetical format of \"" + parenthetical + "\""})
+
+    print("removing leaves...")
+    # removed_nodes should be a string of leaf names
+    if len(json['removed_nodes']) != 0:
+        removed_nodes = json['removed_nodes']
+
+        for node_name in removed_nodes:
+            try:
+                deleteleaf_b(net, node_name, keeporiginalroot=False)
+            except Exception as e:
+                print(e)
+                return jsonify({'result':'error','errmsg':"Failed when removing node " + node_name})
 
     print("re-rooting...")
     # re-root the network
@@ -214,20 +119,11 @@ def getUserAdjustedParenthetical():
         except:
             return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
 
-    print("removing leaves...")
-    # removed_nodes should be a string of leaf names
-    if len(json['removed_nodes']) != 0:
-        removed_nodes = json['removed_nodes']
+    if net.node[net.root-1].name == '':
+        Julia.net = net
+        Julia.eval("net.node[net.root].name = \"__root__\"")  # set the name to root, so we know which node is the root
 
-        for node_name in removed_nodes:
-            try:
-                deleteleaf_b(net, node_name, keeporiginalroot=False)
-            except:
-                return jsonify({'result':'error','errmsg':"Failed when removing node " + node_name})
-
-    print("Returning ", writeTopology(net))
-
-    return jsonify({'result':'success','newick':writeTopology(net)})
+    return jsonify({'result':'success','newick':writeTopology(net),'new_root':net.node[net.root-1].name})
 
 
 # POST
@@ -273,22 +169,23 @@ def uploadTripletsAndReturnDot():
 
     triplets = json['text']
     
-    if ServerAction.checkTripletErrors(triplets) == 401:
-        return jsonify({'error': 'File format is incorrect'}), 401
+    newick = ServerAction.tripletsToNewick(triplets)
 
-    print("triplets printed are \n", triplets, "\n")
-    with open('retrievedTriplets.txt', 'w+') as f:
-        f.write(triplets)
+    # if ServerAction.checkTripletErrors(triplets) == 401:
+    #     return jsonify({'error': 'File format is incorrect'}), 401
 
-    ServerAction.tripletsToDot('retrievedTriplets.txt')
-    dotFile = ServerAction.returnReducedDotFile('cExample1.dot')
+    # print("triplets printed are \n", triplets, "\n")
+    # with open('retrievedTriplets.txt', 'w+') as f:
+    #     f.write(triplets)
 
-    print("triplets to dot is \n", dotFile, "\n end")
-    with open('upload.dot', 'w+') as f:
-        f.write(dotFile)
+    # ServerAction.tripletsToDot('retrievedTriplets.txt')
+    # dotFile = ServerAction.returnReducedDotFile('cExample1.dot')
 
-    return jsonify({'stat': "executing",'newick':convertor.reader()})
-    #return dotFile
+    # print("triplets to dot is \n", dotFile, "\n end")
+    # with open('upload.dot', 'w+') as f:
+    #     f.write(dotFile)
+
+    return jsonify({'stat': "executing", 'newick': newick})
 
 # ISSUE: threaded=False seems to be required right now for PyJulia to work,
 #        but this also seems to make the server intermittently but consistently hang...
