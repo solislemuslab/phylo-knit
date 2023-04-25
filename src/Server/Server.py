@@ -8,8 +8,7 @@
 #     - julia.install(julia=<julia_exec_path>)
 ####
 
-import base64
-import traceback
+import io
 
 from julia.api import Julia
 
@@ -22,20 +21,15 @@ except:
 from julia import Pkg
 
 Pkg.activate("PhyloNetworks")
-import os
 
-import convertor
 import ParentheticalConvertorNaman
 import ServerAction
-import test_user
-from ete3 import Tree
-from flask import Flask, Response, jsonify, make_response, request
+from flask import Flask, jsonify, make_response, request, send_file
 from flask_cors import CORS, cross_origin
 from julia import Julia
 from julia import Main as Julia
-from julia.PhyloNetworks import (deleteleaf_b, nameinternalnodes_b,
-                                 readTopology, rootatnode_b, writeTopology,
-                                 undirectedOtherNetworks)
+from julia.PhyloNetworks import (deleteleaf_b, readTopology, rootatnode_b,
+                                 undirectedOtherNetworks, writeTopology)
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -90,9 +84,12 @@ def getPDF():
     if len(json['svg']) == 0:
         return 'error invalid input'
     svg_dat = json['svg']
-
-    pdf_contents = ServerAction.pdfFromSVG(svg_dat)
-    return pdf_contents
+    
+    pdf_bytes = ServerAction.pdfFromSVG(svg_dat)
+    
+    return send_file(io.BytesIO(pdf_bytes),
+                     download_name='vis.pdf',
+                     as_attachment=True)
 
 
 # TODO: check for errors from PhyloNetworks (not sure how to do this via PyJulia, probably just the usual Python try-except clause)

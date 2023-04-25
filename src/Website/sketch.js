@@ -18,7 +18,8 @@ var trackRemovedLinks = [];
 var GRAPH;
 var DISPLAY_NAMED_INTERNAL_NODE_NAMED = false;
 var STROKE_WIDTH = 4;
-var FONT = "44px times";
+var FONT_SIZE = "44px";
+var FONT_FAMILY = "Times";
 
 // we want to test whether a node is internal/hybrid or not
 function isInternalNode(node_name) { return reg1000P.test(node_name); }
@@ -269,7 +270,8 @@ function createD3Graph(updateLeafBox, dotString) {
             .attr("x", 12)
             .attr("dy", "0.3em")
             .attr("dx", "-0.1em")
-            .style("font", FONT)
+            .style("font-size", FONT_SIZE)
+            .style("font-family", FONT_FAMILY)
             .style("text-anchor", "middle")
             .text(function (d) {
                 var valueOfNode = d.id.toString();

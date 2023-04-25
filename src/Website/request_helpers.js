@@ -59,13 +59,14 @@ function pushSVGToServer(svg_string) {
     request.open("POST", "http://127.0.0.1:5001/getPDF/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
+    request.responseType = 'blob';
     request.send(data);
 
     function processRequest(e) {
         if(request.readyState == 4 && request.status == 200) {
             // download the PDF contents to the user
             dataBlob = new Blob([request.response], {'type':'application/pdf'})
-            saveAs(dataBlob, 'vis.pdf')
+            saveAs(dataBlob, 'network.pdf')
         }
     }
 }
