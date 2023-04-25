@@ -118,7 +118,7 @@ def getDotFromDict(dict):
 
 
 def newickToDot(newick):
-    newick = re.sub(":[0-9]+[eE1\-\.]*[0-9]*", "", newick)
+    newick = re.sub(":+[0-9]+[eE1\-\.]*[0-9]*", "", newick)
     
     global Graph, count, stack
     # clear global variables at the start of every call

@@ -1,19 +1,22 @@
 import os
 import re
-
+from codecs import decode
 from io import StringIO
+from uuid import uuid4
 
 import numpy as np
 import pandas as pd
 import pydot
+from reportlab.graphics import renderPDF
+from svglib.svglib import svg2rlg
 
-from uuid import uuid4
 
 def getRandomFileName():
     return "." + str(uuid4()) + ".tmp"
 
 # from Launcher import removeDup
 import ParentheticalToDot
+
 
 # for every pair in the set (of strings) of taxon pairs, 
 # check if a and b are contained in the set
@@ -22,6 +25,20 @@ def isDup(pairs, a, b):
         if a in pair and b in pair:
             return 1
     return 0
+
+
+def pdfFromSVG(svg_dat):
+    # Write SVG to file
+    svg_file = getRandomFileName()
+    with open(svg_file, "w+") as file:
+        file.write(svg_dat)
+    
+    drawing = svg2rlg(svg_file)
+    pdf_contents = renderPDF.drawToString(drawing)
+
+    os.remove(svg_file)
+    return pdf_contents
+
 
 # Removes duplicate triplets from a triplet file, overwriting the original file
 # where leaf1 leaf2 | outgroup is the pattern of each of the triples, we remove

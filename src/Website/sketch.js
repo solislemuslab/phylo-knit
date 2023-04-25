@@ -4,6 +4,7 @@ var nodesCheckedStr = "";
 var paraText = "";
 var reg1000P = new RegExp("internal([0-9]*)");
 var regNamedInternal = new RegExp("internal[a-zA-Z]*");
+var regUnnamed = new RegExp("unnamed([0-9]*)");
 var reqStatus;
 var regHash = new RegExp("Hash[A-Za-z]+");
 var targetCounts = new Map();
@@ -17,12 +18,14 @@ var trackRemovedLinks = [];
 var GRAPH;
 var DISPLAY_NAMED_INTERNAL_NODE_NAMED = false;
 var STROKE_WIDTH = 4;
+var FONT = "44px times";
 
 // we want to test whether a node is internal/hybrid or not
 function isInternalNode(node_name) { return reg1000P.test(node_name); }
 function isHybridNode(node_name) { return regHash.test(node_name); }
 function isNamedInternalNode(node_name) { return regNamedInternal.test(node_name); }
 function isRootNode(node_name) { return node_name == ROOT_NAME; }
+function isUnnamedNode(node_name) { return regUnnamed.test(node_name); }
 
 // Node colors
 HYBRID_COLOR = "#DC267F";
@@ -130,7 +133,7 @@ var simulation = d3.forceSimulation()
 // simulation global variables
 var LINK_DISTANCE = 150;
 var LINK_STRENGTH = 0.5;
-var MANY_BODY_STRENGTH = -1000;
+var MANY_BODY_STRENGTH = -1500;
 var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
@@ -266,7 +269,7 @@ function createD3Graph(updateLeafBox, dotString) {
             .attr("x", 12)
             .attr("dy", "0.3em")
             .attr("dx", "-0.1em")
-            .style("font", "44px times")
+            .style("font", FONT)
             .style("text-anchor", "middle")
             .text(function (d) {
                 var valueOfNode = d.id.toString();
@@ -359,16 +362,16 @@ function clicked(d) {
                     return STROKE_WIDTH;
                 }
             });
-            $("rerootNetwork")[0].disabled = false;
+            $("#rerootNetwork")[0].disabled = false;
     } else if(highlightedNode == d) {
         highlightedNode = null;
 
         svg.selectAll("circle").filter(":not(.legend-item)")
             .style("stroke-width", STROKE_WIDTH);
-        $("rerootNetwork")[0].disabled = true;
+        $("#rerootNetwork")[0].disabled = true;
     } else {
         alert("Unknown case reached @ function clicked(d) {...}");
-        $("rerootNetwork")[0].disabled = true;
+        $("#rerootNetwork")[0].disabled = true;
     }
 }
 
@@ -634,12 +637,11 @@ function updateNetwork() {
     }
 
     // get the new root, if there is one
-    // -- TO BE IMPLEMENTED --
-    // need to first implement the namedOriginalNewick and namedUserAdjustedNewick var saving things,
-    // and then implement this
-    // To this end, definitely change the node naming in `ParentheticalToNaman.py` for count=1001 to count=1
-    // then, the node names will already align with PhyloNetworks nameinternalnodes! (or similarly named method)
-    new_root = "";
+    new_root_full = highlightedNode.id;
+    new_root = highlightedNode.id;
+    if(new_root.startsWith("internal")) {
+        new_root = new_root.substr(8, new_root.length - 8)
+    }
 
     // TODO: do a bad request that is guaranteed to cause an error to see how the server responds and
     //       to see what is returned in the request.
@@ -663,7 +665,8 @@ function updateNetwork() {
             console.log(x);
 
             if(x.result == 'success') {
-                ROOT_NAME = x['new_root'];
+                ROOT_NAME = new_root_full;
+                
                 // push the parenthetical
                 pushParentheticalToServer(x.newick, false);
         
@@ -822,6 +825,7 @@ function setStaticSettings() {
     COLLISION_RADIUS = 900;
     NODE_RADIUS = 500;
     STROKE_WIDTH = NODE_RADIUS / 20;
+    FONT = "400px times";
 
     simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
     simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
@@ -863,6 +867,13 @@ function setTreelikeSettings() {
             return 1;
         return 0.1;
     }));
+}
+
+
+function showDownloadButtons() {
+    document.getElementById("dwn-btn").style.visibility = "visible";
+    document.getElementById("downloadPng").style.visibility = "visible";
+    document.getElementById("downloadPDF").style.visibility = "visible";
 }
 
 // Resource for grouping nodes (can be used to repel all other nodes from the root in the treelike settings)
