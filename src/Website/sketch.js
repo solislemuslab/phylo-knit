@@ -53,6 +53,7 @@ var createNetworkSelector = document.getElementById("createNetwork");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
 var displayedLeaves = document.getElementById("displayed-leaves");
+var rerootButton = $("#rerootNetwork")[0];
 
 // zoom constants
 var min_zoom = 0.01;
@@ -192,10 +193,19 @@ function createD3Graph(updateLeafBox, dotString) {
         console.log("GRAPH HERE")
         console.log(graph)
 
-        // figure out which node is the root node
+        // figure out which node is the root node, if we don't already know
         for(var i = 0; i < graph.nodes.length; i++) {
             if(targetCounts.get(graph.nodes[i].id) == undefined) {
                 ROOT_NAME = graph.nodes[i].id;
+                break;
+            }
+        }
+
+        // fix the root node in place
+        for(var i = 0; i < graph.nodes.length; i++) {
+            if(graph.nodes[i].id == ROOT_NAME) {
+                graph.nodes[i].fx = 0;
+                graph.nodes[i].fy = 0;
                 break;
             }
         }
@@ -297,13 +307,16 @@ function createD3Graph(updateLeafBox, dotString) {
         simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));                     // node repulsion/attraction
         // simulation.force('center', d3.forceCenter(width / 2, height / 2).strength(0));                  // network centering
         simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));                        // stop collisions
-        simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
-        simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
+
+        if(FORCEX_STRENGTH != 0)
+            simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
+        if(FORCEY_STRENGTH != 0)
+            simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 
         // stops the upper left hand corner bug (though the result still isn't amazing)
-        // it seems that running `simulation.alpha(1).restart()` multiple times after initialization leads to good results
+        // it seems that running `simulation.alphaDecay(0.001).alpha(1).restart()` multiple times after initialization leads to good results
         // check out: https://github.com/d3/d3/issues/1519 perhaps
-        simulation.alpha(1).restart();
+        simulation.alphaDecay(0.001).alpha(1).restart();
         svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.15));
 
         // set up the Displayed Leaves list
@@ -364,16 +377,16 @@ function clicked(d) {
                     return STROKE_WIDTH;
                 }
             });
-            $("#rerootNetwork")[0].disabled = false;
+            rerootButton.disabled = false;
     } else if(highlightedNode == d) {
         highlightedNode = null;
 
         svg.selectAll("circle").filter(":not(.legend-item)")
             .style("stroke-width", STROKE_WIDTH);
-        $("#rerootNetwork")[0].disabled = true;
+        rerootButton.disabled = true;
     } else {
         alert("Unknown case reached @ function clicked(d) {...}");
-        $("#rerootNetwork")[0].disabled = true;
+        rerootButton.disabled = true;
     }
 }
 
@@ -390,8 +403,13 @@ function dragged(d) {
 
 function dragended(d) {
     if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
+    
+    if(d.id == ROOT_NAME) {
+        // don't do anything; leave it anchored wherever they put it
+    } else {
+        d.fx = null;
+        d.fy = null;
+    }
 }
 
 var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom]).on('zoom', function() {
@@ -624,6 +642,7 @@ function onClickCreateNetwork() {
 function updateNetwork() {
     // disable Create/Update network buttons while we work...
     createNetworkSelector.disabled = true;
+    document.getElementById("loader").style.visibility = "visible";
     btnUpdateNet.disabled = true;
 
     // gather which nodes are to be removed
@@ -665,16 +684,22 @@ function updateNetwork() {
         if(request.readyState == 4 && request.status == 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
+            document.getElementById("loader").style.visibility = "visible";
 
             if(x.result == 'success') {
+                // change to new root
                 ROOT_NAME = new_root_full;
                 
+                // reset highlighted node var
+                highlightedNode = null;
+
                 // push the parenthetical
                 pushParentheticalToServer(x.newick, false);
         
                 // re-enable Create/Update network buttons
                 createNetworkSelector.disabled = false;
                 btnUpdateNet.disabled = false;
+                rerootButton.disabled = true;
             } else {
                 // failure!!
                 alert("An error occurred: ", x['errmsg']);
@@ -847,7 +872,7 @@ function setStaticSettings() {
         return(d3.select(this).attr("x") == 12 ? "400px times" : "15px")
     })
     simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
-    simulation.alpha(1).restart();
+    simulation.alphaDecay(0.001).alpha(1).restart();
 }
 
 function setTreelikeSettings() {
