@@ -5,6 +5,7 @@
 .dropdown {
     float: left;
     z-index: 5;
+    width: 100%;
     /* overflow: hidden; */
 }
 .dropdown .dropbtn {
@@ -18,32 +19,196 @@
 }
 .dropdown-content {
     display: none;
+    float: left;
     position: fixed;
-    padding: 12px;
+    padding: 5px;
+    margin: 0;
     left: 0;
     top: inherit;
     background-color: inherit;
     font: inherit;
-    width: 100%;
-    box-shadow: 0px 8px 8px 0px rgba(0,0,0,0.5);
-
-    border-bottom: 1px solid black;
+    width: auto;
+    height: auto;
 }
 .dropdown:hover {
     background-color: #212529;
 }
-.dropdown:hover .dropdown-content {
-    display: block;
-}
 .dropdown-content div p {
     color: white;
-}
-.dropdown:hover ~ #dropdown-border-style {
-    outline: 12px solid blue;
 }
 #dropdown-border-style {
     border: 2222px solid red;
     z-index: 100;
+}
+
+div#displayed-leaves * {
+    padding: 0;
+    margin: 0;
+}
+div#displayed-leaves input {
+    margin: 10px;
+}
+#displayed-leaves-title {
+    padding: 0;
+    margin: 0;
+}
+#leaf-search {
+    height: 25px;
+}
+
+div.dropdown-btns {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    flex-direction: column;
+    float: right;
+
+    height: 100%;
+    width: auto;
+    border: solid cyan 1px;
+}
+div.dropdown-display-area {
+    display: flex;
+    float: left;
+    height: 100%;
+    overflow-y: auto;
+    /* border: solid red 1px; */
+}
+
+#physics-table tr td * {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+th, td {
+    padding: 0;
+}
+#physics-table tr td {
+    padding: 0;
+}
+#physics-table tr td:first-child {
+    /* border: solid cyan 1px; */
+    width: auto;
+    white-space: nowrap;
+}
+#physics-table tr td:nth-child(2) {
+    /* border: solid red 1px; */
+    white-space: nowrap;
+    float: right;
+    table-layout: fixed;
+    width: 60px;
+    padding-right: 5px;
+}
+#physics-table tr td:nth-child(3) {
+    vertical-align: bottom;
+}
+#physics-table tr td:nth-child(2) p {
+    float: right;
+}
+#physics-table tr td input {
+    width: 250px;
+    position: relative;
+}
+
+#colors-table tr td:nth-child(2) {
+    white-space: nowrap;
+    float: left;
+    width: auto;
+}
+#colors-table tr td * {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+#colors-table tr td:first-child {
+    padding-right: 10px;
+}
+
+#restart-physics-button img:hover {
+    transform:rotate(3600deg);
+    transition:10s;
+}
+
+.style-main-btn {
+    background: transparent;
+    border: transparent;
+    color: white
+}
+.style-main-btn:hover {
+    text-decoration: underline;
+}
+
+#style-main div button {
+    position: relative;
+    left: 0;
+}
+button#done {
+    float: right;
+}
+button#back {
+    float: left;
+}
+/* button.done-back-btns:hover {
+    transform-origin: center;
+    transform: scale(1.2);
+} */
+button.done-back-btns {
+    background-color: transparent;
+    border: transparent;
+}
+
+a#whatisthis:hover {
+    text-decoration: underline;
+}
+
+.style-menu-contents {
+    display: none;
+    flex-direction: column;
+    width: auto;
+    height: auto;
+    left: inherit;
+    background-color: #212529;
+    /* border: solid green 1px; */
+    align-items: left;
+}
+.dropdown.stylemenu-dropdown:hover #contents-container {
+    display: flex;
+}
+
+.dropdown-content ul {
+    padding: 0;
+    list-style-type: none;
+}
+
+#style-main {
+    display: flex;
+    position: relative;
+    width: auto;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#style-physics {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: auto;
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+#style-colors {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: auto;
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+#style-main ul li input {
+    padding: 0;
 }
 
 body {
@@ -464,25 +629,90 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateX(26px);
   } 
   
-  /* Rounded sliders */
-   .slider.round {
-    border-radius: 34px;
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
-  .check-space{
-    margin-right: 15px;
-  }
+/* Rounded sliders */
+.slider.round {
+border-radius: 34px;
+}
+
+.slider.round:before {
+border-radius: 50%;
+}
+.check-space{
+margin-right: 15px;
+}
    
 
-  .navbar-nav {
-    margin-left: auto;
-    
-    
+.navbar-nav {
+    margin-left: 0;
 }
+
 .navText{
     color: #AF9965;
     font-weight: bold;
+}
+
+
+
+
+
+.switch {
+position: relative;
+display: inline-block;
+width: 36px;
+height: 20px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+opacity: 0;
+width: 0;
+height: 0;
+}
+
+/* The slider */
+.slider {
+position: absolute;
+cursor: pointer;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: #ccc;
+-webkit-transition: .4s;
+transition: .4s;
+}
+
+.slider:before {
+position: absolute;
+content: "";
+height: 14px;
+width: 14px;
+left: 3px;
+bottom: 3px;
+background-color: white;
+-webkit-transition: .4s;
+transition: .4s;
+}
+
+input:checked + .slider {
+background-color: #2196F3;
+}
+
+input:focus + .slider {
+box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+-webkit-transform: translateX(16px);
+-ms-transform: translateX(16px);
+transform: translateX(16px);
+}
+
+/* Rounded sliders */
+.slider.round {
+border-radius: 25px;
+}
+
+.slider.round:before {
+border-radius: 50%;
 }

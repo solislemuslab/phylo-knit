@@ -18,7 +18,7 @@ var trackRemovedLinks = [];
 var GRAPH;
 var DISPLAY_NAMED_INTERNAL_NODE_NAMED = false;
 var STROKE_WIDTH = 4;
-var FONT_SIZE = "44px";
+var FONT_SIZE = "91px";
 var FONT_FAMILY = "Times";
 
 // we want to test whether a node is internal/hybrid or not
@@ -81,7 +81,7 @@ var svg = d3.select("svg"),
 // function to set up the legend; this is called right away at startup and after the chart is cleared
 var legendContainer;
 var LEGEND_CIRCLE_RADIUS = 6;
-var LEGEND_ENABLED = true;
+var LEGEND_ENABLED = false;
 function setupLegend() {
     legendContainer = svg.append("g")
         .attr("class", "legend");
@@ -133,15 +133,16 @@ $(window).on("resize", function () {
 // this variable essentially instantiates the physics of d3's chart
 var simulation = d3.forceSimulation()
 // simulation global variables
-var LINK_DISTANCE = 150;
-var LINK_STRENGTH = 0.5;
+var LINK_DISTANCE = 252;
+var LINK_STRENGTH = 0.53;
 var MANY_BODY_STRENGTH = -1500;
 var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
-var NODE_RADIUS = 75;
+var NODE_RADIUS = 114;
 var FORCEX_X = 0;
 var FORCEY_Y = 0;
+var AUTO_UPDATE_SETTINGS = true;
 
 var GRAPH;
 // Main function for generating the D3 graph
@@ -301,6 +302,37 @@ function createD3Graph(updateLeafBox, dotString) {
         simulation.nodes(graph.nodes).on("tick", ticked);
         console.log("link check")
         console.log(graph.links)
+
+        if(AUTO_UPDATE_SETTINGS) {
+            if(graph.nodes.length <= 20) {
+                $('#node-radius-slider')[0].value = 115;
+                updateNodeRadius();
+                $('#font-size-slider')[0].value = 91;
+                updateFontSize();
+                $('#link-distance-slider')[0].value = 350;
+                updateLinkDistance();
+                $('#link-strength-slider')[0].value = 530;
+                updateLinkStrength();
+            } else if(graph.nodes.length <= 40) {
+                $('#node-radius-slider')[0].value = 115;
+                updateNodeRadius();
+                $('#font-size-slider')[0].value = 90;
+                updateFontSize();
+                $('#link-distance-slider')[0].value = 250;
+                updateLinkDistance();
+                $('#link-strength-slider')[0].value = 530;
+                updateLinkStrength();
+            } else {
+                $('#node-radius-slider')[0].value = 115;
+                updateNodeRadius();
+                $('#font-size-slider')[0].value = 90;
+                updateFontSize();
+                $('#link-distance-slider')[0].value = 250;
+                updateLinkDistance();
+                $('#link-strength-slider')[0].value = 530;
+                updateLinkStrength();
+            }
+        }
 
         // These functions set of the physics between nodes
         simulation.force('link', d3.forceLink(graph.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges
@@ -658,11 +690,17 @@ function updateNetwork() {
     }
 
     // get the new root, if there is one
-    new_root_full = highlightedNode.id;
-    new_root = highlightedNode.id;
-    if(new_root.startsWith("internal")) {
-        new_root = new_root.substr(8, new_root.length - 8)
+    if(highlightedNode != null) {
+        new_root_full = highlightedNode.id;
+        new_root = highlightedNode.id;
+        if(new_root.startsWith("internal")) {
+            new_root = new_root.substr(8, new_root.length - 8)
+        }
+    } else {
+        new_root = "";
+        new_root_full = "";
     }
+
 
     // TODO: do a bad request that is guaranteed to cause an error to see how the server responds and
     //       to see what is returned in the request.
@@ -688,7 +726,9 @@ function updateNetwork() {
 
             if(x.result == 'success') {
                 // change to new root
-                ROOT_NAME = new_root_full;
+                if(highlightedNode != null) {
+                    ROOT_NAME = new_root_full;
+                }
                 
                 // reset highlighted node var
                 highlightedNode = null;
@@ -769,28 +809,42 @@ function updateManyBodyStr() {
     var sliderval = parseFloat($("#many-body-str-slider")[0].value);
     MANY_BODY_STRENGTH = sliderval;
     simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
-    $('#many-body-str-slider-value')[0].innerHTML="Many Body Strength: " + sliderval;
+    $('#many-body-str-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateLinkDistance() {
     var sliderval = parseFloat($("#link-distance-slider")[0].value);
     LINK_DISTANCE = sliderval;
-    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
-    $('#link-distance-slider-value')[0].innerHTML="Link Distance: " + sliderval;
+    try {
+        simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    } catch {} // try-catch b/c otherwise there's an error if this is changed before a graph is made
+    $('#link-distance-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateLinkStrength() {
     var sliderval = parseFloat($("#link-strength-slider")[0].value) / 1000;
     LINK_STRENGTH = sliderval;
-    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
-    $('#link-strength-slider-value')[0].innerHTML="Link Strength: " + sliderval;
+    try {
+        simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    } catch {}
+    $('#link-strength-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateCollisionRadius() {
     var sliderval = parseFloat($("#collision-radius-slider")[0].value);
     COLLISION_RADIUS = sliderval;
     simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
-    $('#collision-radius-slider-value')[0].innerHTML="Collision Radius: " + sliderval;
+    $('#collision-radius-slider-value')[0].innerHTML=sliderval;
+}
+
+function updateFontSize() {
+    var sliderval = parseFloat($("#font-size-slider")[0].value);
+    FONT_SIZE = sliderval + "px";
+    var nodeLabels = $(".nodes text");
+    for(i = 0; i < nodeLabels.length; i++) {
+        nodeLabels[i].style['font-size'] = FONT_SIZE
+    }
+    $("#font-size-slider-value")[0].innerHTML = FONT_SIZE;
 }
 
 function updateNodeRadius() {
@@ -809,14 +863,14 @@ function updateNodeRadius() {
         return 1;
     });
     d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
-    $('#node-radius-slider-value')[0].innerHTML="Node Radius: " + sliderval;
+    $('#node-radius-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateForceXX() {
     var sliderval = parseFloat($("#forcex-x-slider")[0].value);
     FORCEX_X = sliderval;
     simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
-    $('#forcex-x-slider-value')[0].innerHTML="ForceX X-value: " + sliderval;
+    $('#forcex-x-slider-value')[0].innerHTML=sliderval;
 
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 }
@@ -825,14 +879,14 @@ function updateForceYY() {
     var sliderval = parseFloat($("#forcey-y-slider")[0].value);
     FORCEY_Y = sliderval;
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_Y));
-    $('#forcey-y-slider-value')[0].innerHTML="ForceY Y-value: " + sliderval;
+    $('#forcey-y-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateForceXStrength() {
     var sliderval = parseFloat($("#forcex-strength-slider")[0].value)/1000;
     FORCEX_STRENGTH = sliderval;
     simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
-    $('#forcex-strength-slider-value')[0].innerHTML="ForceX Strength: " + sliderval;
+    $('#forcex-strength-slider-value')[0].innerHTML=sliderval;
 
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 }
@@ -841,7 +895,7 @@ function updateForceYStrength() {
     var sliderval = parseFloat($("#forcey-strength-slider")[0].value)/1000;
     FORCEY_STRENGTH = sliderval;
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
-    $('#forcey-strength-slider-value')[0].innerHTML="ForceY Strength: " + sliderval;
+    $('#forcey-strength-slider-value')[0].innerHTML=sliderval;
 }
 
 function setStaticSettings() {

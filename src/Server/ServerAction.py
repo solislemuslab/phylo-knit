@@ -88,10 +88,10 @@ def containsTriple(triple_set, leaf1, leaf2, outgroup):
 # thus a backbone is necessary to provide an informative tree. 
 def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     # check if this is the old format
-    dataset = pd.read_table(StringIO(hydeContent), sep=" ", header=None)
+    dataset = pd.read_table(io.StringIO(hydeContent), sep=" ", header=None)
     if not len(dataset.columns) == 8:
         # dataset could be delimited by tabs, spaces, ..., so we have to read like this
-        datareader = pd.read_table(StringIO(hydeContent), sep=None, iterator=True, engine='python') 
+        datareader = pd.read_table(io.StringIO(hydeContent), sep=None, iterator=True, engine='python') 
         dataset = datareader.read()
 
 

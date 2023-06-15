@@ -230,10 +230,17 @@ function download(filename, text) {
 
 // Function for downloading Newick
 function downloadNewick() {
+    var returnNewick;
     if(userAdjustedNewick != "")
-        download("eNewick.txt", userAdjustedNewick);
+        returnNewick = userAdjustedNewick.trim();
     else
-        download("eNewick.txt", originalNewick.trim());
+        returnNewick = originalNewick.trim();
+
+    // remove all unnamed/internal nodes
+    var tempNewick;
+    while(returnNewick.localeCompare(tempNewick = returnNewick.replace(regUnnamed, '')) != 0) { returnNewick = tempNewick; }
+    while(returnNewick.localeCompare(tempNewick = returnNewick.replace(reg1000P, '')) != 0) { returnNewick = tempNewick; }
+    download("eNewick.txt", returnNewick.trim());
 }
 
 function saveImg() {
