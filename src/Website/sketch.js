@@ -88,16 +88,16 @@ function setupLegend() {
     // Background
     legendContainer.append("rect").attr("x", -10).attr("y", -10).attr("width", 150).attr("height", 100).style("stroke", "black").style("fill", "white").attr("class", "legend-item");
     // Internal nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#C5C5C5").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", INTERNAL_COLOR).style("stroke", "black").attr("class", "legend-item legend-internal");
     legendContainer.append("text").attr("x", 25).attr("y", 36).text("Internal Nodes").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Leaves
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#648FFF").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", LEAF_COLOR).style("stroke", "black").attr("class", "legend-item legend-leaf");
     legendContainer.append("text").attr("x", 25).attr("y", 56).text("Leaves").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Hybrid Nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#DC267F").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", HYBRID_COLOR).style("stroke", "black").attr("class", "legend-item legend-hybrid");
     legendContainer.append("text").attr("x", 25).attr("y", 76).text("Hybrid Nodes").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Root Node
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#FFB000").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", ROOT_COLOR).style("stroke", "black").attr("class", "legend-item legend-root");
     legendContainer.append("text").attr("x", 25).attr("y", 16).text("Root Node").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
 
     // this fxn is called everytime the graph is redrawn, but if the legend is
@@ -139,7 +139,8 @@ var MANY_BODY_STRENGTH = -1500;
 var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
-var NODE_RADIUS = 114;
+var LEAF_RADIUS = 114;
+var INTERNAL_NODE_RADIUS = 75;
 var FORCEX_X = 0;
 var FORCEY_Y = 0;
 var AUTO_UPDATE_SETTINGS = true;
@@ -248,9 +249,15 @@ function createD3Graph(updateLeafBox, dotString) {
         node.append("circle")
             .attr("r", function (d) {
                 var valueOfNode = d.id.toString();
-                if (!isInternalNode(valueOfNode))
+                if (!isInternalNode(valueOfNode)) {
                     nodeVal.push(valueOfNode);
-                return NODE_RADIUS;
+                    console.log("LEAF");
+                    return LEAF_RADIUS;
+                }
+                if(isRootNode(valueOfNOde))
+                    return LEAF_RADIUS
+                else
+                    return INTERNAL_NODE_RADIUS;
             })
             .attr("d.x", width/2)
             .attr("d.y", height/2)
@@ -793,7 +800,12 @@ function triggerColorChange(whichNodes) {
             return "#000000";
         }
     });
-        
+
+    lcircs = svg.selectAll("circle").filter(".legend-item");
+    lcircs.filter(".legend-leaf").style("fill", LEAF_COLOR);
+    lcircs.filter(".legend-hybrid").style("fill", HYBRID_COLOR);
+    lcircs.filter(".legend-internal").style("fill", INTERNAL_COLOR);
+    lcircs.filter(".legend-root").style("fill", ROOT_COLOR);
 }
 
 
@@ -849,12 +861,15 @@ function updateFontSize() {
 
 function updateNodeRadius() {
     var sliderval = parseFloat($("#node-radius-slider")[0].value);
-    NODE_RADIUS = sliderval;
-    STROKE_WIDTH = NODE_RADIUS / 20;
+    LEAF_RADIUS = sliderval;
+    STROKE_WIDTH = LEAF_RADIUS / 20;
     d3.selectAll("circle").attr("r", function(d) {
         // only want to change the radius of the non-legend nodes
         if(typeof d != "undefined")
-            return NODE_RADIUS;
+            if(!isInternalNode(d.id.toString()) && !isRootNode(d.id.toString()))
+                return LEAF_RADIUS;
+            else
+                return INTERNAL_NODE_RADIUS;
         return LEGEND_CIRCLE_RADIUS;
     }).style("stroke-width", function(d) {
         // only want to change the stroke on the non-legend nodes
@@ -904,8 +919,8 @@ function setStaticSettings() {
     MANY_BODY_STRENGTH = -10000;
     LINK_DISTANCE = 900;
     COLLISION_RADIUS = 900;
-    NODE_RADIUS = 500;
-    STROKE_WIDTH = NODE_RADIUS / 20;
+    LEAF_RADIUS = 500;
+    STROKE_WIDTH = LEAF_RADIUS / 20;
     FONT = "400px times";
 
     simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
@@ -913,7 +928,7 @@ function setStaticSettings() {
     d3.selectAll("circle").attr("r", function(d) {
         // only want to change the radius of the non-legend nodes
         if(typeof d != "undefined")
-            return NODE_RADIUS;
+            return LEAF_RADIUS;
         return LEGEND_CIRCLE_RADIUS;
     }).style("stroke-width", function(d) {
         // only want to change the stroke on the non-legend nodes
