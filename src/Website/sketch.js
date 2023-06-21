@@ -4,6 +4,7 @@ var nodesCheckedStr = "";
 var paraText = "";
 var reg1000P = new RegExp("internal([0-9]*)");
 var regNamedInternal = new RegExp("internal[a-zA-Z]*");
+var regUnnamed = new RegExp("unnamed([0-9]*)");
 var reqStatus;
 var regHash = new RegExp("Hash[A-Za-z]+");
 var targetCounts = new Map();
@@ -17,12 +18,15 @@ var trackRemovedLinks = [];
 var GRAPH;
 var DISPLAY_NAMED_INTERNAL_NODE_NAMED = false;
 var STROKE_WIDTH = 4;
+var FONT_SIZE = "91px";
+var FONT_FAMILY = "Times";
 
 // we want to test whether a node is internal/hybrid or not
 function isInternalNode(node_name) { return reg1000P.test(node_name); }
 function isHybridNode(node_name) { return regHash.test(node_name); }
 function isNamedInternalNode(node_name) { return regNamedInternal.test(node_name); }
 function isRootNode(node_name) { return node_name == ROOT_NAME; }
+function isUnnamedNode(node_name) { return regUnnamed.test(node_name); }
 
 // Node colors
 HYBRID_COLOR = "#DC267F";
@@ -49,6 +53,7 @@ var createNetworkSelector = document.getElementById("createNetwork");
 var selectbutton = document.getElementById("transfer_reason");
 var refresher = document.getElementById("refresh");
 var displayedLeaves = document.getElementById("displayed-leaves");
+var rerootButton = $("#rerootNetwork")[0];
 
 // zoom constants
 var min_zoom = 0.01;
@@ -76,23 +81,23 @@ var svg = d3.select("svg"),
 // function to set up the legend; this is called right away at startup and after the chart is cleared
 var legendContainer;
 var LEGEND_CIRCLE_RADIUS = 6;
-var LEGEND_ENABLED = true;
+var LEGEND_ENABLED = false;
 function setupLegend() {
     legendContainer = svg.append("g")
         .attr("class", "legend");
     // Background
     legendContainer.append("rect").attr("x", -10).attr("y", -10).attr("width", 150).attr("height", 100).style("stroke", "black").style("fill", "white").attr("class", "legend-item");
     // Internal nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#C5C5C5").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 35).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", INTERNAL_COLOR).style("stroke", "black").attr("class", "legend-item legend-internal");
     legendContainer.append("text").attr("x", 25).attr("y", 36).text("Internal Nodes").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Leaves
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#648FFF").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 55).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", LEAF_COLOR).style("stroke", "black").attr("class", "legend-item legend-leaf");
     legendContainer.append("text").attr("x", 25).attr("y", 56).text("Leaves").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Hybrid Nodes
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#DC267F").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 75).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", HYBRID_COLOR).style("stroke", "black").attr("class", "legend-item legend-hybrid");
     legendContainer.append("text").attr("x", 25).attr("y", 76).text("Hybrid Nodes").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
     // Root Node
-    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", "#FFB000").style("stroke", "black").attr("class", "legend-item");
+    legendContainer.append("circle").attr("cx", 15).attr("cy", 15).attr("r", LEGEND_CIRCLE_RADIUS).style("fill", ROOT_COLOR).style("stroke", "black").attr("class", "legend-item legend-root");
     legendContainer.append("text").attr("x", 25).attr("y", 16).text("Root Node").style("font-size", "15px").attr("alignment-baseline","middle").attr("class", "legend-item");
 
     // this fxn is called everytime the graph is redrawn, but if the legend is
@@ -128,15 +133,17 @@ $(window).on("resize", function () {
 // this variable essentially instantiates the physics of d3's chart
 var simulation = d3.forceSimulation()
 // simulation global variables
-var LINK_DISTANCE = 150;
-var LINK_STRENGTH = 0.5;
-var MANY_BODY_STRENGTH = -1000;
+var LINK_DISTANCE = 252;
+var LINK_STRENGTH = 0.53;
+var MANY_BODY_STRENGTH = -1500;
 var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
-var NODE_RADIUS = 75;
+var LEAF_RADIUS = 114;
+var INTERNAL_NODE_RADIUS = 75;
 var FORCEX_X = 0;
 var FORCEY_Y = 0;
+var AUTO_UPDATE_SETTINGS = true;
 
 var GRAPH;
 // Main function for generating the D3 graph
@@ -188,10 +195,19 @@ function createD3Graph(updateLeafBox, dotString) {
         console.log("GRAPH HERE")
         console.log(graph)
 
-        // figure out which node is the root node
+        // figure out which node is the root node, if we don't already know
         for(var i = 0; i < graph.nodes.length; i++) {
             if(targetCounts.get(graph.nodes[i].id) == undefined) {
                 ROOT_NAME = graph.nodes[i].id;
+                break;
+            }
+        }
+
+        // fix the root node in place
+        for(var i = 0; i < graph.nodes.length; i++) {
+            if(graph.nodes[i].id == ROOT_NAME) {
+                graph.nodes[i].fx = 0;
+                graph.nodes[i].fy = 0;
                 break;
             }
         }
@@ -233,9 +249,15 @@ function createD3Graph(updateLeafBox, dotString) {
         node.append("circle")
             .attr("r", function (d) {
                 var valueOfNode = d.id.toString();
-                if (!isInternalNode(valueOfNode))
+                if (!isInternalNode(valueOfNode)) {
                     nodeVal.push(valueOfNode);
-                return NODE_RADIUS;
+                    console.log("LEAF");
+                    return LEAF_RADIUS;
+                }
+                if(isRootNode(valueOfNOde))
+                    return LEAF_RADIUS
+                else
+                    return INTERNAL_NODE_RADIUS;
             })
             .attr("d.x", width/2)
             .attr("d.y", height/2)
@@ -266,7 +288,8 @@ function createD3Graph(updateLeafBox, dotString) {
             .attr("x", 12)
             .attr("dy", "0.3em")
             .attr("dx", "-0.1em")
-            .style("font", "44px times")
+            .style("font-size", FONT_SIZE)
+            .style("font-family", FONT_FAMILY)
             .style("text-anchor", "middle")
             .text(function (d) {
                 var valueOfNode = d.id.toString();
@@ -287,18 +310,52 @@ function createD3Graph(updateLeafBox, dotString) {
         console.log("link check")
         console.log(graph.links)
 
+        if(AUTO_UPDATE_SETTINGS) {
+            if(graph.nodes.length <= 20) {
+                $('#node-radius-slider')[0].value = 115;
+                updateNodeRadius();
+                $('#font-size-slider')[0].value = 91;
+                updateFontSize();
+                $('#link-distance-slider')[0].value = 350;
+                updateLinkDistance();
+                $('#link-strength-slider')[0].value = 530;
+                updateLinkStrength();
+            } else if(graph.nodes.length <= 40) {
+                $('#node-radius-slider')[0].value = 115;
+                updateNodeRadius();
+                $('#font-size-slider')[0].value = 90;
+                updateFontSize();
+                $('#link-distance-slider')[0].value = 250;
+                updateLinkDistance();
+                $('#link-strength-slider')[0].value = 530;
+                updateLinkStrength();
+            } else {
+                $('#node-radius-slider')[0].value = 115;
+                updateNodeRadius();
+                $('#font-size-slider')[0].value = 90;
+                updateFontSize();
+                $('#link-distance-slider')[0].value = 250;
+                updateLinkDistance();
+                $('#link-strength-slider')[0].value = 530;
+                updateLinkStrength();
+            }
+        }
+
         // These functions set of the physics between nodes
         simulation.force('link', d3.forceLink(graph.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges
         simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));                     // node repulsion/attraction
         // simulation.force('center', d3.forceCenter(width / 2, height / 2).strength(0));                  // network centering
         simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));                        // stop collisions
-        simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
-        simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
+
+        if(FORCEX_STRENGTH != 0)
+            simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
+        if(FORCEY_STRENGTH != 0)
+            simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 
         // stops the upper left hand corner bug (though the result still isn't amazing)
-        // it seems that running `simulation.alpha(1).restart()` multiple times after initialization leads to good results
+        // it seems that running `simulation.alphaDecay(0.001).alpha(1).restart()` multiple times after initialization leads to good results
         // check out: https://github.com/d3/d3/issues/1519 perhaps
-        simulation.alpha(1).restart();
+        simulation.alphaDecay(0.001).alpha(1).restart();
         svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.15));
 
         // set up the Displayed Leaves list
@@ -359,16 +416,16 @@ function clicked(d) {
                     return STROKE_WIDTH;
                 }
             });
-            $("rerootNetwork")[0].disabled = false;
+            rerootButton.disabled = false;
     } else if(highlightedNode == d) {
         highlightedNode = null;
 
         svg.selectAll("circle").filter(":not(.legend-item)")
             .style("stroke-width", STROKE_WIDTH);
-        $("rerootNetwork")[0].disabled = true;
+        rerootButton.disabled = true;
     } else {
         alert("Unknown case reached @ function clicked(d) {...}");
-        $("rerootNetwork")[0].disabled = true;
+        rerootButton.disabled = true;
     }
 }
 
@@ -385,8 +442,13 @@ function dragged(d) {
 
 function dragended(d) {
     if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
+    
+    if(d.id == ROOT_NAME) {
+        // don't do anything; leave it anchored wherever they put it
+    } else {
+        d.fx = null;
+        d.fy = null;
+    }
 }
 
 var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom]).on('zoom', function() {
@@ -619,6 +681,7 @@ function onClickCreateNetwork() {
 function updateNetwork() {
     // disable Create/Update network buttons while we work...
     createNetworkSelector.disabled = true;
+    document.getElementById("loader").style.visibility = "visible";
     btnUpdateNet.disabled = true;
 
     // gather which nodes are to be removed
@@ -634,12 +697,17 @@ function updateNetwork() {
     }
 
     // get the new root, if there is one
-    // -- TO BE IMPLEMENTED --
-    // need to first implement the namedOriginalNewick and namedUserAdjustedNewick var saving things,
-    // and then implement this
-    // To this end, definitely change the node naming in `ParentheticalToNaman.py` for count=1001 to count=1
-    // then, the node names will already align with PhyloNetworks nameinternalnodes! (or similarly named method)
-    new_root = "";
+    if(highlightedNode != null) {
+        new_root_full = highlightedNode.id;
+        new_root = highlightedNode.id;
+        if(new_root.startsWith("internal")) {
+            new_root = new_root.substr(8, new_root.length - 8)
+        }
+    } else {
+        new_root = "";
+        new_root_full = "";
+    }
+
 
     // TODO: do a bad request that is guaranteed to cause an error to see how the server responds and
     //       to see what is returned in the request.
@@ -661,15 +729,24 @@ function updateNetwork() {
         if(request.readyState == 4 && request.status == 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
+            document.getElementById("loader").style.visibility = "visible";
 
             if(x.result == 'success') {
-                ROOT_NAME = x['new_root'];
+                // change to new root
+                if(highlightedNode != null) {
+                    ROOT_NAME = new_root_full;
+                }
+                
+                // reset highlighted node var
+                highlightedNode = null;
+
                 // push the parenthetical
                 pushParentheticalToServer(x.newick, false);
         
                 // re-enable Create/Update network buttons
                 createNetworkSelector.disabled = false;
                 btnUpdateNet.disabled = false;
+                rerootButton.disabled = true;
             } else {
                 // failure!!
                 alert("An error occurred: ", x['errmsg']);
@@ -723,7 +800,12 @@ function triggerColorChange(whichNodes) {
             return "#000000";
         }
     });
-        
+
+    lcircs = svg.selectAll("circle").filter(".legend-item");
+    lcircs.filter(".legend-leaf").style("fill", LEAF_COLOR);
+    lcircs.filter(".legend-hybrid").style("fill", HYBRID_COLOR);
+    lcircs.filter(".legend-internal").style("fill", INTERNAL_COLOR);
+    lcircs.filter(".legend-root").style("fill", ROOT_COLOR);
 }
 
 
@@ -739,38 +821,55 @@ function updateManyBodyStr() {
     var sliderval = parseFloat($("#many-body-str-slider")[0].value);
     MANY_BODY_STRENGTH = sliderval;
     simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
-    $('#many-body-str-slider-value')[0].innerHTML="Many Body Strength: " + sliderval;
+    $('#many-body-str-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateLinkDistance() {
     var sliderval = parseFloat($("#link-distance-slider")[0].value);
     LINK_DISTANCE = sliderval;
-    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
-    $('#link-distance-slider-value')[0].innerHTML="Link Distance: " + sliderval;
+    try {
+        simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    } catch {} // try-catch b/c otherwise there's an error if this is changed before a graph is made
+    $('#link-distance-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateLinkStrength() {
     var sliderval = parseFloat($("#link-strength-slider")[0].value) / 1000;
     LINK_STRENGTH = sliderval;
-    simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
-    $('#link-strength-slider-value')[0].innerHTML="Link Strength: " + sliderval;
+    try {
+        simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
+    } catch {}
+    $('#link-strength-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateCollisionRadius() {
     var sliderval = parseFloat($("#collision-radius-slider")[0].value);
     COLLISION_RADIUS = sliderval;
     simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
-    $('#collision-radius-slider-value')[0].innerHTML="Collision Radius: " + sliderval;
+    $('#collision-radius-slider-value')[0].innerHTML=sliderval;
+}
+
+function updateFontSize() {
+    var sliderval = parseFloat($("#font-size-slider")[0].value);
+    FONT_SIZE = sliderval + "px";
+    var nodeLabels = $(".nodes text");
+    for(i = 0; i < nodeLabels.length; i++) {
+        nodeLabels[i].style['font-size'] = FONT_SIZE
+    }
+    $("#font-size-slider-value")[0].innerHTML = FONT_SIZE;
 }
 
 function updateNodeRadius() {
     var sliderval = parseFloat($("#node-radius-slider")[0].value);
-    NODE_RADIUS = sliderval;
-    STROKE_WIDTH = NODE_RADIUS / 20;
+    LEAF_RADIUS = sliderval;
+    STROKE_WIDTH = LEAF_RADIUS / 20;
     d3.selectAll("circle").attr("r", function(d) {
         // only want to change the radius of the non-legend nodes
         if(typeof d != "undefined")
-            return NODE_RADIUS;
+            if(!isInternalNode(d.id.toString()) && !isRootNode(d.id.toString()))
+                return LEAF_RADIUS;
+            else
+                return INTERNAL_NODE_RADIUS;
         return LEGEND_CIRCLE_RADIUS;
     }).style("stroke-width", function(d) {
         // only want to change the stroke on the non-legend nodes
@@ -779,14 +878,14 @@ function updateNodeRadius() {
         return 1;
     });
     d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
-    $('#node-radius-slider-value')[0].innerHTML="Node Radius: " + sliderval;
+    $('#node-radius-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateForceXX() {
     var sliderval = parseFloat($("#forcex-x-slider")[0].value);
     FORCEX_X = sliderval;
     simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
-    $('#forcex-x-slider-value')[0].innerHTML="ForceX X-value: " + sliderval;
+    $('#forcex-x-slider-value')[0].innerHTML=sliderval;
 
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 }
@@ -795,14 +894,14 @@ function updateForceYY() {
     var sliderval = parseFloat($("#forcey-y-slider")[0].value);
     FORCEY_Y = sliderval;
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_Y));
-    $('#forcey-y-slider-value')[0].innerHTML="ForceY Y-value: " + sliderval;
+    $('#forcey-y-slider-value')[0].innerHTML=sliderval;
 }
 
 function updateForceXStrength() {
     var sliderval = parseFloat($("#forcex-strength-slider")[0].value)/1000;
     FORCEX_STRENGTH = sliderval;
     simulation.force('forceX', d3.forceX(FORCEX_X).strength(FORCEX_STRENGTH));
-    $('#forcex-strength-slider-value')[0].innerHTML="ForceX Strength: " + sliderval;
+    $('#forcex-strength-slider-value')[0].innerHTML=sliderval;
 
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 }
@@ -811,7 +910,7 @@ function updateForceYStrength() {
     var sliderval = parseFloat($("#forcey-strength-slider")[0].value)/1000;
     FORCEY_STRENGTH = sliderval;
     simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
-    $('#forcey-strength-slider-value')[0].innerHTML="ForceY Strength: " + sliderval;
+    $('#forcey-strength-slider-value')[0].innerHTML=sliderval;
 }
 
 function setStaticSettings() {
@@ -820,15 +919,16 @@ function setStaticSettings() {
     MANY_BODY_STRENGTH = -10000;
     LINK_DISTANCE = 900;
     COLLISION_RADIUS = 900;
-    NODE_RADIUS = 500;
-    STROKE_WIDTH = NODE_RADIUS / 20;
+    LEAF_RADIUS = 500;
+    STROKE_WIDTH = LEAF_RADIUS / 20;
+    FONT = "400px times";
 
     simulation.force('charge', d3.forceManyBody().strength(MANY_BODY_STRENGTH));
     simulation.force('link', d3.forceLink(GRAPH.links).distance(LINK_DISTANCE).id(n => n.id).strength(LINK_STRENGTH))     // edges    
     d3.selectAll("circle").attr("r", function(d) {
         // only want to change the radius of the non-legend nodes
         if(typeof d != "undefined")
-            return NODE_RADIUS;
+            return LEAF_RADIUS;
         return LEGEND_CIRCLE_RADIUS;
     }).style("stroke-width", function(d) {
         // only want to change the stroke on the non-legend nodes
@@ -841,7 +941,7 @@ function setStaticSettings() {
         return(d3.select(this).attr("x") == 12 ? "400px times" : "15px")
     })
     simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
-    simulation.alpha(1).restart();
+    simulation.alphaDecay(0.001).alpha(1).restart();
 }
 
 function setTreelikeSettings() {
@@ -863,6 +963,13 @@ function setTreelikeSettings() {
             return 1;
         return 0.1;
     }));
+}
+
+
+function showDownloadButtons() {
+    document.getElementById("dwn-btn").style.visibility = "visible";
+    document.getElementById("downloadPng").style.visibility = "visible";
+    document.getElementById("downloadPDF").style.visibility = "visible";
 }
 
 // Resource for grouping nodes (can be used to repel all other nodes from the root in the treelike settings)

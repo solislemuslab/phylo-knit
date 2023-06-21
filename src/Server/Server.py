@@ -1,5 +1,3 @@
-import base64
-
 #####
 # Required on the server:
 # * Julia (duh)
@@ -9,8 +7,11 @@ import base64
 #     - import julia
 #     - julia.install(julia=<julia_exec_path>)
 ####
-import traceback
+
+import io
+
 from julia.api import Julia
+
 try:
     ### Nathan's Mac only:
     jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
@@ -18,20 +19,17 @@ except:
     jl = Julia()
 
 from julia import Pkg
-Pkg.activate("PhyloNetworks")
-from julia import Julia
-from julia.PhyloNetworks import rootatnode_b, deleteleaf_b, readTopology, writeTopology, nameinternalnodes_b
-from julia import Main as Julia
 
-from ete3 import Tree
-import os
-from flask import Flask, request, Response
-from flask_cors import CORS, cross_origin
-from flask import jsonify, make_response
+Pkg.activate("PhyloNetworks")
+
 import ParentheticalConvertorNaman
 import ServerAction
-import test_user
-import convertor
+from flask import Flask, jsonify, make_response, request, send_file
+from flask_cors import CORS, cross_origin
+from julia import Julia
+from julia import Main as Julia
+from julia.PhyloNetworks import (deleteleaf_b, readTopology, rootatnode_b,
+                                 undirectedOtherNetworks, writeTopology)
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -75,7 +73,23 @@ def uploadHyde(thresh, eNewick):
     print("uploadHyde.triplets: ", triplets)
     newick = ServerAction.tripletsToNewick(triplets)
 
-    return jsonify({'stat':"executing", 'newick':newick})
+    return jsonify({'stat':"executing", 'newick': newick})
+
+
+# POST
+@app.route('/getPDF/', methods=['POST'])
+@cross_origin()
+def getPDF():
+    json = request.get_json()
+    if len(json['svg']) == 0:
+        return 'error invalid input'
+    svg_dat = json['svg']
+    
+    pdf_bytes = ServerAction.pdfFromSVG(svg_dat)
+    
+    return send_file(io.BytesIO(pdf_bytes),
+                     download_name='vis.pdf',
+                     as_attachment=True)
 
 
 # TODO: check for errors from PhyloNetworks (not sure how to do this via PyJulia, probably just the usual Python try-except clause)
@@ -117,7 +131,20 @@ def getUserAdjustedParenthetical():
         try:
             rootatnode_b(net, new_root)
         except:
-            return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
+            u_nets = undirectedOtherNetworks(net)
+            j = 0
+            for i in range(len(u_nets)):
+                try:
+                    rootatnode_b(u_nets[i], new_root)
+                    net = u_nets[i]
+                    break
+                except:
+                    j = i
+            
+            if j == len(u_nets) - 1:
+                # we were unable to re-root the network
+                return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
+            
 
     if net.node[net.root-1].name == '':
         Julia.net = net
@@ -141,15 +168,25 @@ def uploadParentheticalAndReturnDot():
 
     parenthetical = json['text']
 
-    # print(parenthetical)
-    #parenthetical = ServerAction.symbolReplacement(parenthetical)
-    
-    print(parenthetical)
+    # Replace blank node names with `internal####` so that
+    # re-rooting can work
+    net = readTopology(parenthetical)
+    Julia.net = net
+    i = 1000
+    for j in range(len(net.node)):
+        if net.node[j].name == "":
+            Julia.i = i
+            Julia.j = j+1
+            
+            Julia.eval("net.node[j].name = \"unnamed\"*string(i)")
+            i += 1
+    print(writeTopology(net))
+    parenthetical = writeTopology(net)
 
     try: 
         dotString = ParentheticalConvertorNaman.newickToDot(parenthetical)
         # parenthetical convertor uploads as upload.dot
-        return jsonify({'stat': "executing",'dot': dotString})
+        return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.root-1].name})
     except:
         return jsonify({'error': 'File format is incorrect'}), 401
 

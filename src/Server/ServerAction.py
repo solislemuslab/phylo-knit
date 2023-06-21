@@ -1,19 +1,18 @@
+import io
 import os
 import re
-
-from io import StringIO
-
-import numpy as np
-import pandas as pd
-import pydot
-
 from uuid import uuid4
+
+import pandas as pd
+from reportlab.graphics import renderPDF
+from svglib.svglib import svg2rlg
+
 
 def getRandomFileName():
     return "." + str(uuid4()) + ".tmp"
 
 # from Launcher import removeDup
-import ParentheticalToDot
+
 
 # for every pair in the set (of strings) of taxon pairs, 
 # check if a and b are contained in the set
@@ -22,6 +21,14 @@ def isDup(pairs, a, b):
         if a in pair and b in pair:
             return 1
     return 0
+
+
+def pdfFromSVG(svg_dat):
+    # Write SVG to file
+    svg_file = io.StringIO(svg_dat)
+    drawing = svg2rlg(svg_file)
+    return renderPDF.drawToString(drawing)
+
 
 # Removes duplicate triplets from a triplet file, overwriting the original file
 # where leaf1 leaf2 | outgroup is the pattern of each of the triples, we remove
@@ -81,10 +88,10 @@ def containsTriple(triple_set, leaf1, leaf2, outgroup):
 # thus a backbone is necessary to provide an informative tree. 
 def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     # check if this is the old format
-    dataset = pd.read_table(StringIO(hydeContent), sep=" ", header=None)
+    dataset = pd.read_table(io.StringIO(hydeContent), sep=" ", header=None)
     if not len(dataset.columns) == 8:
         # dataset could be delimited by tabs, spaces, ..., so we have to read like this
-        datareader = pd.read_table(StringIO(hydeContent), sep=None, iterator=True, engine='python') 
+        datareader = pd.read_table(io.StringIO(hydeContent), sep=None, iterator=True, engine='python') 
         dataset = datareader.read()
 
 

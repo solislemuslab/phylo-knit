@@ -49,6 +49,28 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
 
 }
 
+// Sends SVG string to server which returns PDF string
+function pushSVGToServer(svg_string) {
+    var data = JSON.stringify({
+        'svg': svg_string
+    });
+
+    var request = new XMLHttpRequest();
+    request.open("POST", "http://127.0.0.1:5001/getPDF/");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("readystatechange", processRequest, false);
+    request.responseType = 'blob';
+    request.send(data);
+
+    function processRequest(e) {
+        if(request.readyState == 4 && request.status == 200) {
+            // download the PDF contents to the user
+            dataBlob = new Blob([request.response], {'type':'application/pdf'})
+            saveAs(dataBlob, 'network.pdf')
+        }
+    }
+}
+
 // Sends parenthetical input to the server and draws the resulting network if there is one, else throws an error
 function pushParentheticalToServer(parenthetical, updateLeafBox) {
     if(typeof(updateLeafBox) == "undefined")
@@ -68,17 +90,19 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
         if (request.readyState === 4 && request.status === 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
-            document.getElementById("dwn-btn").style.visibility = "visible";
-            document.getElementById("downloadPng").style.visibility = "visible";
-            createD3Graph(updateLeafBox, x["dot"]);
             
+            showDownloadButtons();
+
+            console.log(x["dot"]);
+            createD3Graph(updateLeafBox, x["dot"]);
+
             // if updateLeafBox is false then we are just updating to a user adjustment,
             // so this is the edited Newick
             if(updateLeafBox) {
-                originalNewick = parenthetical.replaceAll(" ", "").trim();
+                originalNewick = x["newick"].replaceAll(" ", "").trim();
                 userAdjustedNewick = "";
             } else
-                userAdjustedNewick = parenthetical.replaceAll(" ", "")
+                userAdjustedNewick = x["newick"].replaceAll(" ", "")
         } else if (request.readyState === 4) {
         } else if (request.status === 401) {
             reqStatus = request.status;
@@ -206,10 +230,17 @@ function download(filename, text) {
 
 // Function for downloading Newick
 function downloadNewick() {
+    var returnNewick;
     if(userAdjustedNewick != "")
-        download("eNewick.txt", userAdjustedNewick);
+        returnNewick = userAdjustedNewick.trim();
     else
-        download("eNewick.txt", originalNewick.trim());
+        returnNewick = originalNewick.trim();
+
+    // remove all unnamed/internal nodes
+    var tempNewick;
+    while(returnNewick.localeCompare(tempNewick = returnNewick.replace(regUnnamed, '')) != 0) { returnNewick = tempNewick; }
+    while(returnNewick.localeCompare(tempNewick = returnNewick.replace(reg1000P, '')) != 0) { returnNewick = tempNewick; }
+    download("eNewick.txt", returnNewick.trim());
 }
 
 function saveImg() {
@@ -217,8 +248,14 @@ function saveImg() {
     svgString2Image(svgString, 2*width, 2*height, 'png', save);
 
     function save(dataBlob, filesize) {
-        saveAs(dataBlob, 'img.png');
+        saveAs(dataBlob, 'vis.png');
     }
+}
+
+
+function savePDF() {
+    var svgString = getSVGString(d3.select('svg').node());
+    pushSVGToServer(svgString);
 }
 
 
