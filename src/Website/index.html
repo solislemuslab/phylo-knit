@@ -43,7 +43,7 @@
     <div style="display:flex; width: 100%">
       <a class="navbar-brand navText" href="#">phylo-knit</a>
 
-      <ul class="navbar-nav">
+      <ul class="navbar-nav" style="width:100%;">
         <li class="nav-item">
           <a class="navText nav-link" href="#">
             Home
@@ -271,11 +271,20 @@
                   </tr>
                   <tr>
                     <td>
-                      <p style="margin:0; float:right;" id="node-radius-slider-value">75</p>
+                      <p style="margin:0; float:right;" id="node-radius-slider-value">114</p>
                     </td>
                     <td>
-                      <input style="vertical-align:middle;" type="range" min="0" max="500" value="75" oninput="updateNodeRadius()" id="node-radius-slider">
-                      <p style="margin:0;">Node Radius</p>
+                      <input style="vertical-align:middle;" type="range" min="0" max="500" value="114" oninput="updateLeafRadius()" id="node-radius-slider">
+                      <p style="margin:0;">Leaf Radius</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p style="margin:0; float:right;" id="nonleaf-radius-slider-value">0</p>
+                    </td>
+                    <td>
+                      <input style="vertical-align:middle;" type="range" min="0" max="500" value="0" oninput="updateNonleafRadius()" id="nonleaf-radius-slider">
+                      <p style="margin:0;">Non-leaf Radius</p>
                     </td>
                   </tr>
                   <tr>
@@ -333,6 +342,11 @@
               </div>
             </div>
           </div>
+        </li>
+        <li class="nav-item" style="margin-left: auto;">
+          <a class=" navText nav-link" href="https://github.com/solislemuslab/phylo-knit/issues">
+            Bug Report
+          </a>
         </li>
       </ul>
     </div>

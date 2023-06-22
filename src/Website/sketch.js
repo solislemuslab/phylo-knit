@@ -140,7 +140,7 @@ var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
 var LEAF_RADIUS = 114;
-var INTERNAL_NODE_RADIUS = 75;
+var INTERNAL_NODE_RADIUS = 0;
 var FORCEX_X = 0;
 var FORCEY_Y = 0;
 var AUTO_UPDATE_SETTINGS = true;
@@ -248,13 +248,14 @@ function createD3Graph(updateLeafBox, dotString) {
 
         node.append("circle")
             .attr("r", function (d) {
+                console.log(d);
                 var valueOfNode = d.id.toString();
                 if (!isInternalNode(valueOfNode)) {
                     nodeVal.push(valueOfNode);
                     console.log("LEAF");
                     return LEAF_RADIUS;
                 }
-                if(isRootNode(valueOfNOde))
+                if(isRootNode(valueOfNode))
                     return LEAF_RADIUS
                 else
                     return INTERNAL_NODE_RADIUS;
@@ -296,8 +297,12 @@ function createD3Graph(updateLeafBox, dotString) {
                 if(isInternalNode(valueOfNode)) {
                     return "";
                 } else if(isHybridNode(valueOfNode)) {
+                    if(INTERNAL_NODE_RADIUS < 15)
+                        return "";
                     return "#" + d.id.substr(4, d.id.length-4);
                 } else if(isNamedInternalNode(valueOfNode)) {
+                    if(INTERNAL_NODE_RADIUS < 15)
+                        return "";
                     if(DISPLAY_NAMED_INTERNAL_NODE_NAMED)
                         return d.id.substr(8, d.id.length-8);
                     else
@@ -313,7 +318,7 @@ function createD3Graph(updateLeafBox, dotString) {
         if(AUTO_UPDATE_SETTINGS) {
             if(graph.nodes.length <= 20) {
                 $('#node-radius-slider')[0].value = 115;
-                updateNodeRadius();
+                updateLeafRadius();
                 $('#font-size-slider')[0].value = 91;
                 updateFontSize();
                 $('#link-distance-slider')[0].value = 350;
@@ -322,7 +327,7 @@ function createD3Graph(updateLeafBox, dotString) {
                 updateLinkStrength();
             } else if(graph.nodes.length <= 40) {
                 $('#node-radius-slider')[0].value = 115;
-                updateNodeRadius();
+                updateLeafRadius();
                 $('#font-size-slider')[0].value = 90;
                 updateFontSize();
                 $('#link-distance-slider')[0].value = 250;
@@ -331,7 +336,7 @@ function createD3Graph(updateLeafBox, dotString) {
                 updateLinkStrength();
             } else {
                 $('#node-radius-slider')[0].value = 115;
-                updateNodeRadius();
+                updateLeafRadius();
                 $('#font-size-slider')[0].value = 90;
                 updateFontSize();
                 $('#link-distance-slider')[0].value = 250;
@@ -859,14 +864,30 @@ function updateFontSize() {
     $("#font-size-slider-value")[0].innerHTML = FONT_SIZE;
 }
 
-function updateNodeRadius() {
+function updateLeafRadius() {
     var sliderval = parseFloat($("#node-radius-slider")[0].value);
     LEAF_RADIUS = sliderval;
     STROKE_WIDTH = LEAF_RADIUS / 20;
+    updateNodeRadii();
+    updateNodeText();
+    d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
+    $('#node-radius-slider-value')[0].innerHTML=sliderval;
+}
+
+function updateNonleafRadius() {
+    var sliderval = parseFloat($("#nonleaf-radius-slider")[0].value);
+    INTERNAL_NODE_RADIUS = sliderval;
+    updateNodeRadii();
+    updateNodeText();
+    d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
+    $('#nonleaf-radius-slider-value')[0].innerHTML=sliderval;
+}
+
+function updateNodeRadii() {
     d3.selectAll("circle").attr("r", function(d) {
         // only want to change the radius of the non-legend nodes
         if(typeof d != "undefined")
-            if(!isInternalNode(d.id.toString()) && !isRootNode(d.id.toString()))
+            if(!isInternalNode(d.id.toString()) && !isRootNode(d.id.toString()) && !isHybridNode(d.id.toString()))
                 return LEAF_RADIUS;
             else
                 return INTERNAL_NODE_RADIUS;
@@ -877,8 +898,27 @@ function updateNodeRadius() {
             return STROKE_WIDTH;
         return 1;
     });
-    d3.selectAll("path").style("stroke-width",STROKE_WIDTH)
-    $('#node-radius-slider-value')[0].innerHTML=sliderval;
+}
+
+function updateNodeText() {
+    svg.selectAll("text").filter(":not(.legend-item)").text(function (d) {
+        var valueOfNode = d.id.toString();
+        if(isInternalNode(valueOfNode)) {
+            return "";
+        } else if(isHybridNode(valueOfNode)) {
+            if(INTERNAL_NODE_RADIUS < 100)
+                return "";
+            return "#" + d.id.substr(4, d.id.length-4);
+        } else if(isNamedInternalNode(valueOfNode)) {
+            if(INTERNAL_NODE_RADIUS < 100)
+                return "";
+            if(DISPLAY_NAMED_INTERNAL_NODE_NAMED)
+                return d.id.substr(8, d.id.length-8);
+            else
+                return "";
+        }
+        return d.id;
+    });
 }
 
 function updateForceXX() {
