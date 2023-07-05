@@ -1,28 +1,25 @@
-# PhyloKnit
+# phylo-knit
 
-**PhyloKnit** will be a web application that allows biologists to visualize complex phylogenetics networks. 
-Input can be accepted in different formats like Hyde, Parenthetical, Triplets, etc. 
+**phylo-knit** is a web application that allows biologists to visualize complex phylogenetics networks and quickly generate publication-ready visuals. 
+Newick, triplet, and HyDe file formats are accepted.
 
-## After successful completion of the project:
+## Creating, updating, and re-rooting a network
 
-* User will be able to upload a certain type of inuput file and on clicking create network, the graph will be displayed.
+Creating a network is as easily as selecting your preferred file type, uploading a file and clicking `Create Network`.
 
-<img src='pic1.png' width='400' height= '220' alt='screenshot of the application'/>
+After a network is created, the `Displayed Leaves` section will populate. Here, you can uncheck any number of boxes and then press `Update Network` to change which leaves are displayed. This also removed any redundant internal nodes.
 
-* User will be able to click on download image to save a screenshot of the displayed graph.
+Finally, to re-root your network, click your desired new root (this should highlight the node), then click `Re-root Network`. _Note: Internal node radius, which can be adjusted in the style menu, must be greater than 0 to perform this operation._
 
-<img src='pic2.png' width='300' alt='screenshot of the downloaded image'/>
+## Visual options
 
-* User will be able to uncheck the nodes they want the delete from the graph. On clicking Update Network, a new graph will be displayed with that node removed. 
-
-<img src='pic3.png' width='400' height= '220' alt='screenshot of the downloaded image'/>
 
 
 
 
 ## License
 
-    Copyright [2020] Solis-Lemus lab
+    Copyright [2023] Solis-Lemus lab
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
