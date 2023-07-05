@@ -164,7 +164,39 @@ button.done-back-btns {
 a#whatisthis:hover {
     text-decoration: underline;
 }
+#copybtn {
+    cursor: pointer;
+}
 
+#copyconfirmtext {
+    position: absolute;
+    padding-left: 30px;
+    color: green;
+}
+.fade-out {
+    animation: fadeOut ease 7s;
+}
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.citation-dropdown-contents {
+    display: none;
+    flex-direction: column;
+    width: auto;
+    height: auto;
+    left: inherit;
+    background-color: inherit;
+    align-items: left;
+}
 .style-menu-contents {
     display: none;
     flex-direction: column;
@@ -175,14 +207,22 @@ a#whatisthis:hover {
     /* border: solid green 1px; */
     align-items: left;
 }
-#style-drop-btn {
+#style-drop-btn, #citation-drop-btn {
     border: solid transparent 1px;
+}
+.dropdown.citation-dropdown:hover #citation-contents-container {
+    display: flex;
 }
 .dropdown.stylemenu-dropdown:hover #contents-container {
     display: flex;
 }
-.stylemenu-dropdown {
+.stylemenu-dropdown, .citation-dropdown {
     height: 100%;
+}
+#citation-contents-container {
+    border: solid black 1px;
+    border-top: solid rgba(0, 0, 0, 0.25) 1px;
+    background-color: white;
 }
 #contents-container {
     border: solid black 1px;
@@ -195,7 +235,7 @@ a#whatisthis:hover {
     list-style-type: none;
 }
 
-#style-main {
+#style-main, #citation-main {
     display: flex;
     position: relative;
     width: auto;

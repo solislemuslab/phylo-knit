@@ -45,24 +45,35 @@
 
       <ul class="navbar-nav" style="width:100%;">
         <li class="nav-item">
-          <a class="navText nav-link" href="#">
-            Home
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class=" navText nav-link" href="https://github.com/solislemuslab/phylo-knit#readme" target="_blank">
+          <a class="navText nav-link" href="https://github.com/solislemuslab/phylo-knit#readme" target="_blank">
             Help
           </a>
         </li>
         <li class="nav-item">
-          <a class=" navText nav-link" href="contact.html">
-            Contact
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="  nav-link navText" href="#">
-            Citation
-          </a>
+          <div class="dropdown citation-dropdown">
+            <a id="citation-drop-btn" class="nav-link navText" href="#">
+              Citation
+            </a>
+  
+            <div class="dropdown-content citation-dropdown-contents" id="citation-contents-container">
+              <div class="dropdown-content" id="citation-main" style="display: flex;">
+                <div style="display: flexbox; flex-grow: 1; margin-right: 10px">
+                  <p id="citation-text" style="word-wrap: break-word; width: auto; margin: 0; padding: 0;">
+                    Name, O., Name, Tw., Name, Th., Name, F., <i>Super Prestegious Paper</i>
+                  </p>
+                </div>
+
+                <div style="display: flexbox;">
+                  <center id="citation-copy-div">
+                    <a id="citation-copy" target="_blank" style="text-align: center; padding-top: 3px;" onclick="copyCitation(); showCopyConfirmation();">
+                      <img id="copybtn" src="img/copy.png" alt="copybtn" width="17px" height="17px" />
+                    </a>
+                    <!-- <p id="copyconfirmtext" class="fade-out">✓</p> -->
+                  </center>
+                </div>
+              </div>
+            </div>
+          </div>
         </li>
         <li class="nav-item">
           <div class="dropdown stylemenu-dropdown">
@@ -457,6 +468,21 @@
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
   })
+
+  function copyCitation() {
+    navigator.clipboard.writeText("Put the citation here.");
+  }
+
+  function showCopyConfirmation() {
+    var div = $("#citation-copy-div")[0];
+    var checkmark = document.createElement("p");
+    checkmark.className = 'fade-out';
+    checkmark.id = 'copyconfirmtext';
+    checkmark.innerText = '✓';
+    div.appendChild(checkmark);
+
+    //<p id="copyconfirmtext" class="fade-out">✓</p>
+  }
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/save-svg-as-png/1.4.17/saveSvgAsPng.js"></script>
