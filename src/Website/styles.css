@@ -161,7 +161,11 @@ button.done-back-btns {
     border: transparent;
 }
 
-a#whatisthis:hover {
+.tooltip {
+    
+}
+
+a.whatisthis:hover {
     text-decoration: underline;
 }
 #copybtn {
@@ -278,7 +282,7 @@ body {
 
 #displayed-leaves {
     overflow-y: auto;
-    height: 250px;
+    height: 200px;
 }
 
 .files {

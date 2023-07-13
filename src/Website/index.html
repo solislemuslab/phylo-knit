@@ -112,7 +112,7 @@
                   </button>
                   <div style="flex-grow: 1; text-align:center; vertical-align:bottom;">
                     <p style="margin:0; position: relative; top: 1px;">Animation Physics</p>
-                    <a id="whatisthis" target="_blank" href="https://www.d3indepth.com/force-layout/" style="text-align: center; padding-top: 3px;">
+                    <a class="whatisthis" target="_blank" href="https://www.d3indepth.com/force-layout/" style="text-align: center; padding-top: 3px;">
                       <img src="img/info-img.png" alt="infobtn" width="17px" height="17px" />
                     </a>
                   </div>
@@ -394,20 +394,34 @@
         <div class="icon icon-round d-flex align-items-center justify-content-center">
           <img src="graph_icon_144306.png" style="width: 50%;height: 50%;" alt="">
         </div>
+        <a type="button" data-toggle="tooltip" data-placement="bottom" title="Select your file type above, upload your file and then press this button to visualize your network." style="padding: 0; margin: 0; background-color: transparent; border: none;">
+          <img src="img/info-img.png" alt="infobtn" width="18px" height="18px" style="text-align: center; margin-bottom: 2px">
+        </a>
         Create Network
       </button>
+
       <button class="button btn mb-2 mb-md-0 btn-tertiary btn-block btn-round v" onclick="updateNetwork()"
         id="updateNetwork" style="text-align:center;right: 20px;padding-left: 0;" disabled>
         <div class="icon icon-round d-flex align-items-center justify-content-center">
           <img src="graph_icon_144306.png" style="width: 50%;height: 50%;" alt="">
-        </div>Update Network
+        </div>
+        <a type="button" data-toggle="tooltip" data-placement="bottom" title="After checking or unchecking leaves in the list below, use this button to update the displayed network." style="padding: 0; margin: 0; background-color: transparent; border: none;">
+          <img src="img/info-img.png" alt="infobtn" width="18px" height="18px" style="text-align: center; margin-bottom: 2px">
+        </a>
+        Update Network
       </button>
+
       <button class="button btn mb-2 mb-md-0 btn-tertiary btn-block btn-round v" onclick="updateNetwork()"
         id="rerootNetwork" style="text-align:center;right: 20px;padding-left: 0;" disabled>
         <div class="icon icon-round d-flex align-items-center justify-content-center">
           <img src="graph_icon_144306.png" style="width: 50%;height: 50%;" alt="">
-        </div>Re-root Network
+        </div>
+        <a type="button" data-toggle="tooltip" data-placement="bottom" title="Click a node in your network to highlight it. Then, press this button to re-root the network at the highlighted node." style="padding: 0; margin: 0; background-color: transparent; border: none;">
+          <img src="img/info-img.png" alt="infobtn" width="18px" height="18px" style="text-align: center; margin-bottom: 2px">
+        </a>
+        Re-root Network
       </button>
+
       <br>
       <br>
       <label id="displayed-leaves-title">Displayed Leaves</label><br>
