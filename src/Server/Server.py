@@ -1,22 +1,12 @@
-#####
-# Required on the server:
-# * Julia (duh)
-# * julia package for Python (duh)
-# * PhyloNetworks package for Julia
-# * first-time setup: open Python, then:
-#     - import julia
-#     - julia.install(julia=<julia_exec_path>)
-####
-
 import io
 
 from julia.api import Julia
 
 try:
-    ### Nathan's Mac only:
-    jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
-except:
     jl = Julia()
+except:
+    ### Example of specifying a specific Julia executable
+    jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
 
 from julia import Pkg
 
