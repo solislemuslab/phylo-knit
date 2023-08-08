@@ -143,7 +143,9 @@ var LEAF_RADIUS = 115;
 var INTERNAL_NODE_RADIUS = 100;
 var FORCEX_X = 0;
 var FORCEY_Y = 0;
-var AUTO_UPDATE_SETTINGS = true;
+
+// TODO: change this back to true once the style menu is added back
+var AUTO_UPDATE_SETTINGS = false;
 
 var GRAPH;
 // Main function for generating the D3 graph
@@ -156,12 +158,12 @@ function createD3Graph(updateLeafBox, dotString) {
 
     removeGraph();
 
-    document.getElementById("loader").style.visibility = "hidden";
-    selectbutton.disabled = true;
-    refresher.style.visibility = "visible";
-    refresher.disabled = false;
+    // document.getElementById("loader").style.visibility = "hidden";
+    // selectbutton.disabled = true;
+    // refresher.style.visibility = "visible";
+    // refresher.disabled = false;
 
-    selectbutton.disabled = true;
+    // selectbutton.disabled = true;
     console.log(dotString);
     console.log(d3.dot_from_string)
     
@@ -370,7 +372,8 @@ function createD3Graph(updateLeafBox, dotString) {
             console.log("\t\t\tCREATING BOXES")
             console.log("\t\t\tCREATING BOXES")
             console.log(updateLeafBox);
-            createboxes();
+            // TODO: uncomment this once the boxes are added back
+            // createboxes();
         }
 
         // raise the legend above everything else
@@ -471,46 +474,126 @@ d3.select('svg').call(zoom);
 function selectInputType(val) {
     selectedDropDown = val;
     if (val === "HYDE format") {
-        document.getElementById("instruct").innerHTML =
-            "Please upload a HYDE format file and provide threshold";
-        removeGraph();
-        createNetworkSelector.style.visibility = "visible";
-        createNetworkSelector.disabled = false;
-        textThresh.style.visibility = "visible";
-        divText.style.visibility ="visible";
-        symbolElement.style.visibility = "visible";
-        newickField.style.visibility = "visible"; // for optional backbone tree
-        let fileDiv = document.getElementById("file");
-        if (fileDiv.style.display === "none") {
-            fileDiv.style.display = "block";
-        } else {
-            fileDiv.style.visibility = "visible";
+        // document.getElementById("instruct").innerHTML =
+        //     "Please upload a HYDE format file and provide threshold";
+        // removeGraph();
+
+        // Make the relevant cards visible
+        $("#upload-via-file-card").removeClass("d-none");
+        $("#hyde-p-value-card").removeClass("d-none");
+
+        // Make the relevant card invisible
+        $("#upload-via-parenthetical-card").addClass("d-none");
+        
+        if($("#file")[0].value == '') {
+            $("#create-network-card").addClass("invisible");
         }
+
+        // createNetworkSelector.style.visibility = "visible";
+        // createNetworkSelector.disabled = false;
+        // textThresh.style.visibility = "visible";
+        // divText.style.visibility ="visible";
+        // symbolElement.style.visibility = "visible";
+        // newickField.style.visibility = "visible"; // for optional backbone tree
+        // let fileDiv = document.getElementById("file");
+        // if (fileDiv.style.display === "none") {
+        //     fileDiv.style.display = "block";
+        // } else {
+        //     fileDiv.style.visibility = "visible";
+        // }
     } else if (val === "Triplets") {
-        document.getElementById("instruct").innerHTML =
-            "Please upload a triplet format file";
-        removeGraph();
-        newickField.style.visibility = "hidden";
-        textThresh.style.visibility = "hidden";
-        divText.style.visibility = "hidden";
-        let fileDiv = document.getElementById("file");
-        createNetworkSelector.disabled = false;
-        if (fileDiv.style.display === "none") {
-            fileDiv.style.display = "block";
-        } else {
-            fileDiv.style.visibility = "visible";
+        // document.getElementById("instruct").innerHTML =
+        //     "Please upload a triplet format file";
+        // removeGraph();
+        // newickField.style.visibility = "hidden";
+        // textThresh.style.visibility = "hidden";
+        // divText.style.visibility = "hidden";
+        // let fileDiv = document.getElementById("file");
+        // createNetworkSelector.disabled = false;
+        // if (fileDiv.style.display === "none") {
+        //     fileDiv.style.display = "block";
+        // } else {
+        //     fileDiv.style.visibility = "visible";
+        // }
+
+        // Make the relevant cards visible
+        $("#upload-via-file-card").removeClass("d-none");
+
+        // Make the relevant card invisible
+        $("#upload-via-parenthetical-card").addClass("d-none");
+        $("#hyde-p-value-card").addClass("d-none");
+
+        if($("#file")[0].value == '') {
+            $("#create-network-card").addClass("invisible");
         }
     } else if (val === "pf") {
-        document.getElementById("instruct").innerHTML =
-            "Please upload a file in Newick format OR type an expression";
-        removeGraph();
-        textThresh.style.visibility = "hidden";
-        divText.style.visibility = "hidden";
-        newickField.style.visibility = "visible";
-        createNetworkSelector.style.visibility = "visible";
-        let fileDiv = document.getElementById("file");
-        fileDiv.style.visibility = "visible";
-        createNetworkSelector.disabled = false;
+        // document.getElementById("instruct").innerHTML =
+        //     "Please upload a file in Newick format OR type an expression";
+        // removeGraph();
+        // textThresh.style.visibility = "hidden";
+        // divText.style.visibility = "hidden";
+        // newickField.style.visibility = "visible";
+        // createNetworkSelector.style.visibility = "visible";
+        // let fileDiv = document.getElementById("file");
+        // fileDiv.style.visibility = "visible";
+        // createNetworkSelector.disabled = false;
+
+        // Make the relevant cards visible
+        $("#upload-via-parenthetical-card").removeClass("d-none");
+        $("#upload-via-file-card").removeClass("d-none");
+
+        // Make the relevant card invisible
+        $("#hyde-p-value-card").addClass("d-none");
+
+        parenValue = $("#parenthetical")[0].value;
+        filenameValue = $("#file")[0].value;
+    
+        if(filenameValue == '' && parenValue == '') {
+            $("#create-network-card").addClass("invisible");
+        } else {
+            $("#create-network-card").removeClass("invisible");
+        }
+    } else {
+        $("#upload-via-parenthetical-card").addClass("d-none");
+        $("#upload-via-file-card").addClass("d-none");
+        $("#hyde-p-value-card").addClass("d-none");
+    }
+}
+
+function parentheticalTextAreaChanged() {
+    parenValue = $("#parenthetical")[0].value;
+    filenameValue = $("#file")[0].value;
+
+    if(filenameValue == '' && parenValue == '') {
+        $("#create-network-card").addClass("invisible");
+    } else {
+        $("#create-network-card").removeClass("invisible");
+    }
+}
+
+function showTab(tabLabel) {
+    if(tabLabel == 'input') {
+        $("#input-tab-contents").removeClass("d-none");
+        $("#input-tab").addClass("active");
+    } else {
+        $("#input-tab-contents").addClass("d-none");
+        $("#input-tab").removeClass("active");
+    }
+
+    if(tabLabel == 'network') {
+        $("#network-tab-contents").removeClass("d-none");
+        $("#network-tab").addClass("active");
+    } else {
+        $("#network-tab-contents").addClass("d-none");
+        $("#network-tab").removeClass("active");
+    }
+
+    if(tabLabel == 'style') {
+        $("#style-tab-contents").removeClass("d-none");
+        $("#style-tab").addClass("active");
+    } else {
+        $("#style-tab-contents").addClass("d-none");
+        $("#style-tab").removeClass("active");
     }
 }
 
@@ -626,6 +709,21 @@ function filterLeafBox() {
 }
 
 
+// resizes the SVG to fit its content whenever the window is resized
+function resizeSVG() {
+    width = $("#svg-container").width();
+    height = window.innerHeight - $("#navbar-id-height-getter").height() - $("footer").height() - 82;
+    height = Math.max(height, 0);
+
+    // Adjusting the width here affects the svg's container, so we
+    // need to resize twice to actually fit to the content
+    $("#chartId").attr("width", width).attr("height", height);
+    width = $("#svg-container").width();
+    $("#chartId").attr("width", width).attr("height", height);
+}
+window.addEventListener("resize", resizeSVG);
+
+
 // called when the "Create Network" button is pressed;
 // does all the calls that populate the D3 graph
 function onClickCreateNetwork() {
@@ -635,7 +733,6 @@ function onClickCreateNetwork() {
     createNetworkSelector.disabled = true;
 
     // show the loading icon and clear out any previous warning messages
-    document.getElementById("loader").style.visibility = "visible";
     document.getElementById("instruct").innerHTML = "";
     
     // ------------------------------------------------------------------------------------------
@@ -650,7 +747,7 @@ function onClickCreateNetwork() {
     } else if(newickField.value == "" && currFile == undefined) {
         // there is no input yet.
         document.getElementById("instruct").innerHTML = "No input selected; please select some input then try again.";
-        document.getElementById("loader").style.visibility = "hidden";
+        // document.getElementById("loader").style.visibility = "hidden";
         return;
     }
     
@@ -686,7 +783,7 @@ function onClickCreateNetwork() {
 function updateNetwork() {
     // disable Create/Update network buttons while we work...
     createNetworkSelector.disabled = true;
-    document.getElementById("loader").style.visibility = "visible";
+    // document.getElementById("loader").style.visibility = "visible";
     btnUpdateNet.disabled = true;
 
     // gather which nodes are to be removed
@@ -734,7 +831,7 @@ function updateNetwork() {
         if(request.readyState == 4 && request.status == 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
-            document.getElementById("loader").style.visibility = "visible";
+            // document.getElementById("loader").style.visibility = "visible";
 
             if(x.result == 'success') {
                 // change to new root
@@ -1007,9 +1104,9 @@ function setTreelikeSettings() {
 
 
 function showDownloadButtons() {
-    document.getElementById("dwn-btn").style.visibility = "visible";
-    document.getElementById("downloadPng").style.visibility = "visible";
-    document.getElementById("downloadPDF").style.visibility = "visible";
+    // document.getElementById("dwn-btn").style.visibility = "visible";
+    // document.getElementById("downloadPng").style.visibility = "visible";
+    // document.getElementById("downloadPDF").style.visibility = "visible";
 }
 
 // Resource for grouping nodes (can be used to repel all other nodes from the root in the treelike settings)
