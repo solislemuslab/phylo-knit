@@ -51,36 +51,6 @@
         </a>
 
         <!-- Divider -->
-        <hr class="sidebar-divider">
-
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Interface
-        </div>
-
-        <!-- Nav Item - Node Options -->
-        <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseNodeOptions"
-            aria-expanded="true" aria-controls="collapseNodeOptions">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Node Options</span>  
-        </a>
-        <div id="collapseNodeOptions" class="collapse" aria-labelledby="headingNodeOptions" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Node Options:</h6>
-            
-            <!-- Root color -->
-            <a href="#" class="btn btn-primary btn-icon-split btn-sm" style="background-color: #FFB000; border-color: #FFB000">
-                <span class="icon" style="background: rgba(0, 0, 0, 0);">
-                <input type="color" value="#FFB000">
-                </span>
-                <span class="text">Root color</span>
-            </a>
-            </div>
-        </div>
-        </li>
-
-        <!-- Divider -->
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - Citation -->
@@ -231,7 +201,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Upload via Parenthetical</div>
                                             <div class="mb-0">
-                                                <textarea placeholder="Paste your parenthetical text here." rows="1" style="width:100%" id="parenthetical" onchange="parentheticalTextAreaChanged()"></textarea>
+                                                <textarea placeholder="Paste your parenthetical text here." rows="1" style="width:100%" id="parenthetical" oninput="parentheticalTextAreaChanged()"></textarea>
                                             </div>
                                         </div>
                                         <div class="col-auto">
