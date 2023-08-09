@@ -165,16 +165,18 @@
                         <a class="nav-link" id="network-tab" type="button" onclick="showTab('network'); resizeSVG();">Network</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="style-tab" type="button" onclick="showTab('style');">Style Options</a>
+                        <a class="nav-link" id="style-tab" type="button" onclick="showTab('style');">Display Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="download-tab" type="button" onclick="showTab('download');">Download Network</a>
                     </li>
                 </ul>
 
                 <div class="tab-content">
-                    <!-- input tab content -->
-                    <div class="container-fluid" id="input-tab-contents">
-                        <!-- Page Heading (none right now) -->
-                        <br/>
+                    <br/>
 
+                    <!-- Input Tab -->
+                    <div class="container-fluid" id="input-tab-contents">
                         <!-- Content Row -->
                         <div class="row">
 
@@ -279,58 +281,30 @@
 
                         </div>
                     </div>
-                    <!-- end of input file page contents -->
+                    <!-- End Input Tab -->
 
-                    <!-- network tab contents -->
+                    <!-- Network Tab -->
                     <div class="container-fluid d-none" id="network-tab-contents">
                         <!-- Top spacing -->
-                        <br/>
                         <div class="container-fluid p-0 m-0 text-center" id="svg-container">
                             <svg id="chartId" class="border"></svg>
                         </div>
-                        <br/>
                     </div>
-                    <!-- end of network tab contents -->
+                    <!-- End Network Tab -->
 
-                    <!-- style options tab content -->
+                    <!-- Style Options Tab -->
                     <div class="container-fluid d-none" id="style-tab-contents">
-                        <br/>
-
-                        <div class="row">
-                            <!-- Legend Toggle -->
-                            <div class="col-xl-3 col-md-6 mb-4 input-selection-card" id="select-input-type-card">
-                                <div class="card border-left-info shadow h-100 py-2">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Toggle Legend</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                    <!-- content -->
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <!-- <i class="fas fa-comments fa-2x text-gray-300"></i> -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- End Legend Toggle -->
-                        </div>
-
                         <!-- Animation Physics -->
                         <div class="card mb-4">
                             <!-- Card Header - Accordion -->
                             <a href="#animationPhysicsCard" class="d-block card-header py-3" data-toggle="collapse"
                                 role="button" aria-expanded="false" aria-controls="animationPhysicsCard">
-                                <h6 class="m-0 font-weight-bold text-primary">Animation Physics Options</h6>
+                                <h6 class="m-0 font-weight-bold text-primary">Animation Physics Settings</h6>
                             </a>
                             <!-- Card Content - Collapse -->
                             <div class="collapse" id="animationPhysicsCard">
                                 <div class="card-body">
-                                    This is a collapsable card example using Bootstrap's built in collapse
-                                    functionality. <strong>Click on the card header</strong> to see the card body
-                                    collapse and expand!
+                                    Placeholder text
                                 </div>
                             </div>
                         </div>
@@ -341,22 +315,60 @@
                             <!-- Card Header - Accordion -->
                             <a href="#nodeOptionsCard" class="d-block card-header py-3" data-toggle="collapse"
                                 role="button" aria-expanded="false" aria-controls="nodeOptionsCard">
-                                <h6 class="m-0 font-weight-bold text-primary">Node Options</h6>
+                                <h6 class="m-0 font-weight-bold text-primary">Node Settings</h6>
                             </a>
                             <!-- Card Content - Collapse -->
                             <div class="collapse" id="nodeOptionsCard">
                                 <div class="card-body">
-                                    This is a collapsable card example using Bootstrap's built in collapse
-                                    functionality. <strong>Click on the card header</strong> to see the card body
-                                    collapse and expand!
+                                    Placeholder text
                                 </div>
                             </div>
                         </div>
                         <!-- End Node Options -->
 
-                        <br/>
+                        <!-- Displayed Nodes -->
+                        <div class="card mb-4">
+                            <!-- Card Header - Accordion -->
+                            <a href="#displayedNodesCard" class="d-block card-header py-3" data-toggle="collapse"
+                                role="button" aria-expanded="false" aria-controls="displayedNodesCard">
+                                <h6 class="m-0 font-weight-bold text-primary">Displayed Nodes</h6>
+                            </a>
+                            <!-- Card Content - Collapse -->
+                            <div class="collapse" id="displayedNodesCard">
+                                <div class="card-body">
+                                    Placeholder text
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Displayed Nodes -->
                     </div>
-                    <!-- end of style options tab content -->
+                    <!-- End Style Options Tab -->
+
+                    <!-- Download Tab -->
+                    <div class="conatiner-fluid d-none" id="download-tab-contents">
+                        The buttons are just here as an example, they'll look pretty later.
+
+                        <br/>
+                        <br/>
+                        <div class="row">
+                            <div class="col text-center">
+                                <button>Download PDF</button>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col text-center">
+                                <button>Download eNewick</button>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col text-center">
+                                <button>Download PNG</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Download Tab -->
                 </div>
 
 

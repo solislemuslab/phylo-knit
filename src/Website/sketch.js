@@ -595,6 +595,14 @@ function showTab(tabLabel) {
         $("#style-tab-contents").addClass("d-none");
         $("#style-tab").removeClass("active");
     }
+
+    if(tabLabel == 'download') {
+        $("#download-tab-contents").removeClass("d-none");
+        $("#download-tab").addClass("active");
+    } else {
+        $("#download-tab-contents").addClass("d-none");
+        $("#download-tab").removeClass("active");
+    }
 }
 
 // Populates the "Displayed Leaves" box
