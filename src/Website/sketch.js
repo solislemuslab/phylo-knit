@@ -392,6 +392,9 @@ function createD3Graph(updateLeafBox, dotString) {
         // enable the download dropdown
         $("#download-tab").removeClass("disabled");
 
+        // re-enable the create network button
+        $("#createNetwork").removeClass("disabled");
+
         function ticked() {
             path.attr("d", function (d) {
                 return (
@@ -412,6 +415,14 @@ function createD3Graph(updateLeafBox, dotString) {
     } catch(exceptionVar) {
         alert("An error was encountered with your input. See the console for more details.");
         console.log(exceptionVar);
+
+        // re-enable the create network button
+        $("#createNetwork").removeClass("disabled");
+
+        // change the icon to the loading icon
+        $("#create-network-loading-icon").removeClass("d-none");
+        $("#create-network-notloading-icon").addClass("d-none");
+
         return;
     }
 }
@@ -445,7 +456,8 @@ function clicked(d) {
                     return STROKE_WIDTH;
                 }
         });
-        $("#reroot-popup").removeClass("d-none").css("left", "".concat(currMouseX + 20, "px")).css("top", "".concat(currMouseY, "px"))
+        $("#reroot-popup").removeClass("d-none").css("left", "".concat(currMouseX + 20, "px")).css("top", "".concat(currMouseY, "px"));
+        $("#reroot-button").removeClass("disabled");
     } else if(highlightedNode == d) {
         // selecting old node
         highlightedNode = null;
@@ -770,6 +782,8 @@ window.addEventListener("resize", resizeSVG);
 // called when the "Create Network" button is pressed;
 // does all the calls that populate the D3 graph
 function onClickCreateNetwork() {
+    $("#createNetwork").addClass("disabled");
+
     // change the icon to the loading icon
     $("#create-network-loading-icon").removeClass("d-none");
     $("#create-network-notloading-icon").addClass("d-none");
@@ -828,6 +842,8 @@ function onClickCreateNetwork() {
 
 // called when "Update Network" is pressed; only selected leaves are kept in the network
 function updateNetwork() {
+    $("#reroot-button").addClass("disabled");
+
     // disable Create/Update network buttons while we work...
     createNetworkSelector.disabled = true;
     // document.getElementById("loader").style.visibility = "visible";

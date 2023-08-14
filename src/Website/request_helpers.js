@@ -269,7 +269,7 @@ function downloadNewick() {
 
 function saveImg() {
     var svgString = getSVGString(d3.select('svg').node()); 
-    svgString2Image(svgString, 2*width, 2*height, 'png', save);
+    svgString2Image(svgString, 5*width, 5*height, 'png', save);
 
     function save(dataBlob, filesize) {
         saveAs(dataBlob, 'vis.png');
