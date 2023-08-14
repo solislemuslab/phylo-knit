@@ -11,6 +11,9 @@
       href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
       rel="stylesheet">
 
+  <!-- Bootstrap styles -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
   <!-- Custom styles for this template-->
   <!-- TODO: minify sb-admin-2.css (I've edited it so the current min is different) -->
   <link href="css/sb-admin-2.css" rel="stylesheet">
@@ -129,136 +132,81 @@
                 <!-- Tabs -->
                 <ul class="nav nav-tabs" id="navbar-id-height-getter">
                     <li class="nav-item">
-                        <a class="nav-link active" id="input-tab" type="button" onclick="showTab('input');">Inputs</a>
+                        <a class="nav-link active" href="#network" id="network-tab" type="button" onclick="showTab('network'); resizeSVG();">Network</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="network-tab" type="button" onclick="showTab('network'); resizeSVG();">Network</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle show" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="true" id="input-tab" type="button">Inputs</a>
+                        <ul class="dropdown-menu p-2 show" aria-labelledby="input-tab">
+                            <li>
+                                <select class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
+                                    <option value="type">Select input type</option>
+                                    <option value="pf">Parenthetical/Newick</option>
+                                    <option value="Triplets">Triplets</option>
+                                    <option value="HYDE format">HyDe</option>
+                                </select>
+                            </li>
+                            <li id="upload-via-file-card" class="d-none">
+                                <hr class="dropdown-divider">
+                                <input type="file" class="form-control-file" id="file" onchange="enableCreateNetworkButton();" />
+                            </li>
+                            <li id="upload-via-parenthetical-card" class="text-center d-none">
+                                <br/>
+                                <p><b>OR</b></p>
+                                <textarea placeholder="Paste your parenthetical text here." rows="2" style="width:100%" id="parenthetical" oninput="parentheticalTextAreaChanged()"></textarea>
+                            </li>
+                            <li id="hyde-p-value-card" class="text-center d-none">
+                                <br/>
+                                <p><b>AND</b></p>
+                                <input id="textThreshold" value="0.05" type="text" placeholder="p-value threshold (e.g. 0.05)"/>
+                                <label>p-value</label>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="text-center">
+                                <a href="#" class="btn btn-icon-split btn-light border disabled" onclick="onClickCreateNetwork()" id="createNetwork" disabled>
+                                    <span class="icon text-white-50">
+                                        <i class="fa-solid fa-circle-nodes" id="create-network-notloading-icon"></i>
+                                        <div class="spinner-border spinner-border-sm m-0 p-0 text-center align-middle d-none" role="status" id="create-network-loading-icon">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                    </span>
+                                    <span class="text">Create Network</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="style-tab" type="button" onclick="showTab('style');">Display Settings</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="download-tab" type="button" onclick="showTab('download');">Download Network</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle disabled" data-bs-toggle="dropdown" href="#" role="button" id="download-tab" type="button">Download Network</a>
+                        <ul class="dropdown-menu w-100 p-2" aria-labelledby="download-tab">
+                            <li class="text-center">
+                                <a href="#" class="btn btn-lg btn-danger" data-toggle="tooltip" data-placement="top" title="Download PDF">
+                                    <i class="fa-regular fa-file-pdf"></i>
+                                </a>
+                                <a href="#" class="btn btn-lg btn-info" data-toggle="tooltip" data-placement="top" title="Download PNG">
+                                    <i class="fa-regular fa-file-image"></i>
+                                </a>
+                                <a href="#" class="btn btn-lg btn-warning" data-toggle="tooltip" data-placement="top" title="Download Newick">
+                                    <i class="fa-solid fa-font"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
 
                 <div class="tab-content">
                     <br/>
 
-                    <!-- Input Tab -->
-                    <div class="container-fluid" id="input-tab-contents">
-                        <!-- Content Row -->
-                        <div class="row">
-
-                        <!-- Input Type Card -->
-                        <div class="col-xl-3 col-md-6 mb-4 input-selection-card" id="select-input-type-card">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Input Type</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <select class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
-                                                    <option value="type">Select input type</option>
-                                                    <option value="pf">Parenthetical/Newick</option>
-                                                    <option value="Triplets">Triplets</option>
-                                                    <option value="HYDE format">HyDe</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <!-- <i class="fas fa-comments fa-2x text-gray-300"></i> -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- File Input Card -->
-                        <div class="col-xl-3 col-md-6 mb-4 input-selection-card d-none" id="upload-via-file-card">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Upload via File</div>
-                                            <div class="mb-0">
-                                                <input type="file" class="form-control-file" id="file" />
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <!-- <i class="fas fa-comments fa-2x text-gray-300"></i> -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Parenthetical Input Card -->
-                        <div class="col-xl-3 col-md-6 mb-4 input-selection-card d-none" id="upload-via-parenthetical-card">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Upload via Parenthetical</div>
-                                            <div class="mb-0">
-                                                <textarea placeholder="Paste your parenthetical text here." rows="1" style="width:100%" id="parenthetical" oninput="parentheticalTextAreaChanged()"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <!-- <i class="fas fa-comments fa-2x text-gray-300"></i> -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- p-value Input Card -->
-                        <div class="col-xl-3 col-md-6 mb-4 input-selection-card d-none" id="hyde-p-value-card">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">HyDe p-value</div>
-                                            <div class="mb-0">
-                                                <input class="" id="textThreshold" value="0.05" type="text" placeholder="p-value threshold (e.g. 0.05)"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <!-- <i class="fas fa-comments fa-2x text-gray-300"></i> -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Create Network Button -->
-                        <div class="col-xl-12 col-md-12 mb-4 text-center input-selection-card invisible" id="create-network-card">
-                            <div class="mb-0">
-                                <a href="#" class="btn btn-icon-split btn-light btn-lg border" onclick="onClickCreateNetwork()" id="createNetwork" disabled>
-                                    <span class="icon text-white-50">
-                                        <i class="fa-solid fa-circle-nodes"></i>
-                                    </span>
-                                    <span class="text">Create Network</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-12 col-md-12 mb-4 text-center input-selection-card" id="instruct-card">
-                            <div class="mb-0">
-                                <p id="instruct"></p>
-                            </div>
-                        </div>
-
-                        </div>
-                    </div>
-                    <!-- End Input Tab -->
-
                     <!-- Network Tab -->
-                    <div class="container-fluid d-none" id="network-tab-contents">
+                    <div class="container-fluid" id="network-tab-contents">
                         <!-- Top spacing -->
                         <div class="container-fluid p-0 m-0 text-center" id="svg-container">
-                            <svg id="chartId" class="border"></svg>
+                            <svg id="chartId" class="border">
+                                <text x="25" y="200" class="huge">Awaiting input...</text>
+                            </svg>
                         </div>
+                        <p id="instruct" class="p-0 m-0">Awaiting input...</p>
                     </div>
                     <!-- End Network Tab -->
 
@@ -267,7 +215,7 @@
                         <!-- Animation Physics -->
                         <div class="card mb-4">
                             <!-- Card Header - Accordion -->
-                            <a href="#animationPhysicsCard" class="d-block card-header py-3" data-toggle="collapse"
+                            <a data-target="#animationPhysicsCard" class="d-block card-header py-3" data-toggle="collapse"
                                 role="button" aria-expanded="false" aria-controls="animationPhysicsCard">
                                 <h6 class="m-0 font-weight-bold text-primary">Animation Physics Settings</h6>
                             </a>
@@ -372,10 +320,10 @@
 
   <!-- Bootstrap core JavaScript-->
   <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin-2.min.js"></script>
@@ -414,5 +362,15 @@
 <script src="request_helpers.js" type="text/javascript"></script>
 <script src="sketch.js" type="text/javascript"></script>
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+
+<script>
+    // Immediately set the SVG size
+    resizeSVG();
+
+    // Stops dropdown menus from closing when you click inside of them
+    document.querySelector('.dropdown-menu').addEventListener('click', function(event) {
+        event.stopPropagation();
+     });
+</script>
 
 </html>
