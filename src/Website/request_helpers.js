@@ -106,7 +106,11 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
             var x = JSON.parse(request.responseText);
             console.log(x);
             
-            showDownloadButtons();
+            if('rootname' in x) {
+                ROOT_NAME = x['rootname'];
+            } else if('new_root' in x) {
+                ROOT_NAME = x['new_root'];
+            }
 
             console.log(x["dot"]);
             createD3Graph(updateLeafBox, x["dot"]);

@@ -34,6 +34,9 @@
   <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
   <script src="libraries/d3.v4.min.js"></script>
   <script src="libraries/d3-dot-graph.js"></script>
+
+  <!-- File downloading functions -->
+  <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
 </head>
 
 
@@ -143,6 +146,7 @@
                                     <option value="pf">Parenthetical/Newick</option>
                                     <option value="Triplets">Triplets</option>
                                     <option value="HYDE format">HyDe</option>
+                                    <option value="examples">Example Inputs</option>
                                 </select>
                             </li>
                             <li id="upload-via-file-card" class="d-none">
@@ -160,10 +164,22 @@
                                 <input id="textThreshold" value="0.05" type="text" placeholder="p-value threshold (e.g. 0.05)"/>
                                 <label>p-value</label>
                             </li>
+                            <li class="input-example d-none">
+                                <hr class="dropdown-divider">
+                                <a href="#" class="btn btn-block border" onclick="loadExample('n10h2');">10 taxa, 2 reticulations</a>
+                            </li>
+                            <li class="input-example d-none">
+                                <br/>
+                                <a href="#" class="btn btn-block border" onclick="loadExample('n15h3');">15 taxa, 3 reticulations</a>
+                            </li>
+                            <li class="input-example d-none">
+                                <br/>
+                                <a href="#" class="btn btn-block border" onclick="loadExample('n107h36');">107 taxa, 36 reticulations</a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li class="text-center">
                                 <a href="#" class="btn btn-icon-split btn-light border disabled" onclick="onClickCreateNetwork()" id="createNetwork" disabled>
-                                    <span class="icon text-white-50">
+                                    <span class="icon text-white-100">
                                         <i class="fa-solid fa-circle-nodes" id="create-network-notloading-icon"></i>
                                         <div class="spinner-border spinner-border-sm m-0 p-0 text-center align-middle d-none" role="status" id="create-network-loading-icon">
                                             <span class="sr-only">Loading...</span>
@@ -286,6 +302,15 @@
 
   </div>
   <!-- End of Page Wrapper -->
+
+  <div id="reroot-popup" style="position: absolute;" class="container d-none">
+    <a href="#" class="btn btn-icon-split btn-info border" onclick="updateNetwork();" id="reroot-button">
+        <span class="icon text-white-100">
+            <i class="fa-solid fa-code-compare"></i>
+        </span>
+        <span class="text">Reroot Network</span>
+    </a>
+  </div>
 
   <!-- Scroll to Top Button-->
   <a class="scroll-to-top rounded" href="#page-top">

@@ -16,7 +16,7 @@ var trackRemovedLinks = [];
 
 // global for use later
 var GRAPH;
-var DISPLAY_NAMED_INTERNAL_NODE_NAMED = false;
+var DISPLAY_NAMED_INTERNAL_NODE_NAMES = false;
 var STROKE_WIDTH = 4;
 var FONT_SIZE = "91px";
 var FONT_FAMILY = "Times";
@@ -25,7 +25,7 @@ var FONT_FAMILY = "Times";
 function isInternalNode(node_name) { return reg1000P.test(node_name); }
 function isHybridNode(node_name) { return regHash.test(node_name); }
 function isNamedInternalNode(node_name) { return regNamedInternal.test(node_name); }
-function isRootNode(node_name) { return node_name == ROOT_NAME; }
+function isRootNode(node_name) { return node_name == ROOT_NAME || node_name == "internal".concat(ROOT_NAME); }
 function isUnnamedNode(node_name) { return regUnnamed.test(node_name); }
 
 // Node colors
@@ -268,10 +268,10 @@ function createD3Graph(updateLeafBox, dotString) {
             .style("fill", function (d) {
                 var valueOfNode = d.id.toString();
 
-                return isHybridNode(valueOfNode)
-                    ? HYBRID_COLOR
-                    : isRootNode(valueOfNode)
+                return isRootNode(valueOfNode)
                     ? ROOT_COLOR
+                    : isHybridNode(valueOfNode)
+                    ? HYBRID_COLOR
                     : isInternalNode(valueOfNode)
                     ? INTERNAL_COLOR
                     : isNamedInternalNode(valueOfNode)
@@ -296,19 +296,19 @@ function createD3Graph(updateLeafBox, dotString) {
             .style("text-anchor", "middle")
             .text(function (d) {
                 var valueOfNode = d.id.toString();
-                if(isInternalNode(valueOfNode)) {
-                    return "";
+                if(isNamedInternalNode(valueOfNode)) {
+                    if(INTERNAL_NODE_RADIUS < 15)
+                        return "";
+                    if(DISPLAY_NAMED_INTERNAL_NODE_NAMES)
+                        return d.id.substr(8, d.id.length-8);
+                    else
+                        return "";
                 } else if(isHybridNode(valueOfNode)) {
                     if(INTERNAL_NODE_RADIUS < 15)
                         return "";
                     return "#" + d.id.substr(4, d.id.length-4);
-                } else if(isNamedInternalNode(valueOfNode)) {
-                    if(INTERNAL_NODE_RADIUS < 15)
-                        return "";
-                    if(DISPLAY_NAMED_INTERNAL_NODE_NAMED)
-                        return d.id.substr(8, d.id.length-8);
-                    else
-                        return "";
+                } else if(isInternalNode(valueOfNode)) {
+                    return "";
                 }
                 return d.id;
             });
@@ -419,6 +419,13 @@ function createD3Graph(updateLeafBox, dotString) {
 // Some event handlers
 // -------------------------------------------------------
 // this function will handle selecting the node to re-root the network at
+var currMouseX = 0;
+var currMouseY = 0;
+window.addEventListener('mousemove', (event) => {
+    currMouseX = event.clientX;
+    currMouseY = event.clientY;
+});
+
 var highlightedNode = null;
 function clicked(d) {
     // 1. nothing currently selected? select this, highlight this, and present a "change root" button
@@ -427,6 +434,7 @@ function clicked(d) {
 
     console.log("clicked", d.id)
     if(highlightedNode == null || highlightedNode != d) {
+        // selecting new node
         highlightedNode = d;
 
         svg.selectAll("circle").filter(":not(.legend-item)")
@@ -436,29 +444,41 @@ function clicked(d) {
                 } else {
                     return STROKE_WIDTH;
                 }
-            });
-            rerootButton.disabled = false;
+        });
+        $("#reroot-popup").removeClass("d-none").css("left", "".concat(currMouseX + 20, "px")).css("top", "".concat(currMouseY, "px"))
     } else if(highlightedNode == d) {
+        // selecting old node
         highlightedNode = null;
+        $("#reroot-popup").addClass("d-none");
 
         svg.selectAll("circle").filter(":not(.legend-item)")
             .style("stroke-width", STROKE_WIDTH);
-        rerootButton.disabled = true;
     } else {
+        // unknown case
         alert("Unknown case reached @ function clicked(d) {...}");
         rerootButton.disabled = true;
     }
+}
+
+function disableHighlight() {
+    $("#reroot-popup").addClass("d-none");
+    highlightedNode = null;
+    svg.selectAll("circle").filter(":not(.legend-item)").style("stroke-width", STROKE_WIDTH);
 }
 
 function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
+
+    disableHighlight();
 }
 
 function dragged(d) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
+
+    disableHighlight();
 }
 
 function dragended(d) {
@@ -470,11 +490,15 @@ function dragended(d) {
         d.fx = null;
         d.fy = null;
     }
+
+    disableHighlight();
 }
 
 var zoom = d3.zoom().scaleExtent([min_zoom, max_zoom]).on('zoom', function() {
     d3.select('svg g.links').attr('transform', d3.event.transform);
     d3.select('svg g.nodes').attr('transform', d3.event.transform);
+
+    disableHighlight();
 });
 d3.select('svg').call(zoom);
 // -------------------------------------------------------
@@ -487,76 +511,37 @@ d3.select('svg').call(zoom);
 function selectInputType(val) {
     selectedDropDown = val;
     if (val === "HYDE format") {
-        // document.getElementById("instruct").innerHTML =
-        //     "Please upload a HYDE format file and provide threshold";
-        // removeGraph();
-
         // Make the relevant cards visible
         $("#upload-via-file-card").removeClass("d-none");
         $("#hyde-p-value-card").removeClass("d-none");
 
         // Make the relevant card invisible
         $("#upload-via-parenthetical-card").addClass("d-none");
+        $(".input-example").addClass("d-none");
         
         if($("#file")[0].value == '') {
             disableCreateNetworkButton();
         }
-
-        // createNetworkSelector.style.visibility = "visible";
-        // createNetworkSelector.disabled = false;
-        // textThresh.style.visibility = "visible";
-        // divText.style.visibility ="visible";
-        // symbolElement.style.visibility = "visible";
-        // newickField.style.visibility = "visible"; // for optional backbone tree
-        // let fileDiv = document.getElementById("file");
-        // if (fileDiv.style.display === "none") {
-        //     fileDiv.style.display = "block";
-        // } else {
-        //     fileDiv.style.visibility = "visible";
-        // }
     } else if (val === "Triplets") {
-        // document.getElementById("instruct").innerHTML =
-        //     "Please upload a triplet format file";
-        // removeGraph();
-        // newickField.style.visibility = "hidden";
-        // textThresh.style.visibility = "hidden";
-        // divText.style.visibility = "hidden";
-        // let fileDiv = document.getElementById("file");
-        // createNetworkSelector.disabled = false;
-        // if (fileDiv.style.display === "none") {
-        //     fileDiv.style.display = "block";
-        // } else {
-        //     fileDiv.style.visibility = "visible";
-        // }
-
         // Make the relevant cards visible
         $("#upload-via-file-card").removeClass("d-none");
 
         // Make the relevant card invisible
         $("#upload-via-parenthetical-card").addClass("d-none");
         $("#hyde-p-value-card").addClass("d-none");
+        $(".input-example").addClass("d-none");
 
         if($("#file")[0].value == '') {
             disableCreateNetworkButton();
         }
     } else if (val === "pf") {
-        // document.getElementById("instruct").innerHTML =
-        //     "Please upload a file in Newick format OR type an expression";
-        // removeGraph();
-        // textThresh.style.visibility = "hidden";
-        // divText.style.visibility = "hidden";
-        // newickField.style.visibility = "visible";
-        // createNetworkSelector.style.visibility = "visible";
-        // let fileDiv = document.getElementById("file");
-        // fileDiv.style.visibility = "visible";
-        // createNetworkSelector.disabled = false;
-
         // Make the relevant cards visible
         $("#upload-via-parenthetical-card").removeClass("d-none");
         $("#upload-via-file-card").removeClass("d-none");
 
         // Make the relevant card invisible
         $("#hyde-p-value-card").addClass("d-none");
+        $(".input-example").addClass("d-none");
 
         parenValue = $("#parenthetical")[0].value;
         filenameValue = $("#file")[0].value;
@@ -566,11 +551,37 @@ function selectInputType(val) {
         } else {
             disableCreateNetworkButton();
         }
+    } else if(val == "examples") {
+        // Make the relevant card invisible
+        $("#hyde-p-value-card").addClass("d-none");
+        $("#upload-via-parenthetical-card").addClass("d-none");
+        $("#upload-via-file-card").addClass("d-none");
+        
+        // Make the relevant cards visible
+        $(".input-example").removeClass("d-none");
     } else {
         $("#upload-via-parenthetical-card").addClass("d-none");
         $("#upload-via-file-card").addClass("d-none");
         $("#textThreshold").addClass("d-none");
+        $(".input-example").addClass("d-none");
     }
+}
+
+function loadExample(ex) {
+    selectInputType('pf');
+    $("select")[0].value = "pf";
+    $("#file")[0].value = "";
+
+    if(ex == 'n10h2') {
+        $("#parenthetical")[0].value = "(10,(#H2,(1,(2,(((9)#H1,(3,(4,((5,6),(7,(8,#H1)))))))#H2))))root;";
+    } else if(ex == 'n15h3') {
+        $("#parenthetical")[0].value = "(15,(1,((14,(#H1,(((12,13),(11,#H3)),(7,((10)#H3,(8,9)))))),((((2,3))#H2,(6,(5,(#H2,4)))))#H1)))root;";
+    } else if(ex == 'n107h36') {
+        $("#parenthetical")[0].value = "(((((t36:0.4943338887,(t93:0.436507261,(((t31:0.02299425638,(t69:0.02299425638)#H286:0::0.5514079754):0.1225629768,((t106:0.1141014556,#H247:0::0.4509673488):0.03145577755)#H273:0::0.5433668607):0.2909500278)#H239:0::0.5369611819):0.05782662768):1.612082521,(t46:0.9129441026,#H137:0::0.3938846897):0.1187355753):1.057829821,((((((t35:0.6073009424,#H226:0::0.4638448897):0.1459687225,((t38:0.3583291135,#H250:0::0.3559206734):0.209048916,t92:0.5673780296):0.1858916353):0.2723909652,(t74:0.6968308072,((t83:0.2693175255)#H221:0::0.5513035116,(t22:0.04155725889,#H284:0::0.4538382532):0.2277602666):0.4275132817):0.3288298229):0.6499589742,(((((t71:0.1521002721,t52:0.1521002721):0.3652900877,(t34:0.1534899991,t6:0.1534899991):0.3639003607):0.3064136972,((((t54:0.2324685407,t5:0.2324685407):0.1918388233,#H241:0.04757451927::0.4825115807):0.1144167773,(t89:0.1484928871,t3:0.1484928871):0.3902312541):0.1285335649)#H210:0.1565463509::0.7751855994):0.193593904,(((t88:0.06258881333,(t28:0.06258881333)#H282:0::0.5593746335):0.1631393711,#H267:0::0.4867285707):0.03345592309,(t42:0.2591841075)#H264:0::0.7184491953):0.7582138535):0.1978107671,(((t67:0.3634599485)#H177:0.273790755::0.5943777101,(t107:0.2257281844,(((t105:0.06133902748,t103:0.06133902748):0.06513783591,(t116:0.02299425638,#H286:0::0.4485920246):0.103482607):0.09925132103)#H267:0::0.5132714293):0.4115225191):0.3353706831,#H189:0::0.3225440128):0.2425873415):0.4604108762):0.1670810832,(((t96:0.2400497697,#H205:0.1728916932::0.3783947015):0.6391255751,((t64:0.2579966529,t80:0.2579966529):0.08792804652,(t99:0.09389820533,t13:0.09389820533):0.2520264941):0.5332506454):0.5263058782,((t18:0.7305261801,(#H221:0.3783174237::0.4486964884,#H222:0.4467225445::0.3766498067):0.08289123085):0.4446460732,((t108:0.05906011239,(t78:0.05906011239)#H283:0::0.6327050811):0.6733665784,(((t48:0.3756143584,t19:0.3756143584):0.0455993415)#H233:0::0.5012921363,(t65:0.1455572332,#H273:0::0.4566331393):0.2756564667):0.311212991):0.4427455625):0.2303089698):0.4372194644):0.67990359,(((t24:0.2740281885,#H259:0::0.3843434322):0.590228563,#H200:0::0.4967546206):0.5753723267,((t77:0.4014626718,t81:0.4014626718):0.6378003008,t7:1.039262973):0.4003661057):1.082975199):0.6416419523):0.389456449,(((((((t16:0.1831518939)#H257:0.02390919366::0.5069166297,#H271:0::0.4396468156):0.5401017894,((t91:0.2591841075,#H264:0::0.2815508047):0.01019770997,((t11:0.07933726651,t25:0.07933726651):0.05435347244,t9:0.1336907389):0.1356910785):0.4777810595):1.106170832,((t73:1.228001013,(t55:0.9602065591,((t76:0.8642567515,(#H203:0.4766949968::0.4890353001)#H200:0::0.5032453794):0.09594980765)#H193:0::0.7654814007):0.2677944542):0.201133405,#H158:0::0.479271806):0.424199291):0.1730198873,((((((t63:0.04144140317,#H285:0::0.4561690531):0.02571667332)#H205:0.7495976936::0.6216052985,t44:0.8167557701):0.2956908696,((t27:0.569004711,(t2:0.436507261,#H239:0::0.4630388181):0.1324974501):0.2880189898,((t86:0.04155725889,(t66:0.04155725889)#H284:0::0.5461617468):0.3460044958)#H203:0.4694619462::0.5109646999):0.2554229388):0.2707824385,t50:0.5429420188):0.3134487962,((t113:0.5497493513,t84:0.5497493513):0.8793850669,(t12:0.9304428554)#H158:0::0.520728194):0.2675434561):0.3296757222):0.9752414776,#H119:2.79771966::0.4180512688):0.4672426944,(((((t79:0.2009124047)#H222:0.371386653::0.6233501933,((t30:0.04144140317,(t82:0.04144140317)#H285:0::0.5438309469):0.0967939066,t8:0.1382353098):0.4340637479):1.660883037,(((((((((t98:0.2076820802,(t72:0.2076820802)#H270:0::0.6187965007):0.02219091033,t49:0.2298729906):0.1468598542)#H241:0.1636463661::0.5174884193,#H233:0.119165511::0.4987078637):0.08323382513,((t97:0.3339943225,(t39:0.08469875348,#H280:0::0.3893460038):0.249295569):0.02433479108,(t57:0.3583291135)#H250:0::0.6440793266):0.2652839224):0.09007297015,#H215:0::0.2550769224):0.02756062597,#H210:0.07398892593::0.2248144006):1.031200183,(((((t20:0.3937995082,(t23:0.1141014556)#H247:0.2796980526::0.5490326512):0.3198864979,((((t59:0.2076820802,#H270:0::0.3812034993):0.3996188621)#H226:0::0.5361551103,#H227:0.3051190952::0.3252198091):0.1063850637)#H215:0::0.7449230776):0.1818219115,t53:0.8955079176):0.1261142745,#H185:0::0.4451045743):0.4735288987,(t58:0.9383829974,(t33:0.06258881333,#H282:0::0.4406253665):0.8757941841):0.5567680933):0.2772957242):0.3526171998,((t85:0.2038754146)#H119:1.896890131::0.5819487312,(((t94:1.074810157,(t87:0.08469875348,(t115:0.08469875348)#H280:0::0.6106539962):0.9901114038):0.0674301021,#H177:0.7787803109::0.4056222899):0.5966258062,(t29:0.238660695,t45:0.238660695):1.500205371):0.3618994801):0.02429846902):0.1081180794):0.3708873855,((t111:1.021622192,(t101:1.021622192)#H185:0::0.5548954257):0.4028672261,((t109:0.964595563,t43:0.964595563):0.3269941009,(t47:0.9602065591,#H193:0::0.2345185993):0.3313831048):0.1328997543):1.179580061):0.5847014082,((((t37:0.05906011239,#H283:0::0.3672949189):1.729691457,(t26:0.9015277553)#H145:0.8872238136::0.5832211668):0.1989292651,((((t110:0.1511294012,(t14:0.1511294012)#H272:0::0.5256090126):0.8214919854,((t75:0.2740281885,(t17:0.2740281885)#H259:0::0.6156565678):0.6985931981)#H189:0::0.6774559872):0.1939502767,((t56:0.1511294012,#H272:0::0.4743909874):0.9499109569,t112:1.101040358):0.06553130516):0.8211091707)#H137:0::0.6061153103):0.575729742,((t62:0.5585576726,(((t41:0.2906842422,(t68:0.2070610876,(t10:0.2070610876)#H271:0::0.5603531844):0.08362315457):0.00142199916,#H257:0.1089543474::0.4930833703):0.1127290078,((t51:0.2728178648,(t95:0.08423454522,t60:0.08423454522):0.1885833196):0.07964834625,t100:0.3524662111):0.05236903805):0.1537224234):1.761443565,(((t61:0.1285876443,t90:0.1285876443):0.7729401111,#H145:0::0.4167788332):0.4737158493,(t4:0.3021818472)#H227:1.073061757::0.6747801909):0.944757633):0.2434093383):0.6253603119):0.2800668806):0.08486491028):1.446297321);";
+    } else {
+        error("ERROR: unexpected example code.");
+    }
+    parentheticalTextAreaChanged();
 }
 
 function parentheticalTextAreaChanged() {
@@ -820,7 +831,6 @@ function updateNetwork() {
     // disable Create/Update network buttons while we work...
     createNetworkSelector.disabled = true;
     // document.getElementById("loader").style.visibility = "visible";
-    btnUpdateNet.disabled = true;
 
     // gather which nodes are to be removed
     var removed_nodes = [];
@@ -867,12 +877,15 @@ function updateNetwork() {
         if(request.readyState == 4 && request.status == 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
-            // document.getElementById("loader").style.visibility = "visible";
+            console.log('rootname' in x)
+            console.log('new_root' in x)
 
             if(x.result == 'success') {
                 // change to new root
-                if(highlightedNode != null) {
-                    ROOT_NAME = new_root_full;
+                if('rootname' in x) {
+                    ROOT_NAME = x['rootname'];
+                } else if('new_root' in x) {
+                    ROOT_NAME = x['new_root'];
                 }
                 
                 // reset highlighted node var
@@ -1036,19 +1049,19 @@ function updateNodeRadii() {
 function updateNodeText() {
     svg.selectAll("text").filter(":not(.legend-item)").text(function (d) {
         var valueOfNode = d.id.toString();
-        if(isInternalNode(valueOfNode)) {
-            return "";
+        if(isNamedInternalNode(valueOfNode)) {
+            if(INTERNAL_NODE_RADIUS < 100)
+                return "";
+            if(DISPLAY_NAMED_INTERNAL_NODE_NAMES)
+                return d.id.substr(8, d.id.length-8);
+            else
+                return "";
         } else if(isHybridNode(valueOfNode)) {
             if(INTERNAL_NODE_RADIUS < 100)
                 return "";
             return "#" + d.id.substr(4, d.id.length-4);
-        } else if(isNamedInternalNode(valueOfNode)) {
-            if(INTERNAL_NODE_RADIUS < 100)
-                return "";
-            if(DISPLAY_NAMED_INTERNAL_NODE_NAMED)
-                return d.id.substr(8, d.id.length-8);
-            else
-                return "";
+        } else if(isInternalNode(valueOfNode)) {
+            return "";
         }
         return d.id;
     });
@@ -1136,13 +1149,6 @@ function setTreelikeSettings() {
             return 1;
         return 0.1;
     }));
-}
-
-
-function showDownloadButtons() {
-    // document.getElementById("dwn-btn").style.visibility = "visible";
-    // document.getElementById("downloadPng").style.visibility = "visible";
-    // document.getElementById("downloadPDF").style.visibility = "visible";
 }
 
 // Resource for grouping nodes (can be used to repel all other nodes from the root in the treelike settings)
