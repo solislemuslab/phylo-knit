@@ -379,6 +379,19 @@ function createD3Graph(updateLeafBox, dotString) {
         // raise the legend above everything else
         legendContainer.raise();
 
+        
+        // change the create network icon to not loading
+        $("#create-network-loading-icon").addClass("d-none");
+        $("#create-network-notloading-icon").removeClass("d-none");
+
+        // hide the inputs dropdown
+        $(".dropdown-menu").removeClass("show");
+        $(".dropdown-toggle").attr("aria-expanded", "false");
+        $(".dropdown-toggle").removeClass("show");
+
+        // enable the download dropdown
+        $("#download-tab").removeClass("disabled");
+
         function ticked() {
             path.attr("d", function (d) {
                 return (
@@ -486,7 +499,7 @@ function selectInputType(val) {
         $("#upload-via-parenthetical-card").addClass("d-none");
         
         if($("#file")[0].value == '') {
-            $("#create-network-card").addClass("invisible");
+            disableCreateNetworkButton();
         }
 
         // createNetworkSelector.style.visibility = "visible";
@@ -524,7 +537,7 @@ function selectInputType(val) {
         $("#hyde-p-value-card").addClass("d-none");
 
         if($("#file")[0].value == '') {
-            $("#create-network-card").addClass("invisible");
+            disableCreateNetworkButton();
         }
     } else if (val === "pf") {
         // document.getElementById("instruct").innerHTML =
@@ -549,14 +562,14 @@ function selectInputType(val) {
         filenameValue = $("#file")[0].value;
     
         if(filenameValue == '' && parenValue == '') {
-            $("#create-network-card").addClass("invisible");
+            disableCreateNetworkButton();
         } else {
-            $("#create-network-card").removeClass("invisible");
+            disableCreateNetworkButton();
         }
     } else {
         $("#upload-via-parenthetical-card").addClass("d-none");
         $("#upload-via-file-card").addClass("d-none");
-        $("#hyde-p-value-card").addClass("d-none");
+        $("#textThreshold").addClass("d-none");
     }
 }
 
@@ -565,10 +578,19 @@ function parentheticalTextAreaChanged() {
     filenameValue = $("#file")[0].value;
 
     if(filenameValue == '' && parenValue == '') {
-        $("#create-network-card").addClass("invisible");
+        disableCreateNetworkButton();
     } else {
-        $("#create-network-card").removeClass("invisible");
+        enableCreateNetworkButton();
     }
+}
+
+function enableCreateNetworkButton() {
+    $("#createNetwork")[0].disabled = false;
+    $("#createNetwork").removeClass("disabled");
+}
+function disableCreateNetworkButton() {
+    $("#createNetwork")[0].disabled = true;
+    $("#createNetwork").addClass("disabled");
 }
 
 function showTab(tabLabel) {
@@ -728,6 +750,8 @@ function resizeSVG() {
     $("#chartId").attr("width", width).attr("height", height);
     width = $("#svg-container").width();
     $("#chartId").attr("width", width).attr("height", height);
+
+    console.log("".concat(width, " x ", height))
 }
 window.addEventListener("resize", resizeSVG);
 
@@ -735,6 +759,10 @@ window.addEventListener("resize", resizeSVG);
 // called when the "Create Network" button is pressed;
 // does all the calls that populate the D3 graph
 function onClickCreateNetwork() {
+    // change the icon to the loading icon
+    $("#create-network-loading-icon").removeClass("d-none");
+    $("#create-network-notloading-icon").addClass("d-none");
+
     var svg = d3.select("body").select("svg")
 
     // don't let the user press the create network button again while we're working...
