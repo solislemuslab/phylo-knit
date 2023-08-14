@@ -19,7 +19,12 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
     request.open("POST", "http://127.0.0.1:5001/uploadHyde/" + thresh + "/" + eNewick);
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
+    
+    try {
+        request.send(data);
+    } catch(e) {
+        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
+    }
 
     var alreadySent = false;  // we usually receive the response twice, so let's only send once.
     function processRequest(e) {
@@ -60,7 +65,12 @@ function pushSVGToServer(svg_string) {
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.responseType = 'blob';
-    request.send(data);
+    
+    try {
+        request.send(data);
+    } catch(e) {
+        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
+    }
 
     function processRequest(e) {
         if(request.readyState == 4 && request.status == 200) {
@@ -84,7 +94,12 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
     request.open("POST", "http://127.0.0.1:5001/uploadNewick/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
+    
+    try {
+        request.send(data);
+    } catch(e) {
+        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
+    }
 
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
@@ -125,7 +140,12 @@ function pushTripletsToServer(triplets) {
     request.open("POST", "http://127.0.0.1:5001/upload/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
+    
+    try {
+        request.send(data);
+    } catch(e) {
+        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
+    }
 
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
