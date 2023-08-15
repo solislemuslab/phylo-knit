@@ -109,11 +109,15 @@ function toggleLegend() {
     if(LEGEND_ENABLED) {
         LEGEND_ENABLED = false;
         $('.legend-item').hide();
-        $('#legend-toggle-button')[0].innerHTML = 'Legend: OFF';
+        
+        $("#legend-on-icon").addClass("d-none");
+        $("#legend-off-icon").removeClass("d-none");
     } else {
         LEGEND_ENABLED = true;
         $('.legend-item').show();
-        $('#legend-toggle-button')[0].innerHTML = 'Legend: ON';
+        
+        $("#legend-on-icon").removeClass("d-none");
+        $("#legend-off-icon").addClass("d-none");
     }
 }
 setupLegend();

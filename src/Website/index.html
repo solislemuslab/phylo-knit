@@ -194,11 +194,31 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" id="style-tab" type="button">Display Settings</a>
                         <ul class="dropdown-menu p-2" aria-labelledby="style-tab">
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block" onclick="">
-                                    <span class="text">Animation Physics</span>
+                                <a href="#" class="btn btn-block px-0 text-left" onclick="">
+                                    <span class="text text-nowrap">Animation Physics</span>
+                                    <i class="fa-solid fa-play fa-xs pl-1"></i>
                                 </a>
                             </li>
-                            <li class="display-main-menu">Content 2</li>
+                            <li class="display-main-menu">
+                                <a href="#" class="btn btn-block px-0 text-left" onclick="">
+                                    <span class="text text-nowrap">Node Options</span>
+                                    <i class="fa-solid fa-play fa-xs pl-1"></i>
+                                </a>
+                            </li>
+                            <li class="display-main-menu">
+                                <a href="#" class="btn btn-block border" onclick="toggleLegend();">
+                                    <div class="container-fluid m-0 p-0 text-nowrap">
+                                        <span class="icon text-white-100" id="legend-off-icon">
+                                            <i class="fa-regular fa-circle-xmark" style="color: #df2626;"></i>
+                                        </span>
+                                        <span class="icon text-white-100 d-none" id="legend-on-icon">
+                                            <i class="fa-regular fa-circle-check" style="color: #00f510;"></i>
+                                        </span>
+                                        &nbsp;
+                                        <span class="text text-nowrap">Toggle Legend</span>
+                                    </div>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -378,7 +398,7 @@
     document.getElementById("input-tab").click();
 
     // Stops dropdown menus from closing when you click inside of them
-    document.querySelector('.dropdown-menu').addEventListener('click', function(event) {
+    $('.dropdown-menu').on('click', function(event) {
         event.stopPropagation();
      });
 </script>
