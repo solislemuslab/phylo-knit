@@ -135,11 +135,11 @@
                 <!-- Tabs -->
                 <ul class="nav nav-tabs" id="navbar-id-height-getter">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#network" id="network-tab" type="button" onclick="showTab('network'); resizeSVG();">Network</a>
+                        <a class="nav-link active" href="#network" id="network-tab" type="button">Network</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle show" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="true" id="input-tab" type="button">Inputs</a>
-                        <ul class="dropdown-menu p-2 show" aria-labelledby="input-tab">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="input-tab" type="button">Inputs</a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="input-tab">
                             <li>
                                 <select class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
                                     <option value="type">Select input type</option>
@@ -190,8 +190,16 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="style-tab" type="button" onclick="showTab('style');">Display Settings</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" id="style-tab" type="button">Display Settings</a>
+                        <ul class="dropdown-menu p-2" aria-labelledby="style-tab">
+                            <li class="display-main-menu">
+                                <a href="#" class="btn btn-block" onclick="">
+                                    <span class="text">Animation Physics</span>
+                                </a>
+                            </li>
+                            <li class="display-main-menu">Content 2</li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle disabled" data-bs-toggle="dropdown" href="#" role="button" id="download-tab" type="button">Download Network</a>
@@ -365,6 +373,9 @@
 <script>
     // Immediately set the SVG size
     resizeSVG();
+
+    // Open the inputs tab
+    document.getElementById("input-tab").click();
 
     // Stops dropdown menus from closing when you click inside of them
     document.querySelector('.dropdown-menu').addEventListener('click', function(event) {
