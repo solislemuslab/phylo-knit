@@ -81,7 +81,7 @@ var svg = d3.select("svg"),
 // function to set up the legend; this is called right away at startup and after the chart is cleared
 var legendContainer;
 var LEGEND_CIRCLE_RADIUS = 6;
-var LEGEND_ENABLED = false;
+var LEGEND_ENABLED = true;
 function setupLegend() {
     legendContainer = svg.append("g")
         .attr("class", "legend");
