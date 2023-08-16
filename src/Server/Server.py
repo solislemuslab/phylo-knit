@@ -1,4 +1,5 @@
 import io
+from time import time
 
 from julia.api import Julia
 
@@ -18,7 +19,8 @@ from flask import Flask, jsonify, make_response, request, send_file
 from flask_cors import CORS, cross_origin
 from julia import Julia
 from julia import Main as Julia
-from julia.PhyloNetworks import (deleteleaf_b, readTopology, rootatnode_b,
+from julia.PhyloNetworks import (deleteleaf_b, nameinternalnodes_b,
+                                 readTopology, rootatnode_b,
                                  undirectedOtherNetworks, writeTopology)
 
 app = Flask(__name__)
@@ -152,7 +154,6 @@ def uploadParentheticalAndReturnDot():
     :return: json
     """
     json = request.get_json()
-    print(json)
     if len(json['text']) == 0:
         return jsonify({'error', 'ERROR: Invalid input text.'}), 401
 
@@ -160,6 +161,7 @@ def uploadParentheticalAndReturnDot():
 
     # Replace blank node names with `internal####` so that
     # re-rooting can work
+    readnet_time = time()       # timing portions
     net = 0
     try:
         net = readTopology(parenthetical)
@@ -168,24 +170,26 @@ def uploadParentheticalAndReturnDot():
             net = readTopology(parenthetical + ";")
         except:
             return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
-        
+    readnet_time = time() - readnet_time
+    
+    adjustment_time = time()
     try:
-        Julia.net = net
-        i = 1000
-        for j in range(len(net.node)):
-            if net.node[j].name == "":
-                Julia.i = i
-                Julia.j = j+1
-                
-                Julia.eval("net.node[j].name = \"unnamed\"*string(i)")
-                i += 1
-        print(writeTopology(net))
+        nameinternalnodes_b(net, "unnamed")
         parenthetical = writeTopology(net)
     except:
         return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 401
+    adjustment_time = time() - adjustment_time
 
     try: 
+        dotconversion_time = time()
         dotString = ParentheticalConvertorNaman.newickToDot(parenthetical)
+        dotconversion_time = time() - dotconversion_time
+        
+        total_time = readnet_time + adjustment_time + dotconversion_time
+        print("Time to read net: " + str(round(readnet_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
+        print("Time to adjust net names: " + str(round(adjustment_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
+        print("Time to convert to dot: " + str(round(dotconversion_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
+        
         # parenthetical convertor uploads as upload.dot
         return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.root-1].name})
     except:
