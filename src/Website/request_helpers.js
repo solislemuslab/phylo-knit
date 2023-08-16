@@ -163,6 +163,9 @@ function reportRequestError(request) {
     } else {
         document.getElementById("instruct").innerHTML = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
     }
+    disableCreateNetworkButton();
+    $("#create-network-loading-icon").addClass("d-none");
+    $("#create-network-notloading-icon").removeClass("d-none");
 }
 
 

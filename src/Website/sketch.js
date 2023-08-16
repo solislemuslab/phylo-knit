@@ -613,10 +613,12 @@ function parentheticalTextAreaChanged() {
 function enableCreateNetworkButton() {
     $("#createNetwork")[0].disabled = false;
     $("#createNetwork").removeClass("disabled");
+    $("#create-network-tooltip-li").tooltip('disable');
 }
 function disableCreateNetworkButton() {
     $("#createNetwork")[0].disabled = true;
     $("#createNetwork").addClass("disabled");
+    $("#create-network-tooltip-li").tooltip('enable');
 }
 
 function showTab(tabLabel) {

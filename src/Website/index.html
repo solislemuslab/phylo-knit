@@ -174,7 +174,7 @@
                                 <a href="#" class="btn btn-block border" onclick="loadExample('n107h36');">107 taxa, 36 reticulations</a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li class="text-center">
+                            <li class="text-center" data-toggle="tooltip" data-placement="top" title="Input required to create network." id="create-network-tooltip-li">
                                 <a href="#" class="btn btn-icon-split btn-light border disabled" onclick="onClickCreateNetwork()" id="createNetwork" disabled>
                                     <span class="icon text-white-100">
                                         <i class="fa-solid fa-circle-nodes" id="create-network-notloading-icon"></i>
@@ -247,7 +247,7 @@
                                 <text x="25" y="200" class="huge"></text>
                             </svg>
                         </div>
-                        <mark class="p-0 m-0"></mark><p id="instruct" class="p-0 m-0">Awaiting input...</p></mark>
+                        <p class="p-0 m-0"><mark id="instruct" class="p-0 m-0">Awaiting input...</mark></p>
                     </div>
                     <!-- End Network -->
 
