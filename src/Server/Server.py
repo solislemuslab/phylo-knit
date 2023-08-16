@@ -164,7 +164,10 @@ def uploadParentheticalAndReturnDot():
     try:
         net = readTopology(parenthetical)
     except:
-        return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
+        try:
+            net = readTopology(parenthetical + ";")
+        except:
+            return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
         
     try:
         Julia.net = net
