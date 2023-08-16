@@ -635,6 +635,20 @@ function disableCreateNetworkButton() {
     $("#create-network-tooltip-li").tooltip('enable');
 }
 
+function setDisplaySettingsTab(tabLabel) {
+    $(".display-main-menu").addClass("d-none");
+    $(".display-physics-menu").addClass("d-none");
+    $(".display-node-menu").addClass("d-none");
+
+    if(tabLabel == "main-menu") {
+        $(".display-main-menu").removeClass("d-none");
+    } else if(tabLabel == "physics") {
+        $(".display-physics-menu").removeClass("d-none");
+    } else if(tabLabel == "node-options") {
+        $(".display-node-menu").removeClass("d-none");
+    }
+}
+
 function showTab(tabLabel) {
     if(tabLabel == 'input') {
         $("#input-tab-contents").removeClass("d-none");

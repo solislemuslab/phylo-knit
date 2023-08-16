@@ -13,6 +13,10 @@ Finally, to re-root your network, click your desired new root (this should highl
 
 ---
 
+## FAQ
+
+
+
 ## Input Types
 
 ### Parenthetical/Newick

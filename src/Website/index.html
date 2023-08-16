@@ -63,7 +63,7 @@
         <li class="nav-item">
         <a class="nav-link" href="#scrollspyCitation">
             <i class="fas fa-solid fa-feather"></i>
-            <span>Citation</span>
+            <span class="ml-1">Citation</span>
         </a>
         </li>
 
@@ -77,7 +77,7 @@
         <li class="nav-item">
         <a class="nav-link" href="https://solislemuslab.github.io/" target="_blank">
             <i class="fa-solid fa-seedling"></i>
-            <span>Solís-Lemus Lab</span>
+            <span class="ml-1">Solís-Lemus Lab</span>
         </a>
         </li>
 
@@ -93,19 +93,27 @@
         <li class="nav-item">
         <a class="nav-link" href="https://github.com/solislemuslab/phylo-knit" target="_blank">
             <i class="fas fa-brands fa-github-alt"></i>
-            <span>GitHub</span></a>
+            <span class="ml-1">GitHub</span></a>
         </li>
 
         <li class="nav-item">
-        <a class="nav-link" href="https://github.com/solislemuslab/phylo-knit/issues" target="_blank">
-            <i class="fas fa-fw fa-bug"></i>
-            <span>Report an issue</span></a>
+            <a class="nav-link" href="https://github.com/solislemuslab/phylo-knit/issues" target="_blank">
+                <i class="fas fa-solid fa-circle-question"></i>
+                <span class="ml-1">Ask a question</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="https://github.com/solislemuslab/phylo-knit/issues" target="_blank">
+                <i class="fas fa-fw fa-bug pr-1"></i>
+                <span>Report an issue</span>
+            </a>
         </li>
         
         <li class="nav-item">
         <a class="nav-link" href="https://github.com/solislemuslab/phylo-knit/blob/master/src/Readme.MD" target="_blank">
             <i class="fas fa-solid fa-code-branch"></i>
-            <span>Development Guide</span></a>
+            <span class="ml-1">Development Guide</span></a>
         </li>
 
         <!-- Divider -->
@@ -200,18 +208,28 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" id="style-tab" type="button">Display Settings</a>
                         <ul class="dropdown-menu p-2" aria-labelledby="style-tab">
+                            <!-- Display Main Menu -->
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block px-0 text-left" onclick="">
+                                <a href="#" class="btn btn-block px-0 text-left" onclick="setDisplaySettingsTab('physics');">
                                     <span class="text text-nowrap">Animation Physics</span>
                                     <i class="fa-solid fa-play fa-xs pl-1"></i>
                                 </a>
                             </li>
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block px-0 text-left" onclick="">
+                                <a href="#" class="btn btn-block px-0 text-left" onclick="setDisplaySettingsTab('node-options');">
                                     <span class="text text-nowrap">Node Options</span>
                                     <i class="fa-solid fa-play fa-xs pl-1"></i>
                                 </a>
                             </li>
+                            <li class="display-main-menu">
+                                <div class="btn btn-block text-left px-0">
+                                    <span class="text text-nowrap">Reroot Network</span>
+                                    <span class="icon text-white-100"  data-toggle="tooltip" data-placement="bottom" title="Try clicking on a node in the network!">
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </span>
+                                </a>
+                            </li>
+
                             <li class="display-main-menu">
                                 <a href="#" class="btn btn-block border" onclick="toggleLegend();">
                                     <div class="container-fluid m-0 p-0 text-nowrap">
@@ -226,6 +244,125 @@
                                     </div>
                                 </a>
                             </li>
+                            <!-- End Display Main Menu -->
+
+                            <!-- Animation Physics -->
+                            <li class="display-physics-menu d-none">
+                                <div class="container text-nowrap p-0 m-0 d-flex">
+                                    <div class="conatiner-fluid p-0 m-0 float-left">
+                                        <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('main-menu');">
+                                            <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
+                                        </a>
+                                    </div>
+                                    <div class="conatiner-fluid p-0 m-0 flex-grow-1 text-center">
+                                        <div class="h-100 pt-1">
+                                            <span class="h6 text text-nowrap">Animation Physics</span>
+                                            <a class="btn icon text-white-100 p-0 m-0" target="_blank" href="https://www.d3indepth.com/force-layout/">
+                                                <i class="fa-regular fa-circle-question fa-xs"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="conatiner-fluid p-0 m-0 float-right">
+                                        <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="display-physics-menu d-none p-0 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+                            <li class="display-physics-menu d-none">
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">Many Body Strength:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="many-body-str-slider-value">-1000</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input class="p-0 m-0" type="range" min="-10000" max="10000" value="-1000" oninput="updateManyBodyStr()" id="many-body-str-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">Link Distance:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="link-distance-slider-value">50</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="0" max="1000" value="50" oninput="updateLinkDistance()" id="link-distance-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">Link Strength:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="link-strength-slider-value">0.5</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="0" max="1000" value="500" oninput="updateLinkStrength()" id="link-strength-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">Collision Radius:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="collision-radius-slider-value">50</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="0" max="1000" value="50" oninput="updateCollisionRadius()" id="collision-radius-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">ForceX X-value:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="forcex-x-slider-value">0</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="-1000" max="1000" value="0" oninput="updateForceXX()" id="forcex-x-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">ForceY Y-value:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="forcey-y-slider-value">0</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="-1000" max="1000" value="0" oninput="updateForceYY()" id="forcey-y-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">ForceX strength:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="forcex-strength-slider-value">0</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="-100" max="100" value="0" oninput="updateForceXStrength()" id="forcex-strength-slider">
+                                    </div>
+                                </div>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0">
+                                    <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 float-left">
+                                        <p class="py-0 pr-2 m-0">ForceY strength:</p>
+                                        <p style="width: 50px;" class="py-0 pr-2 m-0" id="forcey-strength-slider-value">0</p>
+                                    </div>
+                                    <div class="container-fluid p-0 m-0 float-right text-right">
+                                        <input type="range" min="-100" max="100" value="0" oninput="updateForceYStrength()" id="forcey-strength-slider">
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="display-physics-menu d-none p-0 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+                            <li class="display-physics-menu d-none p-0 m-0">
+                                <div class="container-fluid px-0 pb-0 pt-2 m-0 text-center">
+                                    <a href="#" class="btn text-white-100 pr-2 pl-0 py-0 mx-0 mt-0 mb-1" onclick="simulation.alphaDecay(0.001).alpha(1).restart();">
+                                        <i class="fa-solid fa-arrow-rotate-right"></i>
+                                    </a>
+                                    <span class="text h-100 mt-2" style="font-size: medium;">Restart Simulation</span>
+                                </div>
+                            </li>
+
+                            <!-- End Animation Physics -->
+
+                            <!-- Node Options -->
+
+                            <!-- End Node Options -->
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
