@@ -382,7 +382,6 @@ function createD3Graph(updateLeafBox, dotString) {
 
         // raise the legend above everything else
         legendContainer.raise();
-
         
         // change the create network icon to not loading
         $("#create-network-loading-icon").addClass("d-none");
