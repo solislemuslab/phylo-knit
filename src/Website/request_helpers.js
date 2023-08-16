@@ -45,10 +45,7 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
             // document.getElementById("downloadPng").style.visibility = "visible";
             // createD3Graph(true, x['dotString']);
         } else if (request.status === 401) {
-            reqStatus = request.status;
-            document.getElementById("loader").style.visibility = "hidden";
-            document.getElementById("instruct").innerHTML =
-                "Error in file input. Please try uploading a file in the correct HYDE format";
+            reportRequestError(request);
         }
     }
 
@@ -77,6 +74,8 @@ function pushSVGToServer(svg_string) {
             // download the PDF contents to the user
             dataBlob = new Blob([request.response], {'type':'application/pdf'})
             saveAs(dataBlob, 'network.pdf')
+        } else if(request.status == 401) {
+            reportRequestError(request);
         }
     }
 }
@@ -94,12 +93,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
     request.open("POST", "http://127.0.0.1:5001/uploadNewick/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
-    
-    try {
-        request.send(data);
-    } catch(e) {
-        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
-    }
+    request.send(data);
 
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
@@ -122,13 +116,8 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
                 userAdjustedNewick = "";
             } else
                 userAdjustedNewick = x["newick"].replaceAll(" ", "")
-        } else if (request.readyState === 4) {
-        } else if (request.status === 401) {
-            reqStatus = request.status;
-            document.getElementById("loader").style.visibility = "hidden";
-            document.getElementById("instruct").innerHTML =
-                "Error in file input. Please try uploading a file in the correct parenthetical format," +
-                " it is possible that parentheses are missing";
+        } else if (request.status == 401) {
+            reportRequestError(request);
         }
     }
 }
@@ -160,12 +149,22 @@ function pushTripletsToServer(triplets) {
             }
             pushParentheticalToServer(originalNewick);
         } else if (request.status === 401) {
-            reqStatus = request.status;
-            document.getElementById("loader").style.visibility = "hidden";
-            document.getElementById("instruct").innerHTML =
-                "Error in file input. Please try uploading a file in the correct triplet format";
+            reportRequestError(request);
         }
     }
+}
+
+
+function reportRequestError(request) {
+    // error, probably just couldn't talk to server
+    var data = JSON.parse(request.responseText);
+    if('error' in data) {
+        document.getElementById("instruct").innerHTML = data['error'];
+    } else {
+        document.getElementById("instruct").innerHTML = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
+    }
+    $("#create-network-loading-icon").addClass("d-none");
+    $("#create-network-notloading-icon").removeClass("d-none");
 }
 
 
