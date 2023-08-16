@@ -154,31 +154,39 @@ def uploadParentheticalAndReturnDot():
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
-        return 'error invalid input'
+        return jsonify({'error', 'ERROR: Invalid input text.'}), 401
 
     parenthetical = json['text']
 
     # Replace blank node names with `internal####` so that
     # re-rooting can work
-    net = readTopology(parenthetical)
-    Julia.net = net
-    i = 1000
-    for j in range(len(net.node)):
-        if net.node[j].name == "":
-            Julia.i = i
-            Julia.j = j+1
-            
-            Julia.eval("net.node[j].name = \"unnamed\"*string(i)")
-            i += 1
-    print(writeTopology(net))
-    parenthetical = writeTopology(net)
+    net = 0
+    try:
+        net = readTopology(parenthetical)
+    except:
+        return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
+        
+    try:
+        Julia.net = net
+        i = 1000
+        for j in range(len(net.node)):
+            if net.node[j].name == "":
+                Julia.i = i
+                Julia.j = j+1
+                
+                Julia.eval("net.node[j].name = \"unnamed\"*string(i)")
+                i += 1
+        print(writeTopology(net))
+        parenthetical = writeTopology(net)
+    except:
+        return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 401
 
     try: 
         dotString = ParentheticalConvertorNaman.newickToDot(parenthetical)
         # parenthetical convertor uploads as upload.dot
         return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.root-1].name})
     except:
-        return jsonify({'error': 'File format is incorrect'}), 401
+        return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 401
 
 
 # POST
