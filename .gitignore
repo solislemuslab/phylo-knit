@@ -19,5 +19,4 @@ src/Server/node_modules/
 src/Server/*.json
 src/Website/.idea/
 src/Website/fonts/
-src/Website/libraries/
 src/Server/*.txt
