@@ -144,6 +144,8 @@ var COLLISION_RADIUS = 25;
 var FORCEX_STRENGTH = 0;
 var FORCEY_STRENGTH = 0;
 var LEAF_RADIUS = 115;
+var ROOT_RADIUS = 50;
+var HYBRID_RADIUS = 50;
 var INTERNAL_NODE_RADIUS = 50;
 var FORCEX_X = 0;
 var FORCEY_Y = 0;
@@ -228,9 +230,10 @@ function createD3Graph(updateLeafBox, dotString) {
         }
 
         // add all of the links (paths) to the svg and set their attributes
-        var path = svg
+        var network = svg.append("g").attr("class", "network");
+        var path = network
             // set up the svg organization
-            .append("svg:g")
+            .append("g")
             .attr("class", "links")
             .selectAll("path")
             .data(graph.links)
@@ -244,7 +247,7 @@ function createD3Graph(updateLeafBox, dotString) {
         nodeNum = graph.nodes.length;
 
         // add all of the nodes to the svg and set their attributes
-        var node = svg
+        var node = network
             .append("g")
             .attr("class", "nodes")
             .selectAll("circle")
@@ -256,15 +259,7 @@ function createD3Graph(updateLeafBox, dotString) {
             .attr("r", function (d) {
                 console.log(d);
                 var valueOfNode = d.id.toString();
-                if (!isInternalNode(valueOfNode)) {
-                    nodeVal.push(valueOfNode);
-                    console.log("LEAF");
-                    return LEAF_RADIUS;
-                }
-                if(isRootNode(valueOfNode))
-                    return LEAF_RADIUS
-                else
-                    return INTERNAL_NODE_RADIUS;
+                return nodeRadiusFromName(valueOfNode);
             })
             .attr("d.x", width/2)
             .attr("d.y", height/2)
@@ -364,9 +359,8 @@ function createD3Graph(updateLeafBox, dotString) {
             simulation.force('forceY', d3.forceY(FORCEY_Y).strength(FORCEY_STRENGTH));
 
         // stops the upper left hand corner bug (though the result still isn't amazing)
-        // it seems that running `simulation.alphaDecay(0.001).alpha(1).restart()` multiple times after initialization leads to good results
         // check out: https://github.com/d3/d3/issues/1519 perhaps
-        simulation.alphaDecay(0.001).alpha(1).restart();
+        simulation.alphaDecay(0.001).alpha(0.5).restart();
         svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.15));
 
         // set up the Displayed Leaves list
@@ -427,6 +421,18 @@ function createD3Graph(updateLeafBox, dotString) {
         $("#create-network-notloading-icon").addClass("d-none");
 
         return;
+    }
+}
+
+function nodeRadiusFromName(name) {
+    if(isRootNode(name)) {
+        return ROOT_RADIUS;
+    } else if(isHybridNode(name)) {
+        return HYBRID_RADIUS;
+    } else if(isInternalNode(name)) {
+        return INTERNAL_NODE_RADIUS;
+    } else {
+        return LEAF_RADIUS;
     }
 }
 
@@ -613,11 +619,13 @@ function parentheticalTextAreaChanged() {
 function enableCreateNetworkButton() {
     $("#createNetwork")[0].disabled = false;
     $("#createNetwork").removeClass("disabled");
+    $("#createNetwork").removeClass("opacity-25");
     $("#create-network-tooltip-li").tooltip('disable');
 }
 function disableCreateNetworkButton() {
     $("#createNetwork")[0].disabled = true;
     $("#createNetwork").addClass("disabled");
+    $("#createNetwork").addClass("opacity-25");
     $("#create-network-tooltip-li").tooltip('enable');
 }
 
@@ -1148,7 +1156,7 @@ function setStaticSettings() {
         return(d3.select(this).attr("x") == 12 ? "400px times" : "15px")
     })
     simulation.force('collision', d3.forceCollide().radius(COLLISION_RADIUS));
-    simulation.alphaDecay(0.001).alpha(1).restart();
+    simulation.alphaDecay(0.001).alpha(0.5).restart();
 }
 
 function setTreelikeSettings() {
