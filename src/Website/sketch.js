@@ -535,6 +535,7 @@ function selectInputType(val) {
         // Make the relevant cards visible
         $("#upload-via-file-card").removeClass("d-none");
         $("#hyde-p-value-card").removeClass("d-none");
+        $("#hyde-backbone-card").removeClass("d-none");
 
         // Make the relevant card invisible
         $("#upload-via-parenthetical-card").addClass("d-none");
@@ -550,6 +551,7 @@ function selectInputType(val) {
         // Make the relevant card invisible
         $("#upload-via-parenthetical-card").addClass("d-none");
         $("#hyde-p-value-card").addClass("d-none");
+        $("#hyde-backbone-card").addClass("d-none");
         $(".input-example").addClass("d-none");
 
         if($("#file")[0].value == '') {
@@ -562,6 +564,7 @@ function selectInputType(val) {
 
         // Make the relevant card invisible
         $("#hyde-p-value-card").addClass("d-none");
+        $("#hyde-backbone-card").addClass("d-none");
         $(".input-example").addClass("d-none");
 
         parenValue = $("#parenthetical")[0].value;
@@ -575,6 +578,7 @@ function selectInputType(val) {
     } else if(val == "examples") {
         // Make the relevant card invisible
         $("#hyde-p-value-card").addClass("d-none");
+        $("#hyde-backbone-card").addClass("d-none");
         $("#upload-via-parenthetical-card").addClass("d-none");
         $("#upload-via-file-card").addClass("d-none");
         
@@ -846,7 +850,7 @@ function onClickCreateNetwork() {
             console.log("----");
             pushParentheticalToServer(fileText);
         } else if(selectedDropDown == "HYDE format") {
-            pushHydeToServer(fileText, textThresh.value, newickField.value);
+            pushHydeToServer(fileText, textThresh.value, $("#hyde-backbone-input")[0].value);
         } else {
             // triplets
             pushTripletsToServer(fileText);

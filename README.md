@@ -11,6 +11,20 @@ After a network is created, the `Displayed Leaves` section will populate. Here, 
 
 Finally, to re-root your network, click your desired new root (this should highlight the node), then click `Re-root Network`. _Note: Internal node radius, which can be adjusted in the style menu, must be greater than 0 to perform this operation._
 
+---
+
+## Input Types
+
+### Parenthetical/Newick
+- Read about it [here](https://en.wikipedia.org/wiki/Newick_format).
+- We support the original Newick tree format as well as the [extended Newick format](https://en.wikipedia.org/wiki/Newick_format#Extended_Newick).
+
+### Triplets
+- 
+
+### HyDe
+- make sure to note the $p$-value and backbone tree
+
 ## Visual options
 
 

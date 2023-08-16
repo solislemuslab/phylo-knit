@@ -146,20 +146,26 @@
                                     <option value="examples">Examples</option>
                                 </select>
                             </li>
-                            <li id="upload-via-file-card" class="d-none">
+                            <li id="upload-via-file-card" class="text-center d-none">
                                 <hr class="dropdown-divider">
+                                <p><b><u>REQUIRED</u></b></p>
                                 <input type="file" class="form-control-file" id="file" onchange="enableCreateNetworkButton();" />
                             </li>
                             <li id="upload-via-parenthetical-card" class="text-center d-none">
                                 <br/>
-                                <p><b>OR</b></p>
-                                <textarea placeholder="Paste your parenthetical text here." rows="2" style="width:100%" id="parenthetical" oninput="parentheticalTextAreaChanged()"></textarea>
+                                <p><b>or</b></p>
+                                <textarea placeholder="Paste your parenthetical text here." rows="2" class="w-100" id="parenthetical" oninput="parentheticalTextAreaChanged()"></textarea>
                             </li>
                             <li id="hyde-p-value-card" class="text-center d-none">
                                 <br/>
-                                <p><b>AND</b></p>
+                                <p><b>and</b></p>
                                 <input id="textThreshold" value="0.05" type="text" placeholder="p-value threshold (e.g. 0.05)"/>
                                 <label>p-value</label>
+                            </li>
+                            <li id="hyde-backbone-card" class="text-center d-none">
+                                <hr class="dropdown-divider">
+                                <p><b><u>OPTIONAL</u></b></p>
+                                <textarea placeholder="Paste your backbone tree here." rows="2" class="w-100" id="hyde-backbone-input"></textarea>
                             </li>
                             <li class="input-example d-none">
                                 <hr class="dropdown-divider">
