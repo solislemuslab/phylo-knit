@@ -622,6 +622,10 @@ function parentheticalTextAreaChanged() {
     }
 }
 
+function setLegendScale(scale) {
+    $("g.legend").attr("transform", "scale(".concat(scale, ")"));
+}
+
 function enableCreateNetworkButton() {
     $("#createNetwork")[0].disabled = false;
     $("#createNetwork").removeClass("disabled");
