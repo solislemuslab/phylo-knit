@@ -208,41 +208,35 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" id="style-tab" type="button">Display Settings</a>
                         <ul class="dropdown-menu p-2" aria-labelledby="style-tab">
+                            
                             <!-- Display Main Menu -->
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block px-0 text-left" onclick="setDisplaySettingsTab('physics');">
+                                <a href="#" class="btn btn-block px-0 text-left text-nowrap" onclick="setDisplaySettingsTab('physics');">
                                     <span class="text text-nowrap">Animation Physics</span>
                                     <i class="fa-solid fa-play fa-xs pl-1"></i>
                                 </a>
                             </li>
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block px-0 text-left" onclick="setDisplaySettingsTab('node-options');">
-                                    <span class="text text-nowrap">Node Options</span>
+                                <a href="#" class="btn btn-block px-0 text-left text-nowrap" onclick="setDisplaySettingsTab('node-options');">
+                                    <span class="text text-nowrap">Node Settings</span>
                                     <i class="fa-solid fa-play fa-xs pl-1"></i>
                                 </a>
                             </li>
                             <li class="display-main-menu">
-                                <div class="btn btn-block text-left px-0">
-                                    <span class="text text-nowrap">Reroot Network</span>
-                                    <span class="icon text-white-100"  data-toggle="tooltip" data-placement="bottom" title="Try clicking on a node in the network!">
-                                        <i class="fa-regular fa-circle-question"></i>
-                                    </span>
+                                <a href="#" class="btn btn-block px-0 text-left text-nowrap" onclick="setDisplaySettingsTab('legend-options');">
+                                    <span class="text text-nowrap">Legend Settings</span>
+                                    <i class="fa-solid fa-play fa-xs pl-1"></i>
                                 </a>
                             </li>
-
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block border" onclick="toggleLegend();">
-                                    <div class="container-fluid m-0 p-0 text-nowrap">
-                                        <span class="icon text-white-100" id="legend-off-icon">
-                                            <i class="fa-regular fa-circle-xmark" style="color: #df2626;"></i>
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 py-2 my-auto">
+                                    <span class="text text-nowrap h6 m-0">Reroot Network</span>
+                                    <a href="#" target="_blank" class="text-black-100 pl-2">
+                                        <span class="icon text-white-100"  data-toggle="tooltip" data-placement="bottom" title="Try clicking on a node in the network!">
+                                            <i class="fa-regular fa-circle-question"></i>
                                         </span>
-                                        <span class="icon text-white-100 d-none" id="legend-on-icon">
-                                            <i class="fa-regular fa-circle-check" style="color: #00f510;"></i>
-                                        </span>
-                                        &nbsp;
-                                        <span class="text text-nowrap">Toggle Legend</span>
-                                    </div>
-                                </a>
+                                    </a>
+                                </div>
                             </li>
                             <!-- End Display Main Menu -->
 
@@ -254,8 +248,8 @@
                                             <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
                                         </a>
                                     </div>
-                                    <div class="conatiner-fluid p-0 m-0 flex-grow-1 text-center">
-                                        <div class="h-100 pt-1">
+                                    <div class="conatiner-fluid p-0 m-0 flex-grow-1 text-center text-nowrap">
+                                        <div class="h-100 pt-1 text-nowrap">
                                             <span class="h6 text text-nowrap">Animation Physics</span>
                                             <a class="btn icon text-white-100 p-0 m-0" target="_blank" href="https://www.d3indepth.com/force-layout/">
                                                 <i class="fa-regular fa-circle-question fa-xs"></i>
@@ -357,12 +351,198 @@
                                     <span class="text h-100 mt-2" style="font-size: medium;">Restart Simulation</span>
                                 </div>
                             </li>
-
+                            <li class="display-physics-menu d-none p-0 m-0">
+                                <div class="container-fluid px-0 pb-0 pt-0 m-0 text-center">
+                                    <a href="#" class="btn text-white-100 pr-2 pl-0 py-0 mx-0 mt-0 mb-1" onclick="simulation.stop();">
+                                        <i class="fa-solid fa-x"></i>
+                                    </a>
+                                    <span class="text h-100 mt-2" style="font-size: medium;">Stop Simulation</span>
+                                </div>
+                            </li>
                             <!-- End Animation Physics -->
 
                             <!-- Node Options -->
+                            <li class="display-node-menu d-none">
+                                <div class="container text-nowrap p-0 m-0 d-flex">
+                                    <div class="conatiner-fluid p-0 m-0 float-left">
+                                        <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('main-menu');">
+                                            <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
+                                        </a>
+                                    </div>
+                                    <div class="conatiner-fluid p-0 m-0 flex-grow-1 text-center">
+                                        <div class="h-100 pt-1">
+                                            <span class="h6 text text-nowrap">Node Settings</span>
+                                        </div>
+                                    </div>
+                                    <div class="conatiner-fluid p-0 m-0 float-right">
+                                        <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
 
+                            <li class="display-node-menu d-none px-0 pt-0 pb-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <input type="color" class="border-0 p-0 m-0" id="root_color" value="#FFB000" oninput="triggerColorChange('root');">
+                                    <p class="h6 h-100 pl-2 my-auto flex-grow">Root node</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <input type="color" class="border-0 p-0 m-0" id="leaf_color" value="#648FFF" oninput="triggerColorChange('leaf');">
+                                    <p class="h6 h-100 pl-2 my-auto flex-grow">Leaf nodes</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <input type="color" class="border-0 p-0 m-0" id="hybrid_color" value="#DC267F" oninput="triggerColorChange('hybrid');">
+                                    <p class="h6 h-100 pl-2 my-auto flex-grow">Hybrid nodes</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <input type="color" class="border-0 p-0 m-0" id="internal_color" value="#C5C5C5" oninput="triggerColorChange('internal');">
+                                    <p class="h6 h-100 pl-2 my-auto flex-grow">Internal nodes</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <input type="color" class="border-0 p-0 m-0" id="named_internal_color" value="#C5C5C5" oninput="triggerColorChange('named internal');">
+                                    <p class="h6 h-100 pl-2 my-auto flex-grow">Named internal nodes</p>
+                                </div>
+                            </li>
+
+                            <li class="display-node-menu d-none px-0 py-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <p style="width:50px;" class="py-0 pl-0 pr-2 m-0" id="root-radius-slider-value">50</p>
+                                    <input type="range" min="0" max="500" value="50" oninput="updateRootRadius()" id="root-radius-slider">
+                                    <p class="py-0 pl-2 pr-0 m-0">Root size</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <p style="width:50px;" class="py-0 pl-0 pr-2 m-0" id="node-radius-slider-value">115</p>
+                                    <input type="range" min="0" max="500" value="115" oninput="updateLeafRadius()" id="node-radius-slider">
+                                    <p class="py-0 pl-2 pr-0 m-0">Leaf size</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <p style="width:50px;" class="py-0 pl-0 pr-2 m-0" id="hybrid-radius-slider-value">50</p>
+                                    <input type="range" min="0" max="500" value="50" oninput="updateHybridRadius()" id="hybrid-radius-slider">
+                                    <p class="py-0 pl-2 pr-0 m-0">Hybrid size</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <p style="width:50px;" class="py-0 pl-0 pr-2 m-0" id="nonleaf-radius-slider-value">50</p>
+                                    <input type="range" min="0" max="500" value="50" oninput="updateInternalRadius()" id="nonleaf-radius-slider">
+                                    <p class="py-0 pl-2 pr-0 m-0">Internal node size</p>
+                                </div>
+                            </li>
+
+                            <li class="display-node-menu d-none px-0 py-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+                            
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <p style="width:50px;" class="py-0 pl-0 pr-2 m-0" id="font-size-slider-value">90px</p>
+                                    <input type="range" min="0" max="500" value="90" oninput="updateFontSize()" id="font-size-slider">
+                                    <p class="py-0 pl-2 pr-0 m-0">Font size</p>
+                                </div>
+                            </li>
+
+                            <li class="display-node-menu d-none px-0 py-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <div style="width: 50px;" class="form-check text-center py-0 my-0">
+                                        <input class="form-check-input" type="checkbox" value="" id="root-name-checkbox" oninput="toggleNodeText(this.id);">
+                                    </div>
+                                    <p class="p-0 mx-0 my-auto">Show root name</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <div style="width: 50px;" class="form-check text-center py-0 my-0">
+                                        <input class="form-check-input" type="checkbox" value="" id="leaf-name-checkbox" oninput="toggleNodeText(this.id);" checked>
+                                    </div>
+                                    <p class="p-0 mx-0 my-auto">Show leaf names</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <div style="width: 50px;" class="form-check text-center py-0 my-0">
+                                        <input class="form-check-input" type="checkbox" value="" id="hybrid-name-checkbox" oninput="toggleNodeText(this.id);" checked>
+                                    </div>
+                                    <p class="p-0 mx-0 my-auto">Show hybrid names</p>
+                                </div>
+                            </li>
+                            <li class="display-node-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <div style="width: 50px;" class="form-check text-center py-0 my-0">
+                                        <input class="form-check-input" type="checkbox" value="" id="internal-name-checkbox" oninput="toggleNodeText(this.id);">
+                                    </div>
+                                    <p class="p-0 mx-0 my-auto">Show internal names</p>
+                                </div>
+                            </li>
                             <!-- End Node Options -->
+
+                            <!-- Legend Options -->
+                            <li class="display-legend-menu d-none">
+                                <div class="container text-nowrap p-0 m-0 d-flex">
+                                    <div class="conatiner-fluid p-0 m-0 float-left">
+                                        <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('main-menu');">
+                                            <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
+                                        </a>
+                                    </div>
+                                    <div class="conatiner-fluid p-0 m-0 flex-grow-1 text-center">
+                                        <div class="h-100 pt-1">
+                                            <span class="h6 text text-nowrap">Legend Settings</span>
+                                        </div>
+                                    </div>
+                                    <div class="conatiner-fluid p-0 m-0 float-right">
+                                        <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="display-legend-menu d-none px-0 pt-0 pb-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+
+                            <li class="display-legend-menu d-none">
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 py-1">
+                                    <div style="width:50px;" class="pl-0 form-check form-switch my-auto">
+                                        <input class="form-check-input mx-0 px-0" type="checkbox" onclick="toggleLegend();" checked>
+                                    </div>
+                                    <div class="container-fluid px-0 mx-0 my-auto float-right text-left">
+                                        <p class="p-0 m-0 h6">Toggle Legend</p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="display-legend-menu d-none">
+                                <div class="conatiner d-flex text-nowrap py-1">
+                                    <p style="width:50px;" class="py-0 pl-0 pr-2 m-0" id="legend-scale-value">1</p>
+                                    <input type="range" min="0" max="10" value="1" step="0.1" oninput="setLegendScale(this.value);" id="root-radius-slider">
+                                    <p class="py-0 pl-2 pr-0 m-0">Legend scale</p>
+                                </div>
+                            </li>
+                            <!-- End Legend Options -->
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
