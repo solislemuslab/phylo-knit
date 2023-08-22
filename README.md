@@ -3,6 +3,8 @@
 `phylo-knit** is a web application that allows biologists to visualize complex phylogenetics networks and quickly generate publication-ready visuals. 
 Newick, triplet, and HyDe file formats are accepted.
 
+---
+
 ## Basic Functionality
 
 ### __Create a network__
@@ -21,7 +23,7 @@ After creating a network, click on the node that you want to make the new root. 
 
 ## FAQ
 
-
+---
 
 ## Input Types
 
