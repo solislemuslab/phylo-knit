@@ -26,6 +26,7 @@ function isHybridNode(node_name) { return regHash.test(node_name); }
 function isNamedInternalNode(node_name) { return regNamedInternal.test(node_name); }
 function isRootNode(node_name) { return node_name == ROOT_NAME || node_name == "internal".concat(ROOT_NAME); }
 function isUnnamedNode(node_name) { return regUnnamed.test(node_name); }
+function isLeafNode(node_name) { return !isInternalNode(node_name) && !isHybridNode(node_name) && !isRootNode(node_name) }
 
 // Node colors
 HYBRID_COLOR = "#DC267F";
@@ -390,8 +391,8 @@ function createD3Graph(updateLeafBox, dotString) {
         // enable the download dropdown
         $("#download-tab").removeClass("disabled");
 
-        // re-enable the create network button
-        $("#createNetwork").removeClass("disabled");
+        // re-enable buttons
+        enableButtons();
 
         function ticked() {
             path.attr("d", function (d) {
@@ -414,12 +415,8 @@ function createD3Graph(updateLeafBox, dotString) {
         alert("An error was encountered with your input. See the console for more details.");
         console.log(exceptionVar);
 
-        // re-enable the create network button
-        $("#createNetwork").removeClass("disabled");
-
-        // change the icon to the loading icon
-        $("#create-network-loading-icon").removeClass("d-none");
-        $("#create-network-notloading-icon").addClass("d-none");
+        // re-enable buttons
+        enableButtons();
 
         return;
     }
@@ -641,6 +638,20 @@ function disableCreateNetworkButton() {
     $("#create-network-tooltip-li").tooltip('enable');
 }
 
+function enableUpdateNetworkButton() {
+    $("#update-button")[0].disabled = false;
+    $("#update-button").removeClass("disabled");
+    $("#update-button").removeClass("opacity-25");
+    // $("#create-network-tooltip-li").tooltip('disable');
+}
+function disableUpdateNetworkButton() {
+    console.log("DISABLING");
+    $("#update-button")[0].disabled = true;
+    $("#update-button").addClass("disabled");
+    $("#update-button").addClass("opacity-25");
+    // $("#create-network-tooltip-li").tooltip('enable');
+}
+
 function setDisplaySettingsTab(tabLabel) {
     $(".display-main-menu").addClass("d-none");
     $(".display-physics-menu").addClass("d-none");
@@ -707,42 +718,64 @@ function updateDisplayedLeaves() {
     
     // Add "All" to the list of leaves if it is not already there
     if($("#__All__").length == 0) {
-        addAllToDisplayedList();
-        // Add "All" to the list of leaves
-        var linebreak = document.createElement("hr");
-        var checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.name = "__All__";
-        checkbox.id = "__All__";
-        checkbox.value = "__All__";
-        checkbox.checked = true;
-        checkbox.onclick = allCheckboxChanged;
-
-        paraDiv = document.createElement("p");
-        paraDiv.appendChild(document.createTextNode("(All)"));
-        displayedLeaves.appendChild(linebreak);
-        displayedLeaves.appendChild(checkbox);
-        displayedLeaves.appendChild(paraDiv);
+        addToDisplayedList("All", "__All__", true);
     }
 
     // Populate the list of leaves
     totalLeafNodes = [];
     GRAPH.nodes.sort().forEach(function (node) {
-        addLeafToDisplayedList(node.id);
+        if(isLeafNode(node.id))
+            addToDisplayedList(node.id, node.id, false);
     });
 
     filterLeafBox();
+    enableUpdateNetworkButton();
 }
 
-function addAllToDisplayedList() {
-    
+// `isAllCheck` is true only for the first item: "All" that toggles all other entries
+function addToDisplayedList(labelText, elementId, isAllCheck) {
+    var entry = getLeafListEntry(labelText, elementId, isAllCheck);
+    document.getElementById("displayed-leaves").appendChild(entry);
 }
 
-function addLeafToDisplayedList(name) {
+function getLeafListEntry(labelText, elementId, isAllCheck) {
+    var container = document.createElement("div");
+    ["d-flex", "dl-removable"].forEach((x) => container.classList.add(x));
 
+    var checkContainer = document.createElement("div");
+    ["flex-shrink-1", "text-nowrap", "text-left", "my-auto", "dl-removable"].forEach((x) => checkContainer.classList.add(x));
+
+    var check = document.createElement("input");
+    check.type = "checkbox";
+    ["align-middle", "dl-removable"].forEach((x) => check.classList.add(x));
+    check.checked = true;
+    check.id = elementId;
+    if(isAllCheck)
+        check.oninput = allCheckboxChanged;
+    else
+        check.oninput = leafNodeCheckChanged;
+
+    var labelContainer = document.createElement("div");
+    ["text-nowrap", "pl-2", "mt-1", "dl-removable"].forEach((x) => labelContainer.classList.add(x));
+
+    var label = document.createElement("p");
+    ["p-0", "m-0", "align-middle", "dl-removable"].forEach((x) => label.classList.add(x));
+    label.innerHTML = labelText;
+    label.id = elementId;
+
+    // the search box uses these attributes
+    [container, checkContainer, check, labelContainer, label].forEach((element) => element.setAttribute("from", labelText));
+
+    checkContainer.appendChild(check);
+    labelContainer.appendChild(label);
+    container.appendChild(checkContainer);
+    container.appendChild(labelContainer);
+
+    return container;
 }
 
 function allCheckboxChanged() {
+    console.log("allCheckboxChanged");
     var checked = $("#__All__")[0].checked;
     $("input.dl-removable").each(function(idx, i) {
         i.checked = checked;
@@ -752,9 +785,10 @@ function allCheckboxChanged() {
 // Function run when the checkbox on a leaf node changes
 // used to auto-uncheck the (All) checkbox
 function leafNodeCheckChanged() {
+    console.log("leafNodeCheckChanged");
     // Check if everything is checked
     var allTrue = true;
-    $("input.dl-removable").each(function(idx, i) {
+    $("input.dl-removable").not("#__All__").each(function(idx, i) {
         allTrue = allTrue && i.checked;
     });
 
@@ -775,7 +809,8 @@ function filterLeafBox() {
     if(searchText == "") {
         $('.dl-removable').show();
     } else {
-        $('.dl-removable:not([from*="' + searchText + '"])').hide();
+        $('.dl-removable').hide();  // probably faster to just hide all first rather than filter twice
+        // $('.dl-removable:not([from*="' + searchText + '"])').hide();
         $('.dl-removable[from*="' + searchText + '"]').show();
     }
 }
@@ -859,23 +894,33 @@ function onClickCreateNetwork() {
     fr.readAsText(currFile);
 }
 
+function disableButtons() {
+    disableCreateNetworkButton();
+    disableUpdateNetworkButton();
+}
+
+function enableButtons() {
+    enableCreateNetworkButton();
+    enableUpdateNetworkButton();
+}
+
 // called when "Update Network" is pressed; only selected leaves are kept in the network
 function updateNetwork() {
-    $("#reroot-button").addClass("disabled");
-
-    // disable Create/Update network buttons while we work...
-    createNetworkSelector.disabled = true;
-    // document.getElementById("loader").style.visibility = "visible";
+    // disable buttons while we work...
+    disableButtons();
 
     // gather which nodes are to be removed
     var removed_nodes = [];
     // we filter here so that we don't look at (All)
-    var children = $("#displayed-leaves").children().filter(".dl-removable");
-    for(var i = 0; i < children.length / 3; i++) {
+    var children = $(".dl-removable");
+    for(var i = 0; i < children.length / 5; i++) {
         // is the check box checked?
-        if(!children[i*3+1].checked) {
+        if(children[i*5+2].id == "__All__")
+            continue;
+
+        if(!children[i*5+2].checked) {
             // no: this node gets removed
-            removed_nodes.push(children[i*3+2].innerHTML);
+            removed_nodes.push(children[i*5+4].innerHTML);
         }
     }
 
@@ -930,9 +975,7 @@ function updateNetwork() {
                 pushParentheticalToServer(x.newick, false);
         
                 // re-enable Create/Update network buttons
-                createNetworkSelector.disabled = false;
-                btnUpdateNet.disabled = false;
-                rerootButton.disabled = true;
+                enableButtons();
             } else {
                 // failure!!
                 alert("An error occurred: ", x['errmsg']);

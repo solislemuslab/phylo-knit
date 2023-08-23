@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>phylo-knit</title>
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -211,7 +212,7 @@
                             
                             <!-- Display Main Menu -->
                             <li class="display-main-menu">
-                                <a href="#" class="btn btn-block px-0 text-left text-nowrap" onclick="setDisplaySettingsTab('physics');">
+                                <a href="#" class="btn btn-block px-0 pt-0 text-left text-nowrap" onclick="setDisplaySettingsTab('physics');">
                                     <div class="d-flex">
                                         <div style="width:140px;" class="text-left flex-grow-1">
                                             <span class="text text-nowrap">Animation Physics</span>
@@ -247,7 +248,7 @@
                                 </a>
                             </li>
                             <li class="display-main-menu">
-                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 py-2 my-auto">
+                                <div class="container-fluid text-nowrap d-flex align-middle text-left px-0 pt-2 pb-0 my-auto">
                                     <div class="d-flex">
                                         <div style="width:140px;" class="text-left flex-grow-1">
                                             <span class="text text-nowrap h6 m-0">Reroot Network</span>
@@ -567,16 +568,26 @@
                             </li>
 
                             <!-- List of leaves -->
-                            <li class="display-show-hide-menu d-none px-0 pt-0 pb-1 m-0" style="max-height:500px;">
-                                <div id="displayed-leaves py-1">
+                            <li class="display-show-hide-menu d-none overflow-auto p-0 m-0" style="max-height:500px;">
+                                <div id="displayed-leaves" class="overflow-auto py-1">
                                     
                                 </div>
                             </li>
-                            <!-- End list of leaves -->
+
 
                             <li class="display-show-hide-menu d-none px-0 pt-0 pb-1 m-0">
-
+                                <hr class="dropdown-divider m-0 p-0">
                             </li>
+
+                            <li class="display-show-hide-menu d-none text-center p-0 m-0">
+                                <a href="#" class="btn btn-icon-split btn-light border opacity-25 disabled" onclick="updateNetwork();" id="update-button">
+                                    <span class="icon text-white-100">
+                                        <i class="fa-solid fa-code-compare"></i>
+                                    </span>
+                                    <span class="text">Update Network</span>
+                                </a>
+                            </li>
+                            <!-- End list of leaves -->
                             
                             <!-- End Show/Hide Node Page -->
 
