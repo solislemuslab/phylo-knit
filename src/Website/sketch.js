@@ -650,6 +650,7 @@ function setDisplaySettingsTab(tabLabel) {
     $(".display-physics-menu").addClass("d-none");
     $(".display-node-menu").addClass("d-none");
     $(".display-legend-menu").addClass("d-none");
+    $(".display-show-hide-menu").addClass("d-none");
 
     if(tabLabel == "main-menu") {
         $(".display-main-menu").removeClass("d-none");
@@ -659,6 +660,8 @@ function setDisplaySettingsTab(tabLabel) {
         $(".display-node-menu").removeClass("d-none");
     } else if(tabLabel == "legend-options") {
         $(".display-legend-menu").removeClass("d-none");
+    } else if(tabLabel == "show-hide-nodes") {
+        $(".display-show-hide-menu").removeClass("d-none");
     }
 }
 

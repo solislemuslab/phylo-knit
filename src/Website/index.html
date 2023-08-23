@@ -408,6 +408,21 @@
                                 <hr class="dropdown-divider m-0 p-0">
                             </li>
 
+                            <li class="display-node-menu d-none px-0 pt-0 pb-1 m-0">
+                                <a href="#" class="btn btn-block px-0 text-left text-nowrap p-0 m-0" onclick="setDisplaySettingsTab('show-hide-nodes');">
+                                    <div class="d-flex text-nowrap py-1">
+                                        <span class="text text-nowrap">Show/hide leaf nodes</span>
+                                        <span class="icon text-white-100 pl-2">
+                                            <i class="fa-solid fa-play fa-2xs pl-1"></i>
+                                        </span>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li class="display-node-menu d-none px-0 pt-0 pb-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+
                             <li class="display-node-menu d-none">
                                 <div class="d-flex text-nowrap py-1">
                                     <input type="color" class="border-0 p-0 m-0" id="root_color" value="#FFB000" oninput="triggerColorChange('root');">
@@ -521,6 +536,40 @@
                                 </div>
                             </li>
                             <!-- End Node Options -->
+
+                            <!-- Show/Hide Node Page -->
+                            
+                            <li class="display-show-hide-menu d-none">
+                                <div class="container text-nowrap p-0 m-0 d-flex">
+                                    <div class="p-0 m-0 float-left">
+                                        <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('node-options');">
+                                            <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
+                                        </a>
+                                    </div>
+                                    <div class="p-0 m-0 flex-grow-1 text-center">
+                                        <div class="h-100 pt-1">
+                                            <span class="h6 text text-nowrap">Show/Hide Nodes</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-0 m-0 float-right">
+                                        <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="display-show-hide-menu d-none px-0 pt-0 pb-1 m-0">
+                                <hr class="dropdown-divider m-0 p-0">
+                            </li>
+
+                            
+
+                            <li class="display-show-hide-menu d-none px-0 pt-0 pb-1 m-0">
+
+                            </li>
+                            
+                            <!-- End Show/Hide Node Page -->
 
                             <!-- Legend Options -->
                             <li class="display-legend-menu d-none">
