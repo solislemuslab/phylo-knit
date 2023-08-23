@@ -147,7 +147,7 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="input-tab" type="button">Inputs</a>
                         <ul class="dropdown-menu p-2" aria-labelledby="input-tab">
                             <li>
-                                <select class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
+                                <select data-toggle="tooltip" data-placement="top" title="Check the documentation for details on input types." class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
                                     <option value="type">Select input type</option>
                                     <option value="pf">Parenthetical/Newick</option>
                                     <option value="Triplets">Triplets</option>
@@ -254,7 +254,7 @@
                                             <span class="text text-nowrap h6 m-0">Reroot Network</span>
                                         </div>
                                         <div class="pr-1">
-                                            <span class="icon text-white-100 pl-1" data-toggle="tooltip" data-placement="bottom" title="Try clicking on a node in the network!">
+                                            <span class="icon text-white-100 pl-1" data-toggle="tooltip" data-placement="bottom" title="Create a network, then try clicking on a node in the network!">
                                                 <i class="fa-regular fa-circle-question"></i>
                                             </span>
                                         </div>
