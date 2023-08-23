@@ -48,7 +48,6 @@
     </li>
     <li><a href="#Server">Server.py()</a></li>
     <li><a href="#ServerAction">ServerAction.py()</a></li>
-    <!-- <li><a href="#contributing">Testing</a></li> -->
     <li><a href="#Sketch">Sketch.js</a></li>
     <li><a href="#Glossary">Glossary</a></li>
     <li><a href="#RoadMap">RoadMap/Flow</a></li>

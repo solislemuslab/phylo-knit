@@ -140,7 +140,7 @@ def getUserAdjustedParenthetical():
 
     if net.node[net.root-1].name == '':
         Julia.net = net
-        Julia.eval("net.node[net.root].name = \"__root__\"")  # set the name to root, so we know which node is the root
+        Julia.eval("net.node[net.root].name = \"root\"")  # set the name to root, so we know which node is the root
 
     return jsonify({'result':'success','newick':writeTopology(net),'new_root':net.node[net.root-1].name})
 
