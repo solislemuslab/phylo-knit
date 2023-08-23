@@ -624,6 +624,15 @@ function setLegendScale(scale) {
     document.getElementById("legend-scale-value").innerHTML = scale;
 }
 
+function startLoading() {
+    disableButtons();
+    $("#svg-container").addClass("rainbow");
+}
+function doneLoading() {
+    enableButtons();
+    $("#svg-container").removeClass("rainbow");
+}
+
 function enableCreateNetworkButton() {
     $("#createNetwork")[0].disabled = false;
     $("#createNetwork").removeClass("disabled");
