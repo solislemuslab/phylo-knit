@@ -19,12 +19,8 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
     request.open("POST", "http://127.0.0.1:5001/uploadHyde/" + thresh + "/" + eNewick);
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
-    
-    try {
-        request.send(data);
-    } catch(e) {
-        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
-    }
+    startLoading();
+    request.send(data);
 
     var alreadySent = false;  // we usually receive the response twice, so let's only send once.
     function processRequest(e) {
@@ -41,9 +37,7 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
             }
 
             pushParentheticalToServer(originalNewick);
-            // document.getElementById("dwn-btn").style.visibility = "visible";
-            // document.getElementById("downloadPng").style.visibility = "visible";
-            // createD3Graph(true, x['dotString']);
+            doneLoading();
         } else if (request.status === 401) {
             reportRequestError(request);
         }
@@ -62,12 +56,7 @@ function pushSVGToServer(svg_string) {
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.responseType = 'blob';
-    
-    try {
-        request.send(data);
-    } catch(e) {
-        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
-    }
+    document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
 
     function processRequest(e) {
         if(request.readyState == 4 && request.status == 200) {
@@ -93,6 +82,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
     request.open("POST", "http://127.0.0.1:5001/uploadNewick/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
+    startLoading();
     request.send(data);
 
     function processRequest(e) {
@@ -116,6 +106,8 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
                 userAdjustedNewick = "";
             } else
                 userAdjustedNewick = x["newick"].replaceAll(" ", "")
+
+            doneLoading();
         } else if (request.status == 401) {
             reportRequestError(request);
         }
@@ -133,12 +125,8 @@ function pushTripletsToServer(triplets) {
     request.open("POST", "http://127.0.0.1:5001/upload/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
-    
-    try {
-        request.send(data);
-    } catch(e) {
-        document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
-    }
+    startLoading();
+    request.send(data);
 
     function processRequest(e) {
         if (request.readyState === 4 && request.status === 200) {
@@ -148,6 +136,7 @@ function pushTripletsToServer(triplets) {
                 userAdjustedNewick = "";
             }
             pushParentheticalToServer(originalNewick);
+            doneLoading();
         } else if (request.status === 401) {
             reportRequestError(request);
         }
@@ -163,6 +152,9 @@ function reportRequestError(request) {
     } else {
         document.getElementById("instruct").innerHTML = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
     }
+
+    doneLoading();
+    enableButtons();
     disableCreateNetworkButton();
     $("#create-network-loading-icon").addClass("d-none");
     $("#create-network-notloading-icon").removeClass("d-none");
