@@ -464,7 +464,6 @@ function clicked(d) {
                 }
         });
         $("#reroot-popup").removeClass("d-none").css("left", "".concat(currMouseX + 20, "px")).css("top", "".concat(currMouseY, "px"));
-        $("#reroot-button").removeClass("disabled");
     } else if(highlightedNode == d) {
         // selecting old node
         highlightedNode = null;
@@ -475,7 +474,7 @@ function clicked(d) {
     } else {
         // unknown case
         alert("Unknown case reached @ function clicked(d) {...}");
-        rerootButton.disabled = true;
+        disableRerootNetworkButton();
     }
 }
 
@@ -649,6 +648,20 @@ function disableUpdateNetworkButton() {
     $("#update-button")[0].disabled = true;
     $("#update-button").addClass("disabled");
     $("#update-button").addClass("opacity-25");
+    // $("#create-network-tooltip-li").tooltip('enable');
+}
+
+function enableRerootNetworkButton() {
+    $("#reroot-button")[0].disabled = false;
+    $("#reroot-button").removeClass("disabled");
+    $("#reroot-button").removeClass("opacity-25");
+    // $("#create-network-tooltip-li").tooltip('disable');
+}
+function disableRerootNetworkButton() {
+    console.log("DISABLING");
+    $("#reroot-button")[0].disabled = true;
+    $("#reroot-button").addClass("disabled");
+    $("#reroot-button").addClass("opacity-25");
     // $("#create-network-tooltip-li").tooltip('enable');
 }
 
@@ -897,11 +910,13 @@ function onClickCreateNetwork() {
 function disableButtons() {
     disableCreateNetworkButton();
     disableUpdateNetworkButton();
+    disableRerootNetworkButton();
 }
 
 function enableButtons() {
     enableCreateNetworkButton();
     enableUpdateNetworkButton();
+    enableRerootNetworkButton();
 }
 
 // called when "Update Network" is pressed; only selected leaves are kept in the network
