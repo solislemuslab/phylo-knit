@@ -265,7 +265,7 @@
                             <!-- Animation Physics -->
                             <li class="display-physics-menu d-none">
                                 <div class="container text-nowrap p-0 m-0 d-flex">
-                                    <div class="p-0 m-0 float-left">
+                                    <div class="py-0 pl-0 pr-4 m-0 float-left">
                                         <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('main-menu');">
                                             <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
                                         </a>
@@ -278,7 +278,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                    <div class="p-0 m-0 float-right">
+                                    <div class="py-0 pl-4 pr-0 m-0 float-right">
                                         <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
                                             <i class="fa-solid fa-check"></i>
                                         </a>
@@ -386,7 +386,7 @@
                             <!-- Node Options -->
                             <li class="display-node-menu d-none">
                                 <div class="container text-nowrap p-0 m-0 d-flex">
-                                    <div class="p-0 m-0 float-left">
+                                    <div class="py-0 pl-0 pr-4 m-0 float-left">
                                         <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('main-menu');">
                                             <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
                                         </a>
@@ -396,7 +396,7 @@
                                             <span class="h6 text text-nowrap">Node Settings</span>
                                         </div>
                                     </div>
-                                    <div class="p-0 m-0 float-right">
+                                    <div class="py-0 pl-4 pr-0 m-0 float-right">
                                         <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
                                             <i class="fa-solid fa-check"></i>
                                         </a>
@@ -538,20 +538,19 @@
                             <!-- End Node Options -->
 
                             <!-- Show/Hide Node Page -->
-                            
                             <li class="display-show-hide-menu d-none">
                                 <div class="container text-nowrap p-0 m-0 d-flex">
-                                    <div class="p-0 m-0 float-left">
+                                    <div class="py-0 pl-0 pr-4 m-0 float-left">
                                         <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('node-options');">
                                             <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
                                         </a>
                                     </div>
                                     <div class="p-0 m-0 flex-grow-1 text-center">
                                         <div class="h-100 pt-1">
-                                            <span class="h6 text text-nowrap">Show/Hide Nodes</span>
+                                            <span class="h6 text text-nowrap">Show/Hide Leaf Nodes</span>
                                         </div>
                                     </div>
-                                    <div class="p-0 m-0 float-right">
+                                    <div class="py-0 pl-4 pr-0 m-0 float-right">
                                         <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
                                             <i class="fa-solid fa-check"></i>
                                         </a>
@@ -563,7 +562,17 @@
                                 <hr class="dropdown-divider m-0 p-0">
                             </li>
 
-                            
+                            <li class="display-show-hide-menu d-none px-0 py-1 m-0">
+                                <input class="input w-100" id="leaf-search" placeholder="Search by leaf name" onchange="filterLeafBox();" oninput="filterLeafBox();" />
+                            </li>
+
+                            <!-- List of leaves -->
+                            <li class="display-show-hide-menu d-none px-0 pt-0 pb-1 m-0" style="max-height:500px;">
+                                <div id="displayed-leaves py-1">
+                                    
+                                </div>
+                            </li>
+                            <!-- End list of leaves -->
 
                             <li class="display-show-hide-menu d-none px-0 pt-0 pb-1 m-0">
 
@@ -574,7 +583,7 @@
                             <!-- Legend Options -->
                             <li class="display-legend-menu d-none">
                                 <div class="container text-nowrap p-0 m-0 d-flex">
-                                    <div class="p-0 m-0 float-left">
+                                    <div class="py-0 pl-0 pr-4 m-0 float-left">
                                         <a class="btn icon text-white-100 align-top p-0" onclick="setDisplaySettingsTab('main-menu');">
                                             <i class="fa-solid fa-arrow-right-from-bracket fa-rotate-180"></i>
                                         </a>
@@ -584,7 +593,7 @@
                                             <span class="h6 text text-nowrap">Legend Settings</span>
                                         </div>
                                     </div>
-                                    <div class="p-0 m-0 float-right">
+                                    <div class="py-0 pl-4 pr-0 m-0 float-right">
                                         <a class="btn icon text-white-100 p-0" onclick="setDisplaySettingsTab('main-menu'); $('#style-tab').dropdown('hide');">
                                             <i class="fa-solid fa-check"></i>
                                         </a>

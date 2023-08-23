@@ -1,5 +1,4 @@
 var nodeNum = 0;
-var nodeVal = [];
 var nodesCheckedStr = "";
 var paraText = "";
 var reg1000P = new RegExp("internal([0-9]*)");
@@ -155,9 +154,6 @@ var AUTO_UPDATE_SETTINGS = false;
 var GRAPH;
 // Main function for generating the D3 graph
 function createD3Graph(updateLeafBox, dotString) {
-    // clear the current list of nodes
-    nodeVal = [];
-
     if(typeof(updateLeafBox) == "undefined")
         updateLeafBox = true;
 
@@ -376,7 +372,7 @@ function createD3Graph(updateLeafBox, dotString) {
             console.log("\t\t\tCREATING BOXES")
             console.log(updateLeafBox);
             // TODO: uncomment this once the boxes are added back
-            // createboxes();
+            updateDisplayedLeaves();
         }
 
         // raise the legend above everything else
@@ -700,7 +696,7 @@ function showTab(tabLabel) {
 }
 
 // Populates the "Displayed Leaves" box
-function createboxes() {
+function updateDisplayedLeaves() {
     // Enable the create network button.
     createNetworkSelector.disabled = false;
     
@@ -711,6 +707,7 @@ function createboxes() {
     
     // Add "All" to the list of leaves if it is not already there
     if($("#__All__").length == 0) {
+        addAllToDisplayedList();
         // Add "All" to the list of leaves
         var linebreak = document.createElement("hr");
         var checkbox = document.createElement("input");
@@ -728,48 +725,21 @@ function createboxes() {
         displayedLeaves.appendChild(paraDiv);
     }
 
-
     // Populate the list of leaves
     totalLeafNodes = [];
-    btnUpdateNet.disabled = false;
-    nodeVal.sort().forEach(function (element) {
-        console.log("element: " + element);
-
-        // Create all the new elements for the displayed leaves box
-        var linebreak = document.createElement("hr");
-        
-        var checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.name = element;
-        checkbox.id = element;
-        checkbox.value = element;
-        checkbox.checked = true;
-        checkbox.onclick = leafNodeCheckChanged;
-
-        paraDiv = document.createElement("p");
-        var text = document.createTextNode("" + element);
-        paraDiv.appendChild(text);
-        
-        // Set the new elements' classes so they can be easily removed later
-        // the setAttributes('from', element); makes it easy to filter out the individual
-        // elements with JQuery when the user is searching
-        linebreak.className = checkbox.className = paraDiv.className = text.className = "dl-removable";
-        linebreak.setAttribute('from', element.toLowerCase());
-        checkbox.setAttribute('from', element.toLowerCase());
-        paraDiv.setAttribute('from', element.toLowerCase());
-
-        // add all the leaves to the list
-        if (!paraDiv.textContent.includes("Hash")) {
-            totalLeafNodes.push(paraDiv.textContent);
-        }
-        if (!paraDiv.textContent.includes("Hash") && !paraDiv.textContent.includes("internal")) {
-            displayedLeaves.appendChild(linebreak);
-            displayedLeaves.appendChild(checkbox);
-            displayedLeaves.appendChild(paraDiv);
-        }
+    GRAPH.nodes.sort().forEach(function (node) {
+        addLeafToDisplayedList(node.id);
     });
 
     filterLeafBox();
+}
+
+function addAllToDisplayedList() {
+    
+}
+
+function addLeafToDisplayedList(name) {
+
 }
 
 function allCheckboxChanged() {
