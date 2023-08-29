@@ -11,8 +11,6 @@ except:
 
 from julia import Pkg
 
-Pkg.activate("PhyloNetworks")
-
 import ParentheticalConvertorNaman
 import ServerAction
 from flask import Flask, jsonify, make_response, request, send_file
@@ -102,11 +100,11 @@ def getUserAdjustedParenthetical():
         net = readTopology(parenthetical)
     except Exception as e:
         print(e)
-        return jsonify({'result':'error','errmsg':"Failed to read parenthetical format of \"" + parenthetical + "\""})
+        return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 401
 
-    print("removing leaves...")
     # removed_nodes should be a string of leaf names
     if len(json['removed_nodes']) != 0:
+        print("removing leaves...")
         removed_nodes = json['removed_nodes']
 
         for node_name in removed_nodes:
@@ -114,28 +112,41 @@ def getUserAdjustedParenthetical():
                 deleteleaf_b(net, node_name, keeporiginalroot=False)
             except Exception as e:
                 print(e)
-                return jsonify({'result':'error','errmsg':"Failed when removing node " + node_name})
+                return jsonify({'error':"Failed when removing node " + node_name}), 401
 
-    print("re-rooting...")
     # re-root the network
     if len(json['new_root']) != 0:
         new_root = json['new_root']
+        if new_root[:4] == "Hash":
+            new_root = new_root.replace("Hash", "", 1)
+            
+        print("re-rooting at", new_root, "...")
+        
+        print("----- DEBUG -----")
+        print(writeTopology(net))
+        print("new root:", new_root)
+        print("----- DEBUG -----")
+        
         try:
             rootatnode_b(net, new_root)
         except:
-            u_nets = undirectedOtherNetworks(net)
-            j = 0
-            for i in range(len(u_nets)):
-                try:
-                    rootatnode_b(u_nets[i], new_root)
-                    net = u_nets[i]
-                    break
-                except:
-                    j = i
+            return jsonify({'error':'ERROR: Failed to re-root network at selected node, most likely because re-rooting here would invert a reticulation.'}), 401
             
-            if j == len(u_nets) - 1:
-                # we were unable to re-root the network
-                return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
+            # `undirectedOtherNetworks(net)` sometimes hangs forever, so we don't want to use it
+            #
+            # u_nets = undirectedOtherNetworks(net)
+            # j = 0
+            # for i in range(len(u_nets)):
+            #     try:
+            #         rootatnode_b(u_nets[i], new_root)
+            #         net = u_nets[i]
+            #         break
+            #     except:
+            #         j = i
+            
+            # if j == len(u_nets) - 1:
+            #     # we were unable to re-root the network
+            #     return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
             
 
     if net.node[net.root-1].name == '':

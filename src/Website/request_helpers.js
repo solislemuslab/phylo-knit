@@ -115,6 +115,47 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
 }
 
 
+// Used for re-rooting and showing/hiding nodes from the network
+function pushUpdatedParentheticalToServer(data) {
+    var request = new XMLHttpRequest();
+    request.open("POST", "http://127.0.0.1:5001/getUserAdjustedParenthetical/");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("readystatechange", processRequest, false);
+    request.send(data);
+
+    function processRequest(e) {
+        if(request.readyState == 4 && request.status == 200) {
+            var x = JSON.parse(request.responseText);
+            console.log(x);
+            console.log('rootname' in x)
+            console.log('new_root' in x)
+
+            if(x.result == 'success') {
+                // change to new root
+                if('rootname' in x) {
+                    ROOT_NAME = x['rootname'];
+                } else if('new_root' in x) {
+                    ROOT_NAME = x['new_root'];
+                }
+                
+                // reset highlighted node var
+                highlightedNode = null;
+
+                // push the parenthetical
+                pushParentheticalToServer(x.newick, false);
+        
+                // re-enable Create/Update network buttons
+                enableButtons();
+            } else {
+                reportRequestError(request);
+            }
+        } else if(request.status == 401) {
+            reportRequestError(request);
+        }
+    }
+}
+
+
 // Send triplet input to the server and draws the resulting network if there is one, else throws an error
 function pushTripletsToServer(triplets) {
     var data = JSON.stringify({

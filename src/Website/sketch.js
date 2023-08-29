@@ -971,46 +971,7 @@ function updateNetwork() {
         "new_root":new_root
     })
 
-    var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/getUserAdjustedParenthetical/");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.addEventListener("readystatechange", processRequest, false);
-    request.send(data);
-
-    function processRequest(e) {
-        if(request.readyState == 4 && request.status == 200) {
-            var x = JSON.parse(request.responseText);
-            console.log(x);
-            console.log('rootname' in x)
-            console.log('new_root' in x)
-
-            if(x.result == 'success') {
-                // change to new root
-                if('rootname' in x) {
-                    ROOT_NAME = x['rootname'];
-                } else if('new_root' in x) {
-                    ROOT_NAME = x['new_root'];
-                }
-                
-                // reset highlighted node var
-                highlightedNode = null;
-
-                // push the parenthetical
-                pushParentheticalToServer(x.newick, false);
-        
-                // re-enable Create/Update network buttons
-                enableButtons();
-            } else {
-                // failure!!
-                alert("An error occurred: ", x['errmsg']);
-                console.log(x['errmsg']);
-            }
-        } else if(request.readyState == 4) {
-            console.log("ready state == 4");
-        } else if(request.status == 401) {
-            console.log("401");
-        }
-    }
+    pushUpdatedParentheticalToServer(data);
 }
 
 
