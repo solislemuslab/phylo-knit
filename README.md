@@ -1,21 +1,49 @@
 # phylo-knit
 
-**phylo-knit** is a web application that allows biologists to visualize complex phylogenetics networks and quickly generate publication-ready visuals. 
+`phylo-knit** is a web application that allows biologists to visualize complex phylogenetics networks and quickly generate publication-ready visuals. 
 Newick, triplet, and HyDe file formats are accepted.
 
-## Creating, updating, and re-rooting a network
+---
 
-Creating a network is as easily as selecting your preferred file type, uploading a file and clicking `Create Network`.
+## Basic Functionality
 
-After a network is created, the `Displayed Leaves` section will populate. Here, you can uncheck any number of boxes and then press `Update Network` to change which leaves are displayed. This also removed any redundant internal nodes.
+### __Create a network__
 
-Finally, to re-root your network, click your desired new root (this should highlight the node), then click `Re-root Network`. _Note: Internal node radius, which can be adjusted in the style menu, must be greater than 0 to perform this operation._
+Under the `Inputs` tab, we accept extended Newick, triplets and `HyDe` formats, or you can choose from one of a few example extended Newick networks. Just upload your respective file or copy-paste your extended Newick and watch your network come to life!
 
-## Visual options
+<img src="readme_img/net1.png" width="600" />
 
+### __Re-rooting the network__
 
+After creating a network, click on the node that you want to make the new root. Click the button that appears and the re-rooted network will appear in just a few moments!
 
+<img src="readme_img/reroot_img.png" />
 
+---
+
+## FAQ
+
+---
+
+## Input Types
+
+### Parenthetical/Newick
+- Read about it [here](https://en.wikipedia.org/wiki/Newick_format).
+- We support the original Newick tree format as well as the [extended Newick format](https://en.wikipedia.org/wiki/Newick_format#Extended_Newick).
+
+### Triplets
+- 
+
+### HyDe
+- make sure to note the $p$-value and backbone tree
+
+## Contributions
+
+Users interested in expanding functionalities of `phylo-knit` are welcome to do so. See details on how to contribute in [CONTRIBUTING.md](https://github.com/solislemuslab/phylo-knit/blob/master/CONTRIBUTING.md).
+
+## Citations
+
+* [LEV1ATHAN](https://skelk.sdf-eu.org/lev1athan/)
 
 ## License
 

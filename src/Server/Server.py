@@ -1,4 +1,5 @@
 import io
+from time import time
 
 from julia.api import Julia
 
@@ -10,15 +11,14 @@ except:
 
 from julia import Pkg
 
-Pkg.activate("PhyloNetworks")
-
 import ParentheticalConvertorNaman
 import ServerAction
 from flask import Flask, jsonify, make_response, request, send_file
 from flask_cors import CORS, cross_origin
 from julia import Julia
 from julia import Main as Julia
-from julia.PhyloNetworks import (deleteleaf_b, readTopology, rootatnode_b,
+from julia.PhyloNetworks import (deleteleaf_b, nameinternalnodes_b,
+                                 readTopology, rootatnode_b,
                                  undirectedOtherNetworks, writeTopology)
 
 app = Flask(__name__)
@@ -100,11 +100,11 @@ def getUserAdjustedParenthetical():
         net = readTopology(parenthetical)
     except Exception as e:
         print(e)
-        return jsonify({'result':'error','errmsg':"Failed to read parenthetical format of \"" + parenthetical + "\""})
+        return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 401
 
-    print("removing leaves...")
     # removed_nodes should be a string of leaf names
     if len(json['removed_nodes']) != 0:
+        print("removing leaves...")
         removed_nodes = json['removed_nodes']
 
         for node_name in removed_nodes:
@@ -112,33 +112,46 @@ def getUserAdjustedParenthetical():
                 deleteleaf_b(net, node_name, keeporiginalroot=False)
             except Exception as e:
                 print(e)
-                return jsonify({'result':'error','errmsg':"Failed when removing node " + node_name})
+                return jsonify({'error':"Failed when removing node " + node_name}), 401
 
-    print("re-rooting...")
     # re-root the network
     if len(json['new_root']) != 0:
         new_root = json['new_root']
+        if new_root[:4] == "Hash":
+            new_root = new_root.replace("Hash", "", 1)
+            
+        print("re-rooting at", new_root, "...")
+        
+        print("----- DEBUG -----")
+        print(writeTopology(net))
+        print("new root:", new_root)
+        print("----- DEBUG -----")
+        
         try:
             rootatnode_b(net, new_root)
         except:
-            u_nets = undirectedOtherNetworks(net)
-            j = 0
-            for i in range(len(u_nets)):
-                try:
-                    rootatnode_b(u_nets[i], new_root)
-                    net = u_nets[i]
-                    break
-                except:
-                    j = i
+            return jsonify({'error':'ERROR: Failed to re-root network at selected node, most likely because re-rooting here would invert a reticulation.'}), 401
             
-            if j == len(u_nets) - 1:
-                # we were unable to re-root the network
-                return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
+            # `undirectedOtherNetworks(net)` sometimes hangs forever, so we don't want to use it
+            #
+            # u_nets = undirectedOtherNetworks(net)
+            # j = 0
+            # for i in range(len(u_nets)):
+            #     try:
+            #         rootatnode_b(u_nets[i], new_root)
+            #         net = u_nets[i]
+            #         break
+            #     except:
+            #         j = i
+            
+            # if j == len(u_nets) - 1:
+            #     # we were unable to re-root the network
+            #     return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
             
 
     if net.node[net.root-1].name == '':
         Julia.net = net
-        Julia.eval("net.node[net.root].name = \"__root__\"")  # set the name to root, so we know which node is the root
+        Julia.eval("net.node[net.root].name = \"root\"")  # set the name to root, so we know which node is the root
 
     return jsonify({'result':'success','newick':writeTopology(net),'new_root':net.node[net.root-1].name})
 
@@ -152,33 +165,46 @@ def uploadParentheticalAndReturnDot():
     :return: json
     """
     json = request.get_json()
-    print(json)
     if len(json['text']) == 0:
-        return 'error invalid input'
+        return jsonify({'error', 'ERROR: Invalid input text.'}), 401
 
     parenthetical = json['text']
 
     # Replace blank node names with `internal####` so that
     # re-rooting can work
-    net = readTopology(parenthetical)
-    Julia.net = net
-    i = 1000
-    for j in range(len(net.node)):
-        if net.node[j].name == "":
-            Julia.i = i
-            Julia.j = j+1
-            
-            Julia.eval("net.node[j].name = \"unnamed\"*string(i)")
-            i += 1
-    print(writeTopology(net))
-    parenthetical = writeTopology(net)
+    readnet_time = time()       # timing portions
+    net = 0
+    try:
+        net = readTopology(parenthetical)
+    except:
+        try:
+            net = readTopology(parenthetical + ";")
+        except:
+            return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
+    readnet_time = time() - readnet_time
+    
+    adjustment_time = time()
+    try:
+        nameinternalnodes_b(net, "unnamed")
+        parenthetical = writeTopology(net)
+    except:
+        return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 401
+    adjustment_time = time() - adjustment_time
 
     try: 
+        dotconversion_time = time()
         dotString = ParentheticalConvertorNaman.newickToDot(parenthetical)
+        dotconversion_time = time() - dotconversion_time
+        
+        total_time = readnet_time + adjustment_time + dotconversion_time
+        print("Time to read net: " + str(round(readnet_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
+        print("Time to adjust net names: " + str(round(adjustment_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
+        print("Time to convert to dot: " + str(round(dotconversion_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
+        
         # parenthetical convertor uploads as upload.dot
         return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.root-1].name})
     except:
-        return jsonify({'error': 'File format is incorrect'}), 401
+        return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 401
 
 
 # POST

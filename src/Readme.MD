@@ -17,8 +17,6 @@
 -->
 
 
-
-
 <!-- PROJECT LOGO -->
 
 
@@ -50,7 +48,6 @@
     </li>
     <li><a href="#Server">Server.py()</a></li>
     <li><a href="#ServerAction">ServerAction.py()</a></li>
-    <!-- <li><a href="#contributing">Testing</a></li> -->
     <li><a href="#Sketch">Sketch.js</a></li>
     <li><a href="#Glossary">Glossary</a></li>
     <li><a href="#RoadMap">RoadMap/Flow</a></li>
@@ -66,7 +63,7 @@
 
 This is the developer guide for the Phylo-knit visualization project. This Project allows the visualization of phylogentic data in the form of the three formats (Hyde,Parenthetical and Triplet format). This guide allows a better udnerstanding of the project for any future developers and for myself to understanding the current level of the project
 
-![alt text](pic1.png)
+![alt text](../readme_img/full_web.png)
 
 
 About:
