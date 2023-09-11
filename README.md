@@ -21,10 +21,6 @@ After creating a network, click on the node that you want to make the new root. 
 
 ---
 
-## FAQ
-
----
-
 ## Input Types
 
 ### Parenthetical/Newick
