@@ -37,7 +37,13 @@ After creating a network, click on the node that you want to make the new root. 
 ### HyDe
 - make sure to note the $p$-value and backbone tree
 
+## Contributions
 
+Users interested in expanding functionalities of `phylo-knit` are welcome to do so. See details on how to contribute in [CONTRIBUTING.md](https://github.com/solislemuslab/phylo-knit/blob/master/CONTRIBUTING.md).
+
+## Citations
+
+* [LEV1ATHAN](https://skelk.sdf-eu.org/lev1athan/)
 
 ## License
 
