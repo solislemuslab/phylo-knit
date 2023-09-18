@@ -29,15 +29,15 @@ After creating a network, click on the node that you want to make the new root. 
 
 ### Triplets
 - Triplets files [define trees](https://www.researchgate.net/publication/220586945_Constructing_Evolutionary_Trees_from_Rooted_Triples) and [level-1 networks](https://leovaniersel.files.wordpress.com/2014/09/practicallevel11.pdf) using relationships between sets of three taxa
-- Each line in a triplets file is in the form of leaf leaf2 leaf3. An optional weight can also be included.
+- Each line in a triplets file is in the form of `leaf leaf2 leaf3 [weight]` where `[weight]` is optional.
 - An [example](https://skelk.sdf-eu.org/lev1athan/example.trips) is provided by Lev1athan creators
 - Read more under the section [LEV1ATHAN Basics](https://skelk.sdf-eu.org/lev1athan/)
 
 ### HyDe
-- [HyDe](https://academic.oup.com/sysbio/article/67/5/821/4944070) output files can be used by LEV1ATHAN with internal conversion to triples files. The process and limitations are described below:
-- As unfiltered HyDe results list all possible triples, it is necessary to input a $p$-value. Filtered HyDe results only output relationships that fall below the bonferroni-corrected $p$-value threshold, though further filtering below this $p$-value can also be performed.
-- Only hybrid relationships below the specified $p$-value will be converted to triples that specify hybrid relationships (that is, if P1 and P2 were putative parental lineages of hybrid HYB, we include triples P1 HYB P2, HYB P2 P1). For all other combinations of taxa that fall above the $p$-value threshold, we choose a single, arbitrary triple relationship per set of three taxa (that is, if P1 P2 and HYB had no hybrid relationship between them, we list triple P1 P2 HYB only once in the triple file, with no other permutations).  
-- For this reason, use of a backbone tree in Newick or extended Newick format is highly recommended. Triples relationships extracted from the provided backbone tree or network are combined with the HyDe hybrid relationships' triples, avoiding the use of arbitrary sets of triples from a HyDe file.
+- [HyDe](https://academic.oup.com/sysbio/article/67/5/821/4944070) output files can be used by LEV1ATHAN with internal conversion to triples files. The process and limitations are as follows:
+  - As unfiltered HyDe results list all possible triples, it is necessary to input a $p$-value. Filtered HyDe results only output relationships that fall below the bonferroni-corrected $p$-value threshold, though further filtering below this $p$-value can also be performed.
+  - Only hybrid relationships below the specified $p$-value will be converted to triples that specify hybrid relationships (that is, if P1 and P2 were putative parental lineages of hybrid `HYB`, we include triples `P1 HYB P2`, `HYB P2 P1`). For all other combinations of taxa that fall above the $p$-value threshold, we choose a single, arbitrary triple relationship per set of three taxa (that is, if P1 P2 and HYB had no hybrid relationship between them, we list triple `P1 P2 HYB` only once in the triple file, with no other permutations).
+  - For this reason, **use of a backbone tree in Newick or extended Newick format is highly recommended**. Triples relationships extracted from the provided backbone tree or network are combined with the HyDe hybrid relationships' triples, avoiding the use of arbitrary sets of triples from a HyDe file.
 
 ## Contributions
 
