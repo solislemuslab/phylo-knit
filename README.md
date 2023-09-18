@@ -28,7 +28,7 @@ After creating a network, click on the node that you want to make the new root. 
 - We support the original Newick tree format as well as the [extended Newick format](https://en.wikipedia.org/wiki/Newick_format#Extended_Newick).
 
 ### Triplets
-- Triplets files [define trees](https://www.researchgate.net/publication/220586945_Constructing_Evolutionary_Trees_from_Rooted_Triples) and [level one networks](https://leovaniersel.files.wordpress.com/2014/09/practicallevel11.pdf) using relationships between sets of three taxa
+- Triplets files [define trees](https://www.researchgate.net/publication/220586945_Constructing_Evolutionary_Trees_from_Rooted_Triples) and [level-1 networks](https://leovaniersel.files.wordpress.com/2014/09/practicallevel11.pdf) using relationships between sets of three taxa
 - Each line in a triplets file is in the form of leaf leaf2 leaf3. An optional weight can also be included.
 - An [example](https://skelk.sdf-eu.org/lev1athan/example.trips) is provided by Lev1athan creators
 - Read more under the section [LEV1ATHAN Basics](https://skelk.sdf-eu.org/lev1athan/)
