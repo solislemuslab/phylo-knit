@@ -1,6 +1,6 @@
 # phylo-knit
 
-`phylo-knit** is a web application that allows biologists to visualize complex phylogenetics networks and quickly generate publication-ready visuals. 
+`phylo-knit` is a web application that allows biologists to visualize complex phylogenetics networks and quickly generate publication-ready visuals. 
 Newick, triplet, and HyDe file formats are accepted.
 
 ---
