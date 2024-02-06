@@ -56,7 +56,7 @@ function pushSVGToServer(svg_string) {
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.responseType = 'blob';
-    document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
+    request.send(data);
 
     function processRequest(e) {
         if(request.readyState == 4 && request.status == 200) {
@@ -64,6 +64,7 @@ function pushSVGToServer(svg_string) {
             dataBlob = new Blob([request.response], {'type':'application/pdf'})
             saveAs(dataBlob, 'network.pdf')
         } else if(request.status == 401) {
+            document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
             reportRequestError(request);
         }
     }

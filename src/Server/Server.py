@@ -7,7 +7,7 @@ try:
     jl = Julia()
 except:
     ### Example of specifying a specific Julia executable
-    jl = Julia(runtime="/Applications/Julia-1.8.app/Contents/Resources/julia/bin/julia")
+    jl = Julia(runtime="C:\\Users\\Nathan\\AppData\\Local\\Programs\\Julia-1.9.3\\bin\\julia.exe")
 
 from julia import Pkg
 
