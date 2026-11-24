@@ -66,7 +66,6 @@ var min_zoom = 0.01;
 var max_zoom = 1;
 
 // specify d3 elements
-var fill = d3.scaleOrdinal(d3.schemeCategory20);
 var force = d3.forceSimulation();
 
 // make sure we can use the file the user selected when they select a file
@@ -691,40 +690,6 @@ function setDisplaySettingsTab(tabLabel) {
         $(".display-legend-menu").removeClass("d-none");
     } else if(tabLabel == "show-hide-nodes") {
         $(".display-show-hide-menu").removeClass("d-none");
-    }
-}
-
-function showTab(tabLabel) {
-    if(tabLabel == 'input') {
-        $("#input-tab-contents").removeClass("d-none");
-        $("#input-tab").addClass("active");
-    } else {
-        $("#input-tab-contents").addClass("d-none");
-        $("#input-tab").removeClass("active");
-    }
-
-    if(tabLabel == 'network') {
-        $("#network-tab-contents").removeClass("d-none");
-        $("#network-tab").addClass("active");
-    } else {
-        $("#network-tab-contents").addClass("d-none");
-        $("#network-tab").removeClass("active");
-    }
-
-    if(tabLabel == 'style') {
-        $("#style-tab-contents").removeClass("d-none");
-        $("#style-tab").addClass("active");
-    } else {
-        $("#style-tab-contents").addClass("d-none");
-        $("#style-tab").removeClass("active");
-    }
-
-    if(tabLabel == 'download') {
-        $("#download-tab-contents").removeClass("d-none");
-        $("#download-tab").addClass("active");
-    } else {
-        $("#download-tab-contents").addClass("d-none");
-        $("#download-tab").removeClass("active");
     }
 }
 

@@ -23,15 +23,12 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
     startLoading();
     request.send(data);
 
-    var alreadySent = false;  // we usually receive the response twice, so let's only send once.
     function processRequest(e) {
-        if(request.responseText == "")
+        if (request.readyState !== 4)  // wait until the whole response has arrived
             return;
-        console.log("check ");
-        console.log(request.responseText);
-        var x = JSON.parse(request.responseText);
 
-        if (request.readyState === 4 && request.status === 200) {
+        if (request.status === 200) {
+            var x = JSON.parse(request.responseText);
             if(typeof(x.newick) != 'undefined') {
                 originalNewick = x.newick.trim();
                 userAdjustedNewick = "";
@@ -39,11 +36,10 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
 
             pushParentheticalToServer(originalNewick);
             doneLoading();
-        } else if (request.status === 401) {
+        } else {
             reportRequestError(request);
         }
     }
-
 }
 
 // Sends SVG string to server which returns PDF string
@@ -60,13 +56,19 @@ function pushSVGToServer(svg_string) {
     request.send(data);
 
     function processRequest(e) {
-        if(request.readyState == 4 && request.status == 200) {
+        if (request.readyState !== 4)  // wait until the whole response has arrived
+            return;
+
+        if (request.status === 200) {
             // download the PDF contents to the user
             dataBlob = new Blob([request.response], {'type':'application/pdf'})
             saveAs(dataBlob, 'network.pdf')
-        } else if(request.status == 401) {
-            document.getElementById("instruct").innerHTML = "ERROR: no response from server.";
-            reportRequestError(request);
+        } else if (request.response) {
+            request.response.text().then(function (text) {
+                reportRequestError(request, text);
+            });
+        } else {
+            reportRequestError(request, "");
         }
     }
 }
@@ -88,7 +90,10 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
     request.send(data);
 
     function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
+        if (request.readyState !== 4)  // wait until the whole response has arrived
+            return;
+
+        if (request.status === 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
             
@@ -110,7 +115,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
                 userAdjustedNewick = x["newick"].replaceAll(" ", "")
 
             doneLoading();
-        } else if (request.status == 401) {
+        } else {
             reportRequestError(request);
         }
     }
@@ -126,7 +131,10 @@ function pushUpdatedParentheticalToServer(data) {
     request.send(data);
 
     function processRequest(e) {
-        if(request.readyState == 4 && request.status == 200) {
+        if (request.readyState !== 4)  // wait until the whole response has arrived
+            return;
+
+        if (request.status === 200) {
             var x = JSON.parse(request.responseText);
             console.log(x);
             console.log('rootname' in x)
@@ -151,7 +159,7 @@ function pushUpdatedParentheticalToServer(data) {
             } else {
                 reportRequestError(request);
             }
-        } else if(request.status == 401) {
+        } else {
             reportRequestError(request);
         }
     }
@@ -172,7 +180,10 @@ function pushTripletsToServer(triplets) {
     request.send(data);
 
     function processRequest(e) {
-        if (request.readyState === 4 && request.status === 200) {
+        if (request.readyState !== 4)  // wait until the whole response has arrived
+            return;
+
+        if (request.status === 200) {
             var x = JSON.parse(request.responseText);
             if(typeof(x.newick) != 'undefined') {
                 originalNewick = x.newick.trim();
@@ -180,21 +191,32 @@ function pushTripletsToServer(triplets) {
             }
             pushParentheticalToServer(originalNewick);
             doneLoading();
-        } else if (request.status === 401) {
+        } else {
             reportRequestError(request);
         }
     }
 }
 
 
-function reportRequestError(request) {
-    // error, probably just couldn't talk to server
-    var data = JSON.parse(request.responseText);
-    if('error' in data) {
-        document.getElementById("instruct").textContent = data['error'];
+// Shows the server's error message on the page and resets the buttons.
+// responseText is only needed when the response is not text (the PDF request).
+function reportRequestError(request, responseText) {
+    if (typeof(responseText) == "undefined")
+        responseText = request.responseText;
+
+    var message = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
+    if (request.status === 0) {
+        message = "ERROR: Could not reach the phylo-knit server. Please check that it is running.";
     } else {
-        document.getElementById("instruct").innerHTML = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
+        try {
+            var data = JSON.parse(responseText);
+            if ('error' in data)
+                message = data['error'];
+        } catch (e) {
+            // not JSON, e.g. Flask's page for an unexpected server error
+        }
     }
+    document.getElementById("instruct").textContent = message;
 
     doneLoading();
     enableButtons();

@@ -1,6 +1,5 @@
 import io
 import os
-import re
 import subprocess
 import tempfile
 from uuid import uuid4
@@ -21,8 +20,6 @@ NEWICK_TO_TRIPLET_JAR = os.path.join(SERVER_DIR, "NewickToTriplet.jar")
 def getRandomFileName():
     return os.path.join(tempfile.gettempdir(), "phyloknit-" + str(uuid4()) + ".tmp")
 
-# from Launcher import removeDup
-
 
 # for every pair in the set (of strings) of taxon pairs, 
 # check if a and b are contained in the set
@@ -34,7 +31,7 @@ def isDup(pairs, a, b):
 
 
 def pdfFromSVG(svg_dat):
-    # Write SVG to file
+    # Convert the SVG text to a PDF
     svg_file = io.StringIO(svg_dat)
     drawing = svg2rlg(svg_file)
     return renderPDF.drawToString(drawing)
@@ -158,7 +155,6 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
         trip.append([tripletsFromLess2[j][0], tripletsFromLess2[j][1], tripletsFromLess2[j][2]])
 
     userVals = []
-    print("backboneNewick is :", backboneNewick)
     if backboneNewick != "none_provided":
         # NewickToTriplet.jar would read a hybrid label ("#H1") as a taxon
         if "#" in backboneNewick:
@@ -193,30 +189,8 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     for triple in trip:
         triplets += str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n"
 
-
-    print("\n\n------\ntriplets: ", triplets)
     triplets = removeDupTriplets(triplets)
     return triplets
-
-# retreives the parenthetical format from the file created by Lev1athan
-def returnParentheticalFormat(fileName):
-    parentheticalFormat = ''
-    for line in reversed(list(open(fileName))):
-        if line.__contains__('eNewick'):
-            parentheticalFormat = line[28:]
-            # print(parentheticalFormat)
-            # print(line.rstrip())
-    return parentheticalFormat.strip()
-
-
-# converts
-def changeRoot(flag, newRoot):
-    cmd = 'julia change-root.jl NetworkParen.net ' + flag + ' ' + newRoot + ' '
-    os.system(cmd)
-    # convert Parenthetical format to png
-    cmd = 'julia plot-network.jl new-net.txt'
-    os.system(cmd)
-
 
 def fetchNewick(levFile):
     newick = ""
@@ -234,16 +208,6 @@ def fetchNewick(levFile):
 
     return newick
 
-
-# julia change-root.jl test.net outgroup 3
-
-"""There is a problem in the following method. I tried the same commmand via the terminal and that generates a different
-dot file as compared the same command via Python.
-
-update oct19: Lev1athan output shows that:
-"// Terminating because in normal usage duplicate triplets in input not allowed."
-following this, we attempt to remove duplicate triplets before calling Lev1athan
-"""
 
 # This used to be triplets to dot BUT it turns out that the Newick output from Lev1athan is correct,
 # but the dot file output does not reflect what we want ours to look like. So, we just take the
@@ -293,53 +257,6 @@ def lev1athanError(levOutput):
         reasons.append(line.lstrip("/ "))
     return " ".join(reasons) or "it produced no network."
 
-def symbolReplacement(inputStr):
-    outputStr = ""
-    for i in inputStr:
-        asciiVal = ord(i)
-        if (47 < asciiVal < 60) or (asciiVal == 0) or 96 < asciiVal < 123 or (57 < asciiVal < 60) or (
-                64 < asciiVal < 91) or asciiVal == 40 or asciiVal == 41 or asciiVal == 44 or asciiVal == 35:
-            outputStr += i
-        else:
-            inputStr.replace(i, str(asciiVal))
-
-            strAsciiVal = str(asciiVal)
-            if len(strAsciiVal) > 2:
-                outputStr += "ASC" + strAsciiVal
-            elif len(strAsciiVal) > 1:
-                outputStr += "ASC0" + strAsciiVal
-            else:
-                outputStr += "ASC00" + strAsciiVal
-
-    return outputStr
-
-
-def returnReducedDotString(fileName):
-    print("calling returnReducedDotFile")
-    retainActualLabels(fileName)
-
-    dotFormat = ''
-    with open(fileName, "r") as f:
-        lines = f.readlines()
-
-    for line in lines:
-        if line.__contains__('{') or line.__contains__('}') or line.__contains__('->'):
-            dotFormat += line
-    return dotFormat.rstrip()
-
-def checkTripletErrors(triplets):
-    if len(triplets) == 0:
-        return 401
-    triplets_arr = triplets.split("\n")
-    for i in range(len(triplets_arr)):
-        line = triplets_arr[i].split(" ")
-        print("line")
-        print(line)
-        if len(line) != 3 and i != len(triplets_arr) - 1:
-            return 401
-    return 0
-
-
 # Runs NewickToTriplet.jar on a backbone Newick string (passed on stdin)
 # and returns the set of triplets it prints
 def backBoneToTriplets(backboneNewick):
@@ -351,65 +268,6 @@ def backBoneToTriplets(backboneNewick):
             continue
         currLine = line.strip().split()
         for i in range(len(currLine)):
-            # should not only be reading as int TODO: figure out why we are converting
             currLine[i] = (currLine[i]).strip()
         userTriplets.add(tuple(currLine))
     return userTriplets
-
-def retainActualLabels(fileName):
-    dotFormat = ''
-    dictionary = {}
-    print('retainActualLabels ___')
-    print(fileName)
-
-    with open(fileName, "r") as f:
-        lines = f.readlines()
-
-    for line in lines:
-        # print(line)
-        # search line by line to identify 
-        # will work with taxa named with characters, numbers, underscores, and dashes
-        temp = re.search(r'("[A-z0-9_-]+)', line) 
-        if re.search(r'(labelbox)', line):
-            # print()
-            pass
-        elif temp:
-            actualName = temp.group(1) 
-            # print("actual name is ", actualName[1:])
-            temp2 = re.search(r'(\d+[\s]\[)', line)
-            fakeName = temp2.group(1)
-            # print("fake name is ", fakeName[:-1].strip())
-            # print(found[1] + "  :  " + found2[:-1])
-            
-            # remove \n if necessary from end of name
-            dictionary[fakeName[:-1].strip()] = actualName[1:].strip("\\n")
-            
-        if line.__contains__('[shape=point]'): # internal node
-            temp = re.search(r'([0-9]+)', line)
-            dictionary[temp.group()] = str('internal' + temp.group())
-
-    print('--------------')
-    print(dictionary)
-    print('--------------')
-    # newLine = ''
-    # for line in open(fileName):
-    with open(fileName, 'r') as file:
-        fileStr = file.read()
-
-    for key, value in dictionary.items():
-        # newLine = line.replace(key, value)
-        fileStr = fileStr.replace("\n" + key + " ", "\n" + value + "Δ ")
-        fileStr = fileStr.replace(" " + key + "\n", " " + value + "Δ\n")
-
-    fileStr = fileStr.replace('Δ', '')
-
-    with open(fileName, 'w+') as f:
-        f.write(fileStr)
-
-
-if __name__ == '__main__':
-    print("Hello")
-
-    matrix = [[0 for x in range(3)] for y in range(3)]
-
-    print(matrix)

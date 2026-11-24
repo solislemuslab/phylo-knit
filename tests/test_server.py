@@ -34,9 +34,9 @@ def post(client, url, body):
 
 
 def is_clear_error(response):
-    """A client error (4xx) with a JSON message the web page can show."""
+    """A 400 Bad Request with a JSON message the web page can show."""
     data = response.get_json(silent=True) or {}
-    return 400 <= response.status_code < 500 and "error" in data
+    return response.status_code == 400 and "error" in data
 
 
 def dot_leaves(dot):
@@ -203,6 +203,10 @@ def test_adjust_without_optional_fields(client):
     assert r.status_code == 200
 
 
+def test_adjust_empty_newick_gives_clear_error(client):
+    assert is_clear_error(adjust(client, ""))
+
+
 def test_remove_leaf(client):
     r = adjust(client, "((A,B),(C,D));", removed=["A"])
     assert r.status_code == 200
@@ -217,3 +221,7 @@ def test_pdf_export(client):
     r = post(client, "/getPDF/", {"svg": svg})
     assert r.status_code == 200
     assert r.data.startswith(b"%PDF")
+
+
+def test_pdf_export_without_svg_gives_clear_error(client):
+    assert is_clear_error(post(client, "/getPDF/", {"svg": ""}))
