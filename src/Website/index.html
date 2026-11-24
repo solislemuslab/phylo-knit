@@ -137,7 +137,7 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="input-tab" type="button">Inputs</a>
                         <ul class="dropdown-menu p-2" aria-labelledby="input-tab">
                             <li>
-                                <select data-toggle="tooltip" data-placement="top" title="Check the documentation for details on input types." class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
+                                <select data-toggle="tooltip" data-bs-placement="top" title="Check the documentation for details on input types." class="btn dropdown-toggle text-left" onchange="selectInputType(this.value);">
                                     <option value="type">Select input type</option>
                                     <option value="pf">Parenthetical/Newick</option>
                                     <option value="Triplets">Triplets</option>
@@ -183,7 +183,7 @@
                                 <a href="#" class="btn btn-block border" onclick="loadExample('n100h12');">100 taxa, 12 reticulations</a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li class="text-center" data-toggle="tooltip" data-placement="top" title="Input required to create network." id="create-network-tooltip-li">
+                            <li class="text-center" data-toggle="tooltip" data-bs-placement="top" title="Input required to create network." id="create-network-tooltip-li">
                                 <a href="#" class="btn btn-icon-split btn-light border opacity-25 disabled" onclick="onClickCreateNetwork()" id="createNetwork">
                                     <span class="icon text-white-100">
                                         <i class="fa-solid fa-circle-nodes" id="create-network-notloading-icon"></i>
@@ -244,7 +244,7 @@
                                             <span class="text text-nowrap h6 m-0">Reroot Network</span>
                                         </div>
                                         <div class="pr-1">
-                                            <span class="icon text-white-100 pl-1" data-toggle="tooltip" data-placement="bottom" title="Create a network, then try clicking on a node in the network!">
+                                            <span class="icon text-white-100 pl-1" data-toggle="tooltip" data-bs-placement="bottom" title="Create a network, then try clicking on a node in the network!">
                                                 <i class="fa-regular fa-circle-question"></i>
                                             </span>
                                         </div>
@@ -630,13 +630,13 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" id="download-tab" type="button">Download Network</a>
                         <ul class="dropdown-menu w-100 p-2" aria-labelledby="download-tab">
                             <li class="text-center">
-                                <a href="#" class="btn btn-lg btn-danger" data-toggle="tooltip" data-placement="top" title="Download PDF" onclick="savePDF();">
+                                <a href="#" class="btn btn-lg btn-danger" data-toggle="tooltip" data-bs-placement="top" title="Download PDF" onclick="savePDF();">
                                     <i class="fa-regular fa-file-pdf"></i>
                                 </a>
-                                <a href="#" class="btn btn-lg btn-info" data-toggle="tooltip" data-placement="top" title="Download PNG" onclick="saveImg();">
+                                <a href="#" class="btn btn-lg btn-info" data-toggle="tooltip" data-bs-placement="top" title="Download PNG" onclick="saveImg();">
                                     <i class="fa-regular fa-file-image"></i>
                                 </a>
-                                <a href="#" class="btn btn-lg btn-warning" data-toggle="tooltip" data-placement="top" title="Download Newick" onclick="downloadNewick();">
+                                <a href="#" class="btn btn-lg btn-warning" data-toggle="tooltip" data-bs-placement="top" title="Download Newick" onclick="downloadNewick();">
                                     <i class="fa-solid fa-paragraph"></i>
                                 </a>
                             </li>
@@ -658,58 +658,6 @@
                         <p class="p-0 m-0"><mark id="instruct" class="p-0 m-0">Awaiting input...</mark></p>
                     </div>
                     <!-- End Network -->
-
-                    <!-- Style Options Tab -->
-                    <div class="container-fluid d-none" id="style-tab-contents">
-                        <!-- Animation Physics -->
-                        <div class="card mb-4">
-                            <!-- Card Header - Accordion -->
-                            <a data-target="#animationPhysicsCard" class="d-block card-header py-3" data-toggle="collapse"
-                                role="button" aria-expanded="false" aria-controls="animationPhysicsCard">
-                                <h6 class="m-0 font-weight-bold text-primary">Animation Physics Settings</h6>
-                            </a>
-                            <!-- Card Content - Collapse -->
-                            <div class="collapse" id="animationPhysicsCard">
-                                <div class="card-body">
-                                    Placeholder text
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Animation Physics -->
-
-                        <!-- Node Options -->
-                        <div class="card mb-4">
-                            <!-- Card Header - Accordion -->
-                            <a href="#nodeOptionsCard" class="d-block card-header py-3" data-toggle="collapse"
-                                role="button" aria-expanded="false" aria-controls="nodeOptionsCard">
-                                <h6 class="m-0 font-weight-bold text-primary">Node Settings</h6>
-                            </a>
-                            <!-- Card Content - Collapse -->
-                            <div class="collapse" id="nodeOptionsCard">
-                                <div class="card-body">
-                                    Placeholder text
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Node Options -->
-
-                        <!-- Displayed Nodes -->
-                        <div class="card mb-4">
-                            <!-- Card Header - Accordion -->
-                            <a href="#displayedNodesCard" class="d-block card-header py-3" data-toggle="collapse"
-                                role="button" aria-expanded="false" aria-controls="displayedNodesCard">
-                                <h6 class="m-0 font-weight-bold text-primary">Displayed Nodes</h6>
-                            </a>
-                            <!-- Card Content - Collapse -->
-                            <div class="collapse" id="displayedNodesCard">
-                                <div class="card-body">
-                                    Placeholder text
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Displayed Nodes -->
-                    </div>
-                    <!-- End Style Options Tab -->
                 </div>
 
 
