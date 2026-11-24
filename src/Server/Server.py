@@ -38,14 +38,18 @@ def quotifyTheFile(fileName):
 
 
 # POST
-@app.route('/uploadHyde/<thresh>/<eNewick>', methods=['POST'])
+# JSON body: {"text": HyDe output, "threshold": p-value,
+#             "backbone": backbone Newick, or "" if there is none}
+@app.route('/uploadHyde/', methods=['POST'])
 @cross_origin()
-def uploadHyde(thresh, eNewick):
+def uploadHyde():
     json = request.get_json()
     if len(json['text']) == 0:
         return jsonify({'error': 'File format is incorrect'}), 401
 
     hyde = json['text']
+    thresh = json['threshold']
+    eNewick = json.get('backbone') or "none_provided"
     
     print('parenthetical =', eNewick)
     print('Threshold =', thresh)

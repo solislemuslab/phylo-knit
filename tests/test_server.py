@@ -8,7 +8,6 @@ import contextlib
 import io
 import os
 import re
-import urllib.parse
 
 import pytest
 
@@ -99,29 +98,41 @@ def test_upload_invalid_triplets_gives_clear_error(client):
     assert is_clear_error(post(client, "/upload/", {"text": "A A B\nA B C\n"}))
 
 
-# --- /uploadHyde/<threshold>/<backbone> ---------------------------------------
+# --- /uploadHyde/ --------------------------------------------------------------
+
+def upload_hyde(client, text, threshold="0.05", backbone=""):
+    # the web page sends the threshold as the text typed by the user
+    return post(client, "/uploadHyde/",
+                {"text": text, "threshold": threshold, "backbone": backbone})
+
 
 @pytest.mark.parametrize("filename", HYDE_FILES)
 def test_upload_hyde_examples(client, filename, read_input):
-    r = post(client, "/uploadHyde/0.05/none_provided", {"text": read_input(filename)})
+    r = upload_hyde(client, read_input(filename))
     assert r.status_code == 200
     assert r.get_json()["newick"].strip().endswith(";")
 
 
 @pytest.mark.java
 def test_upload_hyde_with_backbone_tree(client, read_input):
-    backbone = urllib.parse.quote("((2,(3,4)),(5,6));", safe="")
-    r = post(client, "/uploadHyde/0.05/" + backbone,
-             {"text": read_input("hyde_old_4_taxa_example.txt")})
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
+                    backbone="((2,(3,4)),(5,6));")
     assert r.status_code == 200
     assert newick_leaves(r.get_json()["newick"]) == {"2", "3", "4", "5", "6"}
+
+
+@pytest.mark.java
+def test_upload_hyde_backbone_with_special_characters(client, read_input):
+    # Extended Newick contains "#", which used to cut the backbone short
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
+                    backbone="((2,(3)#H1),(#H1,(4,(5,6))));")
+    assert r.status_code == 200
 
 
 @pytest.mark.xfail(strict=True, reason="known bug: an unrecognised HyDe format "
                    "crashes the server")
 def test_upload_hyde_wrong_format_gives_clear_error(client, read_input):
-    r = post(client, "/uploadHyde/0.05/none_provided",
-             {"text": read_input("triplets_example1.txt")})
+    r = upload_hyde(client, read_input("triplets_example1.txt"))
     assert is_clear_error(r)
 
 
