@@ -17,6 +17,7 @@ src/Server/upload.dot
 src/Server/*.dot
 src/Server/node_modules/
 src/Server/*.json
+!src/Server/juliapkg.json
 src/Website/.idea/
 src/Website/fonts/
 src/Server/*.txt

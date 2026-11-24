@@ -1,25 +1,19 @@
 import io
 from time import time
 
-from julia.api import Julia
+# Julia is called through juliacall. The Julia packages it needs (PhyloNetworks)
+# are listed in juliapkg.json and installed automatically on first run.
+from juliacall import Main as jl
 
-try:
-    jl = Julia()
-except:
-    ### Example of specifying a specific Julia executable
-    jl = Julia(runtime="C:\\Users\\Nathan\\AppData\\Local\\Programs\\Julia-1.9.3\\bin\\julia.exe")
-
-from julia import Pkg
+jl.seval("using PhyloNetworks")
+# juliacall maps a trailing "_b" to Julia's "!", e.g. rootatnode_b -> rootatnode!
+readnewick, writenewick = jl.readnewick, jl.writenewick
+deleteleaf_b, nameinternalnodes_b, rootatnode_b = jl.deleteleaf_b, jl.nameinternalnodes_b, jl.rootatnode_b
 
 import ParentheticalConvertorNaman
 import ServerAction
 from flask import Flask, jsonify, make_response, request, send_file
 from flask_cors import CORS, cross_origin
-from julia import Julia
-from julia import Main as Julia
-from julia.PhyloNetworks import (deleteleaf_b, nameinternalnodes_b,
-                                 readTopology, rootatnode_b,
-                                 undirectedOtherNetworks, writeTopology)
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -82,7 +76,8 @@ def getPDF():
                      as_attachment=True)
 
 
-# TODO: check for errors from PhyloNetworks (not sure how to do this via PyJulia, probably just the usual Python try-except clause)
+# Errors thrown by PhyloNetworks reach Python as juliacall.JuliaError exceptions,
+# so the usual try/except blocks below catch them.
 # POST
 @app.route('/getUserAdjustedParenthetical/', methods=['POST'])
 @cross_origin()
@@ -97,7 +92,7 @@ def getUserAdjustedParenthetical():
     try:
         # Load the parenthetical into Julia
         print("parenthetical: \"", parenthetical, "\"", sep="")
-        net = readTopology(parenthetical)
+        net = readnewick(parenthetical)
     except Exception as e:
         print(e)
         return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 401
@@ -123,7 +118,7 @@ def getUserAdjustedParenthetical():
         print("re-rooting at", new_root, "...")
         
         print("----- DEBUG -----")
-        print(writeTopology(net))
+        print(writenewick(net))
         print("new root:", new_root)
         print("----- DEBUG -----")
         
@@ -149,11 +144,10 @@ def getUserAdjustedParenthetical():
             #     return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
             
 
-    if net.node[net.root-1].name == '':
-        Julia.net = net
-        Julia.eval("net.node[net.root].name = \"root\"")  # set the name to root, so we know which node is the root
+    if net.node[net.rooti-1].name == '':
+        net.node[net.rooti-1].name = "root"  # set the name to root, so we know which node is the root
 
-    return jsonify({'result':'success','newick':writeTopology(net),'new_root':net.node[net.root-1].name})
+    return jsonify({'result':'success','newick':writenewick(net),'new_root':net.node[net.rooti-1].name})
 
 
 # POST
@@ -175,10 +169,10 @@ def uploadParentheticalAndReturnDot():
     readnet_time = time()       # timing portions
     net = 0
     try:
-        net = readTopology(parenthetical)
+        net = readnewick(parenthetical)
     except:
         try:
-            net = readTopology(parenthetical + ";")
+            net = readnewick(parenthetical + ";")
         except:
             return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
     readnet_time = time() - readnet_time
@@ -186,7 +180,7 @@ def uploadParentheticalAndReturnDot():
     adjustment_time = time()
     try:
         nameinternalnodes_b(net, "unnamed")
-        parenthetical = writeTopology(net)
+        parenthetical = writenewick(net)
     except:
         return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 401
     adjustment_time = time() - adjustment_time
@@ -202,7 +196,7 @@ def uploadParentheticalAndReturnDot():
         print("Time to convert to dot: " + str(round(dotconversion_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
         
         # parenthetical convertor uploads as upload.dot
-        return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.root-1].name})
+        return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.rooti-1].name})
     except:
         return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 401
 
@@ -240,7 +234,8 @@ def uploadTripletsAndReturnDot():
 
     return jsonify({'stat': "executing", 'newick': newick})
 
-# ISSUE: threaded=False seems to be required right now for PyJulia to work,
-#        but this also seems to make the server intermittently but consistently hang...
+# threaded=False: juliacall must only be called from the main Python thread, so
+# Flask handles one request at a time. (With PyJulia this setting was reported to
+# make the server hang intermittently; not yet re-checked with juliacall.)
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5001, threaded=False)

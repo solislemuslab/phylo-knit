@@ -1,0 +1,9 @@
+{
+    "julia": "1.10",
+    "packages": {
+        "PhyloNetworks": {
+            "uuid": "33ad39ac-ed31-50eb-9b15-43d0656eaa72",
+            "version": "1"
+        }
+    }
+}

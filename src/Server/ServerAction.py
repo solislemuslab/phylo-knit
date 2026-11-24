@@ -1,6 +1,8 @@
 import io
 import os
 import re
+import subprocess
+import tempfile
 from uuid import uuid4
 
 import pandas as pd
@@ -8,8 +10,16 @@ from reportlab.graphics import renderPDF
 from svglib.svglib import svg2rlg
 
 
+# The jar files live next to this script; locate them from here so the
+# server can be started from any working directory.
+SERVER_DIR = os.path.dirname(os.path.abspath(__file__))
+LEV1ATHAN_JAR = os.path.join(SERVER_DIR, "Lev1athan.jar")
+NEWICK_TO_TRIPLET_JAR = os.path.join(SERVER_DIR, "NewickToTriplet.jar")
+
+
+# Temporary files go to the system temp folder, not the working directory
 def getRandomFileName():
-    return "." + str(uuid4()) + ".tmp"
+    return os.path.join(tempfile.gettempdir(), "phyloknit-" + str(uuid4()) + ".tmp")
 
 # from Launcher import removeDup
 
@@ -137,13 +147,7 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     userVals = []
     print("backboneNewick is :", backboneNewick)
     if backboneNewick != "none_provided":
-        # create new file to write backbone tree to 
-        # so it can be read by parenthetical convertor
-        parenthetical_file_name = "parentheticalFile.txt"
-        with open(parenthetical_file_name, "w+") as eNewickFile:
-            eNewickFile.write(backboneNewick)
-        userVals = backBoneToTriplets(parenthetical_file_name)
-        eNewickFile.close()
+        userVals = backBoneToTriplets(backboneNewick)
     
     # if backbone tree is provided, use backbone (nexus/parenthetical)
     # throw away any "tripletsfrommore" (don't use at all)
@@ -235,8 +239,9 @@ def tripletsToNewick(tripletsString):
         f.write(tripletsString)
 
     lev_filename = getRandomFileName()
-    cmd = 'java -jar Lev1athan.jar ' + trip_filename + ' > ' + lev_filename + ' --nopostprocess'
-    os.system(cmd)
+    with open(lev_filename, "w") as lev_file:
+        subprocess.run(["java", "-jar", LEV1ATHAN_JAR, trip_filename, "--nopostprocess"],
+                       stdout=lev_file)
 
     # dotString = returnReducedDotString(lev_filename)
     newick = fetchNewick(lev_filename)
@@ -293,13 +298,13 @@ def checkTripletErrors(triplets):
     return 0
 
 
-def backBoneToTriplets(filename):
-    cmd = 'java -jar NewickToTriplet.jar < ' + filename + ' > NewickToTriplet.txt'
-    os.system(cmd)
+# Runs NewickToTriplet.jar on a backbone Newick string (passed on stdin)
+# and returns the set of triplets it prints
+def backBoneToTriplets(backboneNewick):
+    result = subprocess.run(["java", "-jar", NEWICK_TO_TRIPLET_JAR],
+                            input=backboneNewick, capture_output=True, text=True)
     userTriplets = set()
-    with open("NewickToTriplet.txt") as f:
-        contents = f.readlines()
-    for line in contents:
+    for line in result.stdout.splitlines():
         if "//" in line:
             continue
         currLine = line.strip().split()
