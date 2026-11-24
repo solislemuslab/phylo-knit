@@ -79,8 +79,6 @@ def test_upload_empty_newick_gives_clear_error(client):
     assert is_clear_error(post(client, "/uploadNewick/", {"text": ""}))
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: scientific-notation branch "
-                   "lengths corrupt leaf names (A becomes Ae-5)")
 def test_small_branch_lengths_keep_leaf_names(client):
     r = post(client, "/uploadNewick/", {"text": "((A:1e-5,B:1),C:1);"})
     assert dot_leaves(r.get_json()["dot"]) == {"A", "B", "C"}

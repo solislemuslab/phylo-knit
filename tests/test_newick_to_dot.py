@@ -63,6 +63,13 @@ def test_hybrid_node_has_two_parents():
     assert leaves(dot) == {"A", "B", "C"}
 
 
+def test_hybrid_with_only_a_gamma_value():
+    # "#H1:::0.6" has an empty length and support, only a gamma
+    dot = conv.newickToDot("((A,(B)#H1:::0.4),(#H1:::0.6,C));")
+    assert {p for p, c in edges(dot) if c == "HashH1"} == {"internal1", "internal2"}
+    assert leaves(dot) == {"A", "B", "C"}
+
+
 def test_repeated_calls_give_the_same_result():
     # The converter keeps module-level state; it must be reset between calls.
     first = conv.newickToDot("((A,B),(C,D));")
@@ -70,16 +77,12 @@ def test_repeated_calls_give_the_same_result():
     assert first == second
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: scientific-notation branch "
-                   "lengths are not fully removed (leaf 'A' becomes 'Ae-5')")
 def test_scientific_notation_branch_lengths_are_removed():
     # PhyloNetworks writes small branch lengths like this
     dot = conv.newickToDot("((A:1.0e-5,B:1.0),C:1.0);")
     assert leaves(dot) == {"A", "B", "C"}
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: branch lengths without a "
-                   "leading zero (':.5') are not removed")
 def test_branch_lengths_without_leading_zero_are_removed():
     dot = conv.newickToDot("((A:.5,B:2),C:1);")
     assert leaves(dot) == {"A", "B", "C"}
