@@ -191,7 +191,7 @@ function reportRequestError(request) {
     // error, probably just couldn't talk to server
     var data = JSON.parse(request.responseText);
     if('error' in data) {
-        document.getElementById("instruct").innerHTML = data['error'];
+        document.getElementById("instruct").textContent = data['error'];
     } else {
         document.getElementById("instruct").innerHTML = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
     }
