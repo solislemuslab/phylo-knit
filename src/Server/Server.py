@@ -45,11 +45,14 @@ def quotifyTheFile(fileName):
 @cross_origin()
 def uploadHyde():
     json = request.get_json()
-    if len(json['text']) == 0:
-        return jsonify({'error': 'File format is incorrect'}), 401
+    if len(json['text'].strip()) == 0:
+        return jsonify({'error': 'ERROR: The HyDe file is empty.'}), 401
 
     hyde = json['text']
-    thresh = json['threshold']
+    try:
+        thresh = float(json['threshold'])
+    except (TypeError, ValueError):
+        return jsonify({'error': 'ERROR: The p-value threshold must be a number.'}), 401
     eNewick = json.get('backbone') or "none_provided"
 
     # The triplet code needs a backbone tree: a backbone network is reduced to
@@ -67,7 +70,10 @@ def uploadHyde():
     print('Threshold =', thresh)
 
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
-    triplets = ServerAction.parseHydeToTriplets(hyde, float(thresh), eNewick)
+    try:
+        triplets = ServerAction.parseHydeToTriplets(hyde, thresh, eNewick)
+    except ValueError as e:
+        return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
     # TODO: uncomment the following done
     print("uploadHyde.triplets: ", triplets)
@@ -179,7 +185,7 @@ def uploadParentheticalAndReturnDot():
     """
     json = request.get_json()
     if len(json['text']) == 0:
-        return jsonify({'error', 'ERROR: Invalid input text.'}), 401
+        return jsonify({'error': 'ERROR: Invalid input text.'}), 401
 
     parenthetical = json['text']
 

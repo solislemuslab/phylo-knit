@@ -72,8 +72,6 @@ def test_upload_invalid_newick_gives_clear_error(client):
     assert is_clear_error(post(client, "/uploadNewick/", {"text": "((A,B"}))
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: empty input crashes the "
-                   "server (jsonify is given a set instead of a dict)")
 def test_upload_empty_newick_gives_clear_error(client):
     assert is_clear_error(post(client, "/uploadNewick/", {"text": ""}))
 
@@ -146,10 +144,18 @@ def test_upload_hyde_with_invalid_backbone_gives_clear_error(client, read_input)
     assert is_clear_error(r)
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: an unrecognised HyDe format "
-                   "crashes the server")
 def test_upload_hyde_wrong_format_gives_clear_error(client, read_input):
     r = upload_hyde(client, read_input("triplets_example1.txt"))
+    assert is_clear_error(r)
+
+
+@pytest.mark.parametrize("text", ["", "   \n"])
+def test_upload_empty_hyde_gives_clear_error(client, text):
+    assert is_clear_error(upload_hyde(client, text))
+
+
+def test_upload_hyde_with_non_numeric_threshold_gives_clear_error(client, read_input):
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"), threshold="abc")
     assert is_clear_error(r)
 
 

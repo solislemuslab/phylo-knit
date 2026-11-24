@@ -96,11 +96,21 @@ def test_all_example_files_parse(filename, read_input):
     assert len(parse(read_input(filename))) > 0
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: an unrecognised file format "
-                   "returns the number 401 instead of raising an error")
-def test_unrecognised_format_gives_a_clear_error(read_input):
-    with pytest.raises(ValueError):
-        parse(read_input("triplets_example1.txt"))
+@pytest.mark.parametrize("filename", ["triplets_example1.txt",
+                                      "parenthetical_10_taxa_with_2_hybrids.net"])
+def test_other_input_files_give_a_clear_error(filename, read_input):
+    with pytest.raises(ValueError, match="does not look like HyDe output"):
+        parse(read_input(filename))
+
+
+@pytest.mark.parametrize("text", [
+    "hello there\nthis is not hyde\nat all, really\n",   # pandas cannot read it
+    "a b c\nd e\nf g h i j\n",                          # ragged rows
+    "  \n",                                              # nothing but whitespace
+])
+def test_unreadable_text_gives_a_clear_error(text):
+    with pytest.raises(ValueError, match="does not look like HyDe output"):
+        parse(text)
 
 
 # --- Backbone tree (runs NewickToTriplet.jar) --------------------------------

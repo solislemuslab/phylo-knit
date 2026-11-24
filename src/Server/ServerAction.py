@@ -98,13 +98,24 @@ def containsTriple(triple_set, leaf1, leaf2, outgroup):
 #
 # unfiltered HyDe files contain all possible triples, which will result in an arbitrary tree. 
 # thus a backbone is necessary to provide an informative tree. 
+#
+# Raises ValueError, with a message for the user, if hydeContent is not HyDe
+# output in one of these formats.
+HYDE_FORMAT_ERROR = ("This does not look like HyDe output. Expected either lines like "
+                     "\"Hybrid: 3 Parents: 2 and 4  <z-score>  <p-value>\" or HyDe's table "
+                     "with the columns P1, Hybrid, P2, Zscore, Pvalue, Gamma, ...")
+NEW_HYDE_COLUMNS = {'P1', 'Hybrid', 'P2', 'Pvalue'}
+
 def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
-    # check if this is the old format
-    dataset = pd.read_table(io.StringIO(hydeContent), sep=" ", header=None)
-    if not len(dataset.columns) == 8:
-        # dataset could be delimited by tabs, spaces, ..., so we have to read like this
-        datareader = pd.read_table(io.StringIO(hydeContent), sep=None, iterator=True, engine='python') 
-        dataset = datareader.read()
+    try:
+        # check if this is the old format
+        dataset = pd.read_table(io.StringIO(hydeContent), sep=" ", header=None)
+        if not len(dataset.columns) == 8:
+            # dataset could be delimited by tabs, spaces, ..., so we have to read like this
+            datareader = pd.read_table(io.StringIO(hydeContent), sep=None, iterator=True, engine='python')
+            dataset = datareader.read()
+    except (pd.errors.ParserError, pd.errors.EmptyDataError) as e:
+        raise ValueError(HYDE_FORMAT_ERROR) from e
 
 
     tripletsFromLess1 = ""
@@ -126,7 +137,7 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
         tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
         tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
     # Newer HyDe format that contains site pattern frequencies
-    elif len(dataset.columns) == 21:
+    elif len(dataset.columns) == 21 and NEW_HYDE_COLUMNS <= set(dataset.columns):
         dataset['P1'] = dataset['P1'].astype(str, copy=False)
         dataset['P2'] = dataset['P2'].astype(str, copy=False)
         dataset['Hybrid'] = dataset['Hybrid'].astype(str, copy=False)
@@ -137,8 +148,7 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
         tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
     else:
-        return 401
-        # TODO: when entering triple file as hyde file, this does not throw an error, why?
+        raise ValueError(HYDE_FORMAT_ERROR)
     
     # Add all triplets that indicate a hybrid relationship given p-value
     for i in range(len(tripletsFromLess1)):
