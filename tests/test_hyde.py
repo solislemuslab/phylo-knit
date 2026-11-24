@@ -8,6 +8,7 @@ the backbone tree if one is given, otherwise chosen arbitrarily.
 import contextlib
 import io
 import os
+import warnings
 from itertools import combinations
 
 import pytest
@@ -70,6 +71,21 @@ def test_without_backbone_every_set_of_three_taxa_is_covered(read_input):
     assert covered_sets(result) == all_sets
 
 
+def test_p_value_equal_to_threshold_is_not_significant():
+    # p < threshold is significant; p == threshold gives one ordinary triplet
+    result = parse("Hybrid: 3 Parents: 2 and 4\t 2.0 0.05\n", threshold=0.05)
+    assert len(result) == 1
+    assert covered_sets(result) == {frozenset({"2", "3", "4"})}
+
+
+def test_parsing_gives_no_warnings(read_input):
+    # e.g. pandas deprecations that would turn into errors in a later version
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        parse(read_input("hyde_old_4_taxa_example.txt"))
+        parse(read_input("hyde_filtered_text_example.txt"))
+
+
 def test_threshold_zero_gives_no_hybrid_triplets(read_input):
     result = parse(read_input("hyde_old_4_taxa_example.txt"), threshold=0)
     # with no significant hybrids there is exactly one triplet per set of three
@@ -96,11 +112,21 @@ def test_all_example_files_parse(filename, read_input):
     assert len(parse(read_input(filename))) > 0
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: an unrecognised file format "
-                   "returns the number 401 instead of raising an error")
-def test_unrecognised_format_gives_a_clear_error(read_input):
-    with pytest.raises(ValueError):
-        parse(read_input("triplets_example1.txt"))
+@pytest.mark.parametrize("filename", ["triplets_example1.txt",
+                                      "parenthetical_10_taxa_with_2_hybrids.net"])
+def test_other_input_files_give_a_clear_error(filename, read_input):
+    with pytest.raises(ValueError, match="does not look like HyDe output"):
+        parse(read_input(filename))
+
+
+@pytest.mark.parametrize("text", [
+    "hello there\nthis is not hyde\nat all, really\n",   # pandas cannot read it
+    "a b c\nd e\nf g h i j\n",                          # ragged rows
+    "  \n",                                              # nothing but whitespace
+])
+def test_unreadable_text_gives_a_clear_error(text):
+    with pytest.raises(ValueError, match="does not look like HyDe output"):
+        parse(text)
 
 
 # --- Backbone tree (runs NewickToTriplet.jar) --------------------------------
@@ -124,10 +150,10 @@ def test_backbone_works_from_any_folder_and_leaves_no_files(tmp_path, monkeypatc
     assert os.listdir(tmp_path) == []
 
 
-@pytest.mark.java
-@pytest.mark.xfail(strict=True, reason="known bug: a backbone network adds its "
-                   "hybrid label (#H1) as if it were a taxon")
-def test_backbone_network_adds_no_fake_taxa(read_input):
-    result = parse(read_input("hyde_old_4_taxa_example.txt"),
-                   backbone="((2,(3)#H1),(#H1,(4,(5,6))));")
-    assert taxa(result) == {"2", "3", "4", "5", "6"}
+def test_backbone_network_is_rejected(read_input):
+    # The server reduces a backbone network to its major tree before calling
+    # parseHydeToTriplets (see test_server.py); a network here would add its
+    # hybrid label (#H1) as a fake taxon
+    with pytest.raises(ValueError):
+        parse(read_input("hyde_old_4_taxa_example.txt"),
+              backbone="((2,(3)#H1),(#H1,(4,(5,6))));")

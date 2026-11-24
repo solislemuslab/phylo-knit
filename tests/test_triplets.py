@@ -36,10 +36,8 @@ def test_weighted_triplets_are_kept():
     assert triplet_lines(result) == ["A B C 2", "A D C 1"]
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: a line with fewer than three "
-                   "names crashes with IndexError instead of a clear error")
 def test_line_with_two_names_gives_a_clear_error():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="three taxon names"):
         ServerAction.removeDupTriplets("A B\n")
 
 
@@ -86,17 +84,24 @@ def test_works_from_any_folder_and_leaves_no_files(tmp_path, monkeypatch, read_i
 
 
 @pytest.mark.java
-@pytest.mark.xfail(strict=True, reason="known bug: when Lev1athan fails, "
-                   "tripletsToNewick silently returns an empty string")
-def test_lev1athan_failure_gives_a_clear_error():
-    # A triplet that repeats a name makes Lev1athan stop with an error
-    with pytest.raises(ValueError):
+def test_lev1athan_failure_gives_a_clear_error(tmp_path, monkeypatch):
+    # A triplet that repeats a name makes Lev1athan stop with an error;
+    # its explanation is passed on, and no temporary files are left behind
+    monkeypatch.setattr(tempfile, "tempdir", str(tmp_path))
+    with pytest.raises(ValueError, match="three DISTINCT"):
         ServerAction.tripletsToNewick("A A B\nA B C\n")
+    assert os.listdir(tmp_path) == []
 
 
-@pytest.mark.java
-@pytest.mark.xfail(strict=True, reason="known bug: empty input silently "
-                   "returns an empty string")
 def test_empty_input_gives_a_clear_error():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No triplets"):
         ServerAction.tripletsToNewick("")
+
+
+def test_lev1athan_error_message_skips_comments_and_file_names():
+    output = ("// COMMENT: Pre-processing showed that there are 3 leaves.\n"
+              "Read line: A A B\n"
+              "Each line should consist of three DISTINCT integers.\n"
+              "Problem reading file /tmp/phyloknit-1234.tmp\n")
+    assert ServerAction.lev1athanError(output) == (
+        "Read line: A A B Each line should consist of three DISTINCT integers.")

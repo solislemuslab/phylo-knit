@@ -9,6 +9,7 @@ jl.seval("using PhyloNetworks")
 # juliacall maps a trailing "_b" to Julia's "!", e.g. rootatnode_b -> rootatnode!
 readnewick, writenewick = jl.readnewick, jl.writenewick
 deleteleaf_b, nameinternalnodes_b, rootatnode_b = jl.deleteleaf_b, jl.nameinternalnodes_b, jl.rootatnode_b
+majortree = jl.majortree
 
 import ParentheticalConvertorNaman
 import ServerAction
@@ -38,24 +39,48 @@ def quotifyTheFile(fileName):
 
 
 # POST
-@app.route('/uploadHyde/<thresh>/<eNewick>', methods=['POST'])
+# JSON body: {"text": HyDe output, "threshold": p-value,
+#             "backbone": backbone Newick, or "" if there is none}
+@app.route('/uploadHyde/', methods=['POST'])
 @cross_origin()
-def uploadHyde(thresh, eNewick):
+def uploadHyde():
     json = request.get_json()
-    if len(json['text']) == 0:
-        return jsonify({'error': 'File format is incorrect'}), 401
+    if len(json['text'].strip()) == 0:
+        return jsonify({'error': 'ERROR: The HyDe file is empty.'}), 401
 
     hyde = json['text']
+    try:
+        thresh = float(json['threshold'])
+    except (TypeError, ValueError):
+        return jsonify({'error': 'ERROR: The p-value threshold must be a number.'}), 401
+    eNewick = json.get('backbone') or "none_provided"
+
+    # The triplet code needs a backbone tree: a backbone network is reduced to
+    # its major tree (each hybrid keeps its parent with the larger gamma)
+    if eNewick != "none_provided":
+        try:
+            backbone = readnewick(eNewick)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'ERROR: Failed to read the backbone Newick.'}), 401
+        if backbone.numhybrids > 0:
+            eNewick = writenewick(majortree(backbone))
     
     print('parenthetical =', eNewick)
     print('Threshold =', thresh)
 
     #test_user.testHyde("HydeInput.txt",hyde,thresh)
-    triplets = ServerAction.parseHydeToTriplets(hyde, float(thresh), eNewick)
+    try:
+        triplets = ServerAction.parseHydeToTriplets(hyde, thresh, eNewick)
+    except ValueError as e:
+        return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
     # TODO: uncomment the following done
     print("uploadHyde.triplets: ", triplets)
-    newick = ServerAction.tripletsToNewick(triplets)
+    try:
+        newick = ServerAction.tripletsToNewick(triplets)
+    except ValueError as e:
+        return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
     return jsonify({'stat':"executing", 'newick': newick})
 
@@ -97,10 +122,10 @@ def getUserAdjustedParenthetical():
         print(e)
         return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 401
 
-    # removed_nodes should be a string of leaf names
-    if len(json['removed_nodes']) != 0:
+    # removed_nodes should be a list of leaf names
+    removed_nodes = json.get('removed_nodes') or []
+    if len(removed_nodes) != 0:
         print("removing leaves...")
-        removed_nodes = json['removed_nodes']
 
         for node_name in removed_nodes:
             try:
@@ -110,10 +135,13 @@ def getUserAdjustedParenthetical():
                 return jsonify({'error':"Failed when removing node " + node_name}), 401
 
     # re-root the network
-    if len(json['new_root']) != 0:
-        new_root = json['new_root']
+    new_root = json.get('new_root') or ""
+    if len(new_root) != 0:
         if new_root[:4] == "Hash":
             new_root = new_root.replace("Hash", "", 1)
+
+        if new_root not in [node.name for node in net.node]:
+            return jsonify({'error': 'ERROR: There is no node named "' + new_root + '" in the network.'}), 401
             
         print("re-rooting at", new_root, "...")
         
@@ -160,7 +188,7 @@ def uploadParentheticalAndReturnDot():
     """
     json = request.get_json()
     if len(json['text']) == 0:
-        return jsonify({'error', 'ERROR: Invalid input text.'}), 401
+        return jsonify({'error': 'ERROR: Invalid input text.'}), 401
 
     parenthetical = json['text']
 
@@ -212,11 +240,14 @@ def uploadTripletsAndReturnDot():
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
-        return 'error invalid input'
+        return jsonify({'error': 'ERROR: The triplets file is empty.'}), 401
 
     triplets = json['text']
-    
-    newick = ServerAction.tripletsToNewick(triplets)
+
+    try:
+        newick = ServerAction.tripletsToNewick(triplets)
+    except ValueError as e:
+        return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
     # if ServerAction.checkTripletErrors(triplets) == 401:
     #     return jsonify({'error': 'File format is incorrect'}), 401

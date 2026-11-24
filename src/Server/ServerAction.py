@@ -52,9 +52,11 @@ def removeDupTriplets(tripletString):
         if triple.strip() == '':
             continue
 
-        outgroup = triple.split()[2]
-        leaf1 = triple.split()[0]
-        leaf2 = triple.split()[1]
+        names = triple.split()
+        if len(names) < 3:
+            raise ValueError("Each triplet line needs three taxon names, but this "
+                             "line has " + str(len(names)) + ": \"" + triple.strip() + "\"")
+        leaf1, leaf2, outgroup = names[0], names[1], names[2]
         
         if outgroup in result:
             pairs = result[outgroup]
@@ -96,13 +98,24 @@ def containsTriple(triple_set, leaf1, leaf2, outgroup):
 #
 # unfiltered HyDe files contain all possible triples, which will result in an arbitrary tree. 
 # thus a backbone is necessary to provide an informative tree. 
+#
+# Raises ValueError, with a message for the user, if hydeContent is not HyDe
+# output in one of these formats.
+HYDE_FORMAT_ERROR = ("This does not look like HyDe output. Expected either lines like "
+                     "\"Hybrid: 3 Parents: 2 and 4  <z-score>  <p-value>\" or HyDe's table "
+                     "with the columns P1, Hybrid, P2, Zscore, Pvalue, Gamma, ...")
+NEW_HYDE_COLUMNS = {'P1', 'Hybrid', 'P2', 'Pvalue'}
+
 def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
-    # check if this is the old format
-    dataset = pd.read_table(io.StringIO(hydeContent), sep=" ", header=None)
-    if not len(dataset.columns) == 8:
-        # dataset could be delimited by tabs, spaces, ..., so we have to read like this
-        datareader = pd.read_table(io.StringIO(hydeContent), sep=None, iterator=True, engine='python') 
-        dataset = datareader.read()
+    try:
+        # check if this is the old format
+        dataset = pd.read_table(io.StringIO(hydeContent), sep=" ", header=None)
+        if not len(dataset.columns) == 8:
+            # dataset could be delimited by tabs, spaces, ..., so we have to read like this
+            datareader = pd.read_table(io.StringIO(hydeContent), sep=None, iterator=True, engine='python')
+            dataset = datareader.read()
+    except (pd.errors.ParserError, pd.errors.EmptyDataError) as e:
+        raise ValueError(HYDE_FORMAT_ERROR) from e
 
 
     tripletsFromLess1 = ""
@@ -114,29 +127,29 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     # Older HyDe format that lists only putative parents, hybrid, z scores and p-values
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'hybrid', 'a2', 'parent1', 'a4', 'parent2', 'z-score', 'p-value']
-        dataset['hybrid'] = dataset['hybrid'].astype(str, copy=False)
-        dataset['parent1'] = dataset['parent1'].astype(str, copy=False)
-        dataset['parent2'] = dataset['parent2'].astype(str, copy=False)
+        dataset['hybrid'] = dataset['hybrid'].astype(str)
+        dataset['parent1'] = dataset['parent1'].astype(str)
+        dataset['parent2'] = dataset['parent2'].astype(str)
 
+        # significant: p < threshold; everything else (including p == threshold) is not
         datasetLess = dataset.loc[dataset['p-value'] < threshold]
-        datasetMore = dataset.loc[dataset['p-value'] > threshold]
+        datasetMore = dataset.loc[dataset['p-value'] >= threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
         tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
         tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
     # Newer HyDe format that contains site pattern frequencies
-    elif len(dataset.columns) == 21:
-        dataset['P1'] = dataset['P1'].astype(str, copy=False)
-        dataset['P2'] = dataset['P2'].astype(str, copy=False)
-        dataset['Hybrid'] = dataset['Hybrid'].astype(str, copy=False)
+    elif len(dataset.columns) == 21 and NEW_HYDE_COLUMNS <= set(dataset.columns):
+        dataset['P1'] = dataset['P1'].astype(str)
+        dataset['P2'] = dataset['P2'].astype(str)
+        dataset['Hybrid'] = dataset['Hybrid'].astype(str)
 
         datasetLess = dataset.loc[dataset['Pvalue'] < threshold]
-        datasetMore = dataset.loc[dataset['Pvalue'] > threshold]
+        datasetMore = dataset.loc[dataset['Pvalue'] >= threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
         tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
     else:
-        return 401
-        # TODO: when entering triple file as hyde file, this does not throw an error, why?
+        raise ValueError(HYDE_FORMAT_ERROR)
     
     # Add all triplets that indicate a hybrid relationship given p-value
     for i in range(len(tripletsFromLess1)):
@@ -147,6 +160,10 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     userVals = []
     print("backboneNewick is :", backboneNewick)
     if backboneNewick != "none_provided":
+        # NewickToTriplet.jar would read a hybrid label ("#H1") as a taxon
+        if "#" in backboneNewick:
+            raise ValueError("The backbone must be a tree; reduce a network "
+                             "to its major tree first")
         userVals = backBoneToTriplets(backboneNewick)
     
     # if backbone tree is provided, use backbone (nexus/parenthetical)
@@ -231,25 +248,50 @@ following this, we attempt to remove duplicate triplets before calling Lev1athan
 # This used to be triplets to dot BUT it turns out that the Newick output from Lev1athan is correct,
 # but the dot file output does not reflect what we want ours to look like. So, we just take the
 # newick and pass it back into our other machinery instead.
+#
+# Raises ValueError, with a message for the user, if there are no triplets or
+# Lev1athan cannot build a network from them.
 def tripletsToNewick(tripletsString):
     tripletsString = removeDupTriplets(tripletsString).strip()
+    if tripletsString == "":
+        raise ValueError("No triplets were given.")
+
     trip_filename = getRandomFileName()
-
-    with open(trip_filename, "w+") as f:
-        f.write(tripletsString)
-
     lev_filename = getRandomFileName()
-    with open(lev_filename, "w") as lev_file:
-        subprocess.run(["java", "-jar", LEV1ATHAN_JAR, trip_filename, "--nopostprocess"],
-                       stdout=lev_file)
+    try:
+        with open(trip_filename, "w+") as f:
+            f.write(tripletsString)
 
-    # dotString = returnReducedDotString(lev_filename)
-    newick = fetchNewick(lev_filename)
+        with open(lev_filename, "w") as lev_file:
+            subprocess.run(["java", "-jar", LEV1ATHAN_JAR, trip_filename, "--nopostprocess"],
+                           stdout=lev_file)
 
-    os.remove(trip_filename)
-    os.remove(lev_filename)
+        newick = fetchNewick(lev_filename)
+        if newick == "":
+            with open(lev_filename) as f:
+                reason = lev1athanError(f.read())
+            raise ValueError("Lev1athan could not build a network from these "
+                             "triplets: " + reason)
+    finally:
+        for filename in (trip_filename, lev_filename):
+            if os.path.exists(filename):
+                os.remove(filename)
 
     return newick
+
+
+# Lev1athan reports problems in its normal output (and still exits with
+# status 0). Pick out the lines that say what went wrong.
+def lev1athanError(levOutput):
+    reasons = []
+    for line in levOutput.splitlines():
+        line = line.strip()
+        if line.startswith("//") and "Terminating" not in line:
+            continue        # an ordinary comment
+        if line == "" or line.startswith("Problem reading file"):
+            continue        # the file name is a temporary file, not useful to the user
+        reasons.append(line.lstrip("/ "))
+    return " ".join(reasons) or "it produced no network."
 
 def symbolReplacement(inputStr):
     outputStr = ""

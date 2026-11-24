@@ -8,15 +8,16 @@
 
 // Send Hyde input to the server and draws the resulting network if there is one, else throws an error
 function pushHydeToServer(hydeInput, thresh, eNewick) {
+    // The backbone goes in the request body, not the URL: extended Newick
+    // contains "#", which a URL treats as the start of a fragment
     var data = JSON.stringify({
         text: hydeInput,
+        threshold: thresh,
+        backbone: eNewick,
     });
-    
+
     var request = new XMLHttpRequest();
-    if (eNewick === "") {
-        eNewick = "none_provided";
-    }
-    request.open("POST", "http://127.0.0.1:5001/uploadHyde/" + thresh + "/" + eNewick);
+    request.open("POST", "http://127.0.0.1:5001/uploadHyde/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     startLoading();
@@ -190,7 +191,7 @@ function reportRequestError(request) {
     // error, probably just couldn't talk to server
     var data = JSON.parse(request.responseText);
     if('error' in data) {
-        document.getElementById("instruct").innerHTML = data['error'];
+        document.getElementById("instruct").textContent = data['error'];
     } else {
         document.getElementById("instruct").innerHTML = "ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.";
     }

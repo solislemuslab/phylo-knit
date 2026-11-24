@@ -8,7 +8,6 @@ import contextlib
 import io
 import os
 import re
-import urllib.parse
 
 import pytest
 
@@ -73,14 +72,10 @@ def test_upload_invalid_newick_gives_clear_error(client):
     assert is_clear_error(post(client, "/uploadNewick/", {"text": "((A,B"}))
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: empty input crashes the "
-                   "server (jsonify is given a set instead of a dict)")
 def test_upload_empty_newick_gives_clear_error(client):
     assert is_clear_error(post(client, "/uploadNewick/", {"text": ""}))
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: scientific-notation branch "
-                   "lengths corrupt leaf names (A becomes Ae-5)")
 def test_small_branch_lengths_keep_leaf_names(client):
     r = post(client, "/uploadNewick/", {"text": "((A:1e-5,B:1),C:1);"})
     assert dot_leaves(r.get_json()["dot"]) == {"A", "B", "C"}
@@ -95,35 +90,72 @@ def test_upload_triplet_examples(client, filename, read_input):
     assert r.get_json()["newick"].strip().endswith(";")
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: when Lev1athan fails, the "
-                   "server returns an empty network instead of an error")
 def test_upload_invalid_triplets_gives_clear_error(client):
     assert is_clear_error(post(client, "/upload/", {"text": "A A B\nA B C\n"}))
 
 
-# --- /uploadHyde/<threshold>/<backbone> ---------------------------------------
+def test_upload_triplets_with_too_few_names_gives_clear_error(client):
+    assert is_clear_error(post(client, "/upload/", {"text": "A B\nA B C\n"}))
+
+
+def test_upload_empty_triplets_gives_clear_error(client):
+    assert is_clear_error(post(client, "/upload/", {"text": ""}))
+
+
+# --- /uploadHyde/ --------------------------------------------------------------
+
+def upload_hyde(client, text, threshold="0.05", backbone=""):
+    # the web page sends the threshold as the text typed by the user
+    return post(client, "/uploadHyde/",
+                {"text": text, "threshold": threshold, "backbone": backbone})
+
 
 @pytest.mark.parametrize("filename", HYDE_FILES)
 def test_upload_hyde_examples(client, filename, read_input):
-    r = post(client, "/uploadHyde/0.05/none_provided", {"text": read_input(filename)})
+    r = upload_hyde(client, read_input(filename))
     assert r.status_code == 200
     assert r.get_json()["newick"].strip().endswith(";")
 
 
 @pytest.mark.java
 def test_upload_hyde_with_backbone_tree(client, read_input):
-    backbone = urllib.parse.quote("((2,(3,4)),(5,6));", safe="")
-    r = post(client, "/uploadHyde/0.05/" + backbone,
-             {"text": read_input("hyde_old_4_taxa_example.txt")})
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
+                    backbone="((2,(3,4)),(5,6));")
     assert r.status_code == 200
     assert newick_leaves(r.get_json()["newick"]) == {"2", "3", "4", "5", "6"}
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: an unrecognised HyDe format "
-                   "crashes the server")
+@pytest.mark.java
+def test_upload_hyde_with_backbone_network(client, read_input):
+    # A backbone network is reduced to its major tree. (Its "#" also used to
+    # cut the backbone short when it was sent in the URL.)
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
+                    backbone="((2,(3)#H1:::0.3),(#H1:::0.7,(4,(5,6))));")
+    assert r.status_code == 200
+    newick = r.get_json()["newick"]
+    assert newick_leaves(newick) == {"2", "3", "4", "5", "6"}
+    # the web page draws the result by sending it to /uploadNewick/
+    assert post(client, "/uploadNewick/", {"text": newick.strip()}).status_code == 200
+
+
+def test_upload_hyde_with_invalid_backbone_gives_clear_error(client, read_input):
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
+                    backbone="((2,(3,4)")
+    assert is_clear_error(r)
+
+
 def test_upload_hyde_wrong_format_gives_clear_error(client, read_input):
-    r = post(client, "/uploadHyde/0.05/none_provided",
-             {"text": read_input("triplets_example1.txt")})
+    r = upload_hyde(client, read_input("triplets_example1.txt"))
+    assert is_clear_error(r)
+
+
+@pytest.mark.parametrize("text", ["", "   \n"])
+def test_upload_empty_hyde_gives_clear_error(client, text):
+    assert is_clear_error(upload_hyde(client, text))
+
+
+def test_upload_hyde_with_non_numeric_threshold_gives_clear_error(client, read_input):
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"), threshold="abc")
     assert is_clear_error(r)
 
 
@@ -149,6 +181,26 @@ def test_reroot_network(client):
 def test_reroot_below_hybrid_gives_clear_error(client):
     # B sits below the reticulation; rooting there would invert it
     assert is_clear_error(adjust(client, "((A,(B)#H1),(#H1,(C,D)));", new_root="B"))
+
+
+def test_reroot_at_unknown_node_gives_clear_error(client):
+    r = adjust(client, "((A,B),(C,D));", new_root="Z")
+    assert is_clear_error(r)
+    assert 'no node named "Z"' in r.get_json()["error"]
+
+
+def test_reroot_at_hybrid_node_is_recognised(client):
+    # The web page sends hybrid nodes as "Hash" + name, e.g. "HashH1". The node
+    # is found, but rooting at a hybrid would invert the reticulation.
+    r = adjust(client, "((A,(B)#H1),(#H1,(C,D)));", new_root="HashH1")
+    assert is_clear_error(r)
+    assert "no node named" not in r.get_json()["error"]
+    assert "invert a reticulation" in r.get_json()["error"]
+
+
+def test_adjust_without_optional_fields(client):
+    r = post(client, "/getUserAdjustedParenthetical/", {"text": "((A,B),(C,D));"})
+    assert r.status_code == 200
 
 
 def test_remove_leaf(client):
