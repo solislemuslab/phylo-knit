@@ -66,7 +66,6 @@ var min_zoom = 0.01;
 var max_zoom = 1;
 
 // specify d3 elements
-var fill = d3.scaleOrdinal(d3.schemeCategory20);
 var force = d3.forceSimulation();
 
 // make sure we can use the file the user selected when they select a file

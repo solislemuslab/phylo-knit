@@ -20,24 +20,15 @@
   <link href="css/sb-admin-2.css" rel="stylesheet">
   <link href="css/misc-styles.css" rel="stylesheet">
 
-  <!-- JQuery and file download fxns -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!-- File download functions -->
   <script src="libraries/download.js" type="text/javascript"></script>
+  <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
   <script src="https://kit.fontawesome.com/6a683f314d.js" crossorigin="anonymous"></script>
 
-  <!-- SVG Libs -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.1.1/svg.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.pan-zoom.js/2.7.0/svg.pan-zoom.min.js"></script>
-
-  <!-- D3 Libs -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
-  <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
-  <script src="libraries/d3.v4.min.js"></script>
+  <!-- d3 v5 (the page uses d3.event, which d3 v6 removed), then the DOT parser,
+       which adds d3.dot_from_string to it -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
   <script src="libraries/d3-dot-graph.js"></script>
-
-  <!-- File downloading functions -->
-  <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
 </head>
 
 
@@ -799,12 +790,8 @@
     //<p id="copyconfirmtext" class="fade-out">✓</p>
   }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/save-svg-as-png/1.4.17/saveSvgAsPng.js"></script>
-<script src="downloadSVG.js"></script>
 <script src="request_helpers.js" type="text/javascript"></script>
 <script src="sketch.js" type="text/javascript"></script>
-<script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 
 <script>
     // Immediately set the SVG size
