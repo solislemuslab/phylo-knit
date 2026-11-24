@@ -96,7 +96,6 @@ def getDotFromDict(dict):
     dotString = 'strict digraph G1 {' + '\n'
 
     for key, value in dict.items(): # 
-        print("key is ", key)
         #if key == "internal" + str(count - 1): # if unnamed root node
         #    key = "internal1000"
         if key.find("#") > -1:
@@ -111,7 +110,6 @@ def getDotFromDict(dict):
             dotString += key + ' -> ' + i + '\n'
 
     dotString += '}'
-    print(dotString)
 
     return dotString
 

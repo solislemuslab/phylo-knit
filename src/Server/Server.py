@@ -1,5 +1,4 @@
 import io
-from time import time
 
 # Julia is called through juliacall. The Julia packages it needs (PhyloNetworks)
 # are listed in juliapkg.json and installed automatically on first run.
@@ -47,16 +46,13 @@ def uploadHyde():
             return jsonify({'error': 'ERROR: Failed to read the backbone Newick.'}), 400
         if backbone.numhybrids > 0:
             eNewick = writenewick(majortree(backbone))
-    
-    print('parenthetical =', eNewick)
-    print('Threshold =', thresh)
+
 
     try:
         triplets = ServerAction.parseHydeToTriplets(hyde, thresh, eNewick)
     except ValueError as e:
         return jsonify({'error': 'ERROR: ' + str(e)}), 400
 
-    print("uploadHyde.triplets: ", triplets)
     try:
         newick = ServerAction.tripletsToNewick(triplets)
     except ValueError as e:
@@ -96,7 +92,6 @@ def getUserAdjustedParenthetical():
 
     try:
         # Load the parenthetical into Julia
-        print("parenthetical: \"", parenthetical, "\"", sep="")
         net = readnewick(parenthetical)
     except Exception as e:
         print(e)
@@ -105,8 +100,6 @@ def getUserAdjustedParenthetical():
     # removed_nodes should be a list of leaf names
     removed_nodes = json.get('removed_nodes') or []
     if len(removed_nodes) != 0:
-        print("removing leaves...")
-
         for node_name in removed_nodes:
             try:
                 deleteleaf_b(net, node_name, keeporiginalroot=False)
@@ -122,14 +115,7 @@ def getUserAdjustedParenthetical():
 
         if new_root not in [node.name for node in net.node]:
             return jsonify({'error': 'ERROR: There is no node named "' + new_root + '" in the network.'}), 400
-            
-        print("re-rooting at", new_root, "...")
-        
-        print("----- DEBUG -----")
-        print(writenewick(net))
-        print("new root:", new_root)
-        print("----- DEBUG -----")
-        
+
         try:
             rootatnode_b(net, new_root)
         except:
@@ -155,7 +141,6 @@ def uploadParentheticalAndReturnDot():
 
     # Unnamed internal nodes are named "unnamed1", ... so that re-rooting can
     # refer to them
-    readnet_time = time()       # timing portions
     net = 0
     try:
         net = readnewick(parenthetical)
@@ -164,26 +149,15 @@ def uploadParentheticalAndReturnDot():
             net = readnewick(parenthetical + ";")
         except:
             return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 400
-    readnet_time = time() - readnet_time
-    
-    adjustment_time = time()
+
     try:
         nameinternalnodes_b(net, "unnamed")
         parenthetical = writenewick(net)
     except:
         return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 500
-    adjustment_time = time() - adjustment_time
 
-    try: 
-        dotconversion_time = time()
+    try:
         dotString = ParentheticalConvertorNaman.newickToDot(parenthetical)
-        dotconversion_time = time() - dotconversion_time
-        
-        total_time = readnet_time + adjustment_time + dotconversion_time
-        print("Time to read net: " + str(round(readnet_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
-        print("Time to adjust net names: " + str(round(adjustment_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
-        print("Time to convert to dot: " + str(round(dotconversion_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
-        
         return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.rooti-1].name})
     except:
         return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 500
@@ -195,7 +169,6 @@ def uploadParentheticalAndReturnDot():
 def uploadTripletsAndReturnDot():
     """Build a network from triplets with Lev1athan and return its Newick string."""
     json = request.get_json()
-    print(json)
     if len(json['text']) == 0:
         return jsonify({'error': 'ERROR: The triplets file is empty.'}), 400
 

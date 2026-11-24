@@ -155,7 +155,6 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
         trip.append([tripletsFromLess2[j][0], tripletsFromLess2[j][1], tripletsFromLess2[j][2]])
 
     userVals = []
-    print("backboneNewick is :", backboneNewick)
     if backboneNewick != "none_provided":
         # NewickToTriplet.jar would read a hybrid label ("#H1") as a taxon
         if "#" in backboneNewick:
@@ -190,8 +189,6 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     for triple in trip:
         triplets += str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n"
 
-
-    print("\n\n------\ntriplets: ", triplets)
     triplets = removeDupTriplets(triplets)
     return triplets
 
