@@ -122,10 +122,10 @@ def getUserAdjustedParenthetical():
         print(e)
         return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 401
 
-    # removed_nodes should be a string of leaf names
-    if len(json['removed_nodes']) != 0:
+    # removed_nodes should be a list of leaf names
+    removed_nodes = json.get('removed_nodes') or []
+    if len(removed_nodes) != 0:
         print("removing leaves...")
-        removed_nodes = json['removed_nodes']
 
         for node_name in removed_nodes:
             try:
@@ -135,10 +135,13 @@ def getUserAdjustedParenthetical():
                 return jsonify({'error':"Failed when removing node " + node_name}), 401
 
     # re-root the network
-    if len(json['new_root']) != 0:
-        new_root = json['new_root']
+    new_root = json.get('new_root') or ""
+    if len(new_root) != 0:
         if new_root[:4] == "Hash":
             new_root = new_root.replace("Hash", "", 1)
+
+        if new_root not in [node.name for node in net.node]:
+            return jsonify({'error': 'ERROR: There is no node named "' + new_root + '" in the network.'}), 401
             
         print("re-rooting at", new_root, "...")
         

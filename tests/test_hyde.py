@@ -8,6 +8,7 @@ the backbone tree if one is given, otherwise chosen arbitrarily.
 import contextlib
 import io
 import os
+import warnings
 from itertools import combinations
 
 import pytest
@@ -68,6 +69,21 @@ def test_without_backbone_every_set_of_three_taxa_is_covered(read_input):
     result = parse(read_input("hyde_old_4_taxa_example.txt"))
     all_sets = {frozenset(s) for s in combinations(sorted(taxa(result)), 3)}
     assert covered_sets(result) == all_sets
+
+
+def test_p_value_equal_to_threshold_is_not_significant():
+    # p < threshold is significant; p == threshold gives one ordinary triplet
+    result = parse("Hybrid: 3 Parents: 2 and 4\t 2.0 0.05\n", threshold=0.05)
+    assert len(result) == 1
+    assert covered_sets(result) == {frozenset({"2", "3", "4"})}
+
+
+def test_parsing_gives_no_warnings(read_input):
+    # e.g. pandas deprecations that would turn into errors in a later version
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        parse(read_input("hyde_old_4_taxa_example.txt"))
+        parse(read_input("hyde_filtered_text_example.txt"))
 
 
 def test_threshold_zero_gives_no_hybrid_triplets(read_input):

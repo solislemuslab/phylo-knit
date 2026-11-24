@@ -183,6 +183,26 @@ def test_reroot_below_hybrid_gives_clear_error(client):
     assert is_clear_error(adjust(client, "((A,(B)#H1),(#H1,(C,D)));", new_root="B"))
 
 
+def test_reroot_at_unknown_node_gives_clear_error(client):
+    r = adjust(client, "((A,B),(C,D));", new_root="Z")
+    assert is_clear_error(r)
+    assert 'no node named "Z"' in r.get_json()["error"]
+
+
+def test_reroot_at_hybrid_node_is_recognised(client):
+    # The web page sends hybrid nodes as "Hash" + name, e.g. "HashH1". The node
+    # is found, but rooting at a hybrid would invert the reticulation.
+    r = adjust(client, "((A,(B)#H1),(#H1,(C,D)));", new_root="HashH1")
+    assert is_clear_error(r)
+    assert "no node named" not in r.get_json()["error"]
+    assert "invert a reticulation" in r.get_json()["error"]
+
+
+def test_adjust_without_optional_fields(client):
+    r = post(client, "/getUserAdjustedParenthetical/", {"text": "((A,B),(C,D));"})
+    assert r.status_code == 200
+
+
 def test_remove_leaf(client):
     r = adjust(client, "((A,B),(C,D));", removed=["A"])
     assert r.status_code == 200

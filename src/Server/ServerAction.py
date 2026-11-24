@@ -127,23 +127,24 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     # Older HyDe format that lists only putative parents, hybrid, z scores and p-values
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'hybrid', 'a2', 'parent1', 'a4', 'parent2', 'z-score', 'p-value']
-        dataset['hybrid'] = dataset['hybrid'].astype(str, copy=False)
-        dataset['parent1'] = dataset['parent1'].astype(str, copy=False)
-        dataset['parent2'] = dataset['parent2'].astype(str, copy=False)
+        dataset['hybrid'] = dataset['hybrid'].astype(str)
+        dataset['parent1'] = dataset['parent1'].astype(str)
+        dataset['parent2'] = dataset['parent2'].astype(str)
 
+        # significant: p < threshold; everything else (including p == threshold) is not
         datasetLess = dataset.loc[dataset['p-value'] < threshold]
-        datasetMore = dataset.loc[dataset['p-value'] > threshold]
+        datasetMore = dataset.loc[dataset['p-value'] >= threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
         tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
         tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
     # Newer HyDe format that contains site pattern frequencies
     elif len(dataset.columns) == 21 and NEW_HYDE_COLUMNS <= set(dataset.columns):
-        dataset['P1'] = dataset['P1'].astype(str, copy=False)
-        dataset['P2'] = dataset['P2'].astype(str, copy=False)
-        dataset['Hybrid'] = dataset['Hybrid'].astype(str, copy=False)
+        dataset['P1'] = dataset['P1'].astype(str)
+        dataset['P2'] = dataset['P2'].astype(str)
+        dataset['Hybrid'] = dataset['Hybrid'].astype(str)
 
         datasetLess = dataset.loc[dataset['Pvalue'] < threshold]
-        datasetMore = dataset.loc[dataset['Pvalue'] > threshold]
+        datasetMore = dataset.loc[dataset['Pvalue'] >= threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 0, 2]]
         tripletsFromLess2 = datasetLess.values[:, [1, 2, 0]]
         tripletsFromMore1 = datasetMore.values[:, [1, 0, 2]]
