@@ -75,43 +75,17 @@ This is a very basic overview of the project and this guide will slowly ease you
 
 ## Installation Instructions
 
-<a href="https://www.python.org/downloads/">`python3`, `pip3`</a>, <a href="https://www.java.com/en/download/">Java JRE 8</a> and <a href="https://www.oracle.com/java/technologies/downloads/">Java JDK</a> are required for installation. We used Python 3.9.6 and Julia 1.8.2.
-
-```shell
-# 1. Clone the repository
-git clone https://github.com/solislemuslab/phylo-knit.git
-cd phylo-knit
-
-# 2. Install Python requirements
-pip3 install -r requirements.txt
-
-# 3. Install Julia requirements
-julia
-] add PhyloNetworks
-exit()  # exit Julia
-
-# 4. Install PyJulia
-python3
->>> import julia
->>> julia.install()
->>> exit()  # exit Python
-
-# 5. If Julia is not in your path, you will need to specify the Julia executable location on
-#    line 9 of `phylo-knit/src/Server/Server.py`
-```
-
-For `PyJulia` troubleshooting help, visit https://pyjulia.readthedocs.io/en/latest/index.html.
-
-Now you should be able to run the server with `python3 src/Server/Server.py`. After the server starts up, open the file `src/Website/index.html` in your web browser.
+See [Running phylo-knit on your computer](../README.md#running-phylo-knit-on-your-computer)
+in the main README for the requirements, the installation, and how to start
+the server and open the page.
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-1. Go to `phylo-knit/src/Server` and Run the python script using `python3 Server.py`
+1. Start the server and open the page as described in the README.
 
-2. Navigate to `phylo-knit/src/Website/`, and open `index.html` in your browser.
-
-3. Try Entering a file format and using one of the files in Input files and see the visualization take place
+2. Choose an input format, load one of the example files in `src/InputFiles/`,
+   and watch the network appear.
 
 ## Backend Flow Overview
 
