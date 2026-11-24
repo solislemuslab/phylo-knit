@@ -13,6 +13,7 @@ ParsingTxt/__pycache__/ServerAction.cpython-37.pyc
 .DS_Store
 .idea
 __pycache__
+.pytest_cache
 src/Server/upload.dot
 src/Server/*.dot
 src/Server/node_modules/
