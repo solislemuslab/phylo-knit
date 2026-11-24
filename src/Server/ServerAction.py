@@ -52,9 +52,11 @@ def removeDupTriplets(tripletString):
         if triple.strip() == '':
             continue
 
-        outgroup = triple.split()[2]
-        leaf1 = triple.split()[0]
-        leaf2 = triple.split()[1]
+        names = triple.split()
+        if len(names) < 3:
+            raise ValueError("Each triplet line needs three taxon names, but this "
+                             "line has " + str(len(names)) + ": \"" + triple.strip() + "\"")
+        leaf1, leaf2, outgroup = names[0], names[1], names[2]
         
         if outgroup in result:
             pairs = result[outgroup]
@@ -235,25 +237,50 @@ following this, we attempt to remove duplicate triplets before calling Lev1athan
 # This used to be triplets to dot BUT it turns out that the Newick output from Lev1athan is correct,
 # but the dot file output does not reflect what we want ours to look like. So, we just take the
 # newick and pass it back into our other machinery instead.
+#
+# Raises ValueError, with a message for the user, if there are no triplets or
+# Lev1athan cannot build a network from them.
 def tripletsToNewick(tripletsString):
     tripletsString = removeDupTriplets(tripletsString).strip()
+    if tripletsString == "":
+        raise ValueError("No triplets were given.")
+
     trip_filename = getRandomFileName()
-
-    with open(trip_filename, "w+") as f:
-        f.write(tripletsString)
-
     lev_filename = getRandomFileName()
-    with open(lev_filename, "w") as lev_file:
-        subprocess.run(["java", "-jar", LEV1ATHAN_JAR, trip_filename, "--nopostprocess"],
-                       stdout=lev_file)
+    try:
+        with open(trip_filename, "w+") as f:
+            f.write(tripletsString)
 
-    # dotString = returnReducedDotString(lev_filename)
-    newick = fetchNewick(lev_filename)
+        with open(lev_filename, "w") as lev_file:
+            subprocess.run(["java", "-jar", LEV1ATHAN_JAR, trip_filename, "--nopostprocess"],
+                           stdout=lev_file)
 
-    os.remove(trip_filename)
-    os.remove(lev_filename)
+        newick = fetchNewick(lev_filename)
+        if newick == "":
+            with open(lev_filename) as f:
+                reason = lev1athanError(f.read())
+            raise ValueError("Lev1athan could not build a network from these "
+                             "triplets: " + reason)
+    finally:
+        for filename in (trip_filename, lev_filename):
+            if os.path.exists(filename):
+                os.remove(filename)
 
     return newick
+
+
+# Lev1athan reports problems in its normal output (and still exits with
+# status 0). Pick out the lines that say what went wrong.
+def lev1athanError(levOutput):
+    reasons = []
+    for line in levOutput.splitlines():
+        line = line.strip()
+        if line.startswith("//") and "Terminating" not in line:
+            continue        # an ordinary comment
+        if line == "" or line.startswith("Problem reading file"):
+            continue        # the file name is a temporary file, not useful to the user
+        reasons.append(line.lstrip("/ "))
+    return " ".join(reasons) or "it produced no network."
 
 def symbolReplacement(inputStr):
     outputStr = ""

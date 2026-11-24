@@ -92,10 +92,16 @@ def test_upload_triplet_examples(client, filename, read_input):
     assert r.get_json()["newick"].strip().endswith(";")
 
 
-@pytest.mark.xfail(strict=True, reason="known bug: when Lev1athan fails, the "
-                   "server returns an empty network instead of an error")
 def test_upload_invalid_triplets_gives_clear_error(client):
     assert is_clear_error(post(client, "/upload/", {"text": "A A B\nA B C\n"}))
+
+
+def test_upload_triplets_with_too_few_names_gives_clear_error(client):
+    assert is_clear_error(post(client, "/upload/", {"text": "A B\nA B C\n"}))
+
+
+def test_upload_empty_triplets_gives_clear_error(client):
+    assert is_clear_error(post(client, "/upload/", {"text": ""}))
 
 
 # --- /uploadHyde/ --------------------------------------------------------------

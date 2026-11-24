@@ -71,7 +71,10 @@ def uploadHyde():
 
     # TODO: uncomment the following done
     print("uploadHyde.triplets: ", triplets)
-    newick = ServerAction.tripletsToNewick(triplets)
+    try:
+        newick = ServerAction.tripletsToNewick(triplets)
+    except ValueError as e:
+        return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
     return jsonify({'stat':"executing", 'newick': newick})
 
@@ -228,11 +231,14 @@ def uploadTripletsAndReturnDot():
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
-        return 'error invalid input'
+        return jsonify({'error': 'ERROR: The triplets file is empty.'}), 401
 
     triplets = json['text']
-    
-    newick = ServerAction.tripletsToNewick(triplets)
+
+    try:
+        newick = ServerAction.tripletsToNewick(triplets)
+    except ValueError as e:
+        return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
     # if ServerAction.checkTripletErrors(triplets) == 401:
     #     return jsonify({'error': 'File format is incorrect'}), 401
