@@ -5,6 +5,55 @@ Newick, triplet, and HyDe file formats are accepted.
 
 ---
 
+## Running phylo-knit on your computer
+
+phylo-knit has two parts: a Python server that does the computations (using
+Julia and Java), and a web page that runs in your browser and sends your
+input to that server.
+
+### Requirements
+
+- Python 3.9 or newer (tested with 3.11 and 3.14)
+- Java, any version from 6 on; the `java` command must be on your PATH
+- Julia does not need to be installed: on the first start, the server
+  downloads it if needed, along with the PhyloNetworks package
+
+### Install (once)
+
+```bash
+git clone https://github.com/solislemuslab/phylo-knit.git
+cd phylo-knit
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+```
+
+On Windows, use `.venv\Scripts\pip` and `.venv\Scripts\python` instead of
+`.venv/bin/pip` and `.venv/bin/python`.
+
+### Start the server
+
+```bash
+cd src/Server
+../../.venv/bin/python Server.py
+```
+
+The first start takes a few minutes while Julia and PhyloNetworks are set
+up; later starts are faster. Leave the server running while you use the page.
+It listens at `http://127.0.0.1:5001`.
+
+### Open the page
+
+Open the file `src/Website/index.html` in your web browser (on macOS, run
+`open src/Website/index.html` from the repository folder). The page does
+not need a web server of its own.
+
+If the page says it could not reach the phylo-knit server, check that the
+server from the previous step is still running. After updating the code,
+reload the page with a hard reload (Cmd+Shift+R on macOS, Ctrl+Shift+R on
+Windows and Linux) so the browser does not use old copies of its files.
+
+---
+
 ## Basic Functionality
 
 ### __Create a network__
