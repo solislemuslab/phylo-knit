@@ -1,24 +1,12 @@
-
-NewWebsite/.idea/workspace.xml
-.idea/workspace.xml
-ParsingTxt/.idea/misc.xml
-ParsingTxt/.idea/ParsingTxt.iml
-ParsingTxt/__pycache__/ParentheticalConvertorNaman.cpython-37.pyc
-ParsingTxt/__pycache__/ParentheticalToDot.cpython-37.pyc
-ParsingTxt/__pycache__/ServerAction.cpython-37.pyc
-.idea/workspace.xml
-.idea/workspace.xml
-.Rproj.user
-.vs
+# Operating systems and editors
 .DS_Store
-.idea
-__pycache__
-.pytest_cache
-src/Server/upload.dot
-src/Server/*.dot
-src/Server/node_modules/
-src/Server/*.json
-!src/Server/juliapkg.json
-src/Website/.idea/
-src/Website/fonts/
-src/Server/*.txt
+.idea/
+.vscode/
+.vs/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
