@@ -28,13 +28,13 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 def uploadHyde():
     json = request.get_json()
     if len(json['text'].strip()) == 0:
-        return jsonify({'error': 'ERROR: The HyDe file is empty.'}), 401
+        return jsonify({'error': 'ERROR: The HyDe file is empty.'}), 400
 
     hyde = json['text']
     try:
         thresh = float(json['threshold'])
     except (TypeError, ValueError):
-        return jsonify({'error': 'ERROR: The p-value threshold must be a number.'}), 401
+        return jsonify({'error': 'ERROR: The p-value threshold must be a number.'}), 400
     eNewick = json.get('backbone') or "none_provided"
 
     # The triplet code needs a backbone tree: a backbone network is reduced to
@@ -44,7 +44,7 @@ def uploadHyde():
             backbone = readnewick(eNewick)
         except Exception as e:
             print(e)
-            return jsonify({'error': 'ERROR: Failed to read the backbone Newick.'}), 401
+            return jsonify({'error': 'ERROR: Failed to read the backbone Newick.'}), 400
         if backbone.numhybrids > 0:
             eNewick = writenewick(majortree(backbone))
     
@@ -54,13 +54,13 @@ def uploadHyde():
     try:
         triplets = ServerAction.parseHydeToTriplets(hyde, thresh, eNewick)
     except ValueError as e:
-        return jsonify({'error': 'ERROR: ' + str(e)}), 401
+        return jsonify({'error': 'ERROR: ' + str(e)}), 400
 
     print("uploadHyde.triplets: ", triplets)
     try:
         newick = ServerAction.tripletsToNewick(triplets)
     except ValueError as e:
-        return jsonify({'error': 'ERROR: ' + str(e)}), 401
+        return jsonify({'error': 'ERROR: ' + str(e)}), 400
 
     return jsonify({'stat':"executing", 'newick': newick})
 
@@ -71,7 +71,7 @@ def uploadHyde():
 def getPDF():
     json = request.get_json()
     if len(json['svg']) == 0:
-        return 'error invalid input'
+        return jsonify({'error': 'ERROR: There is no network to save.'}), 400
     svg_dat = json['svg']
     
     pdf_bytes = ServerAction.pdfFromSVG(svg_dat)
@@ -91,7 +91,7 @@ def getUserAdjustedParenthetical():
     json = request.get_json()
 
     if len(json['text']) == 0:
-        return 'error invalid input'
+        return jsonify({'error': 'ERROR: There is no network to adjust.'}), 400
     parenthetical = json['text']
 
     try:
@@ -100,7 +100,7 @@ def getUserAdjustedParenthetical():
         net = readnewick(parenthetical)
     except Exception as e:
         print(e)
-        return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 401
+        return jsonify({'error':"Failed to read parenthetical format of \"" + parenthetical + "\""}), 400
 
     # removed_nodes should be a list of leaf names
     removed_nodes = json.get('removed_nodes') or []
@@ -112,7 +112,7 @@ def getUserAdjustedParenthetical():
                 deleteleaf_b(net, node_name, keeporiginalroot=False)
             except Exception as e:
                 print(e)
-                return jsonify({'error':"Failed when removing node " + node_name}), 401
+                return jsonify({'error':"Failed when removing node " + node_name}), 400
 
     # re-root the network
     new_root = json.get('new_root') or ""
@@ -121,7 +121,7 @@ def getUserAdjustedParenthetical():
             new_root = new_root.replace("Hash", "", 1)
 
         if new_root not in [node.name for node in net.node]:
-            return jsonify({'error': 'ERROR: There is no node named "' + new_root + '" in the network.'}), 401
+            return jsonify({'error': 'ERROR: There is no node named "' + new_root + '" in the network.'}), 400
             
         print("re-rooting at", new_root, "...")
         
@@ -133,7 +133,7 @@ def getUserAdjustedParenthetical():
         try:
             rootatnode_b(net, new_root)
         except:
-            return jsonify({'error':'ERROR: Failed to re-root network at selected node, most likely because re-rooting here would invert a reticulation.'}), 401
+            return jsonify({'error':'ERROR: Failed to re-root network at selected node, most likely because re-rooting here would invert a reticulation.'}), 400
 
     if net.node[net.rooti-1].name == '':
         net.node[net.rooti-1].name = "root"  # set the name to root, so we know which node is the root
@@ -149,7 +149,7 @@ def uploadParentheticalAndReturnDot():
     web page to draw, with its internal nodes named."""
     json = request.get_json()
     if len(json['text']) == 0:
-        return jsonify({'error': 'ERROR: Invalid input text.'}), 401
+        return jsonify({'error': 'ERROR: Invalid input text.'}), 400
 
     parenthetical = json['text']
 
@@ -163,7 +163,7 @@ def uploadParentheticalAndReturnDot():
         try:
             net = readnewick(parenthetical + ";")
         except:
-            return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 401
+            return jsonify({'error': 'ERROR: Invalid newick input. If your input is valid, please report this issue with the link on the left sidebar.'}), 400
     readnet_time = time() - readnet_time
     
     adjustment_time = time()
@@ -171,7 +171,7 @@ def uploadParentheticalAndReturnDot():
         nameinternalnodes_b(net, "unnamed")
         parenthetical = writenewick(net)
     except:
-        return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 401
+        return jsonify({'error': 'ERROR: An unknown error occurred. Please report this issue with the link on the left sidebar.'}), 500
     adjustment_time = time() - adjustment_time
 
     try: 
@@ -186,7 +186,7 @@ def uploadParentheticalAndReturnDot():
         
         return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.rooti-1].name})
     except:
-        return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 401
+        return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 500
 
 
 # POST
@@ -197,14 +197,14 @@ def uploadTripletsAndReturnDot():
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
-        return jsonify({'error': 'ERROR: The triplets file is empty.'}), 401
+        return jsonify({'error': 'ERROR: The triplets file is empty.'}), 400
 
     triplets = json['text']
 
     try:
         newick = ServerAction.tripletsToNewick(triplets)
     except ValueError as e:
-        return jsonify({'error': 'ERROR: ' + str(e)}), 401
+        return jsonify({'error': 'ERROR: ' + str(e)}), 400
 
     return jsonify({'stat': "executing", 'newick': newick})
 
