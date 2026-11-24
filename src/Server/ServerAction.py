@@ -147,6 +147,10 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     userVals = []
     print("backboneNewick is :", backboneNewick)
     if backboneNewick != "none_provided":
+        # NewickToTriplet.jar would read a hybrid label ("#H1") as a taxon
+        if "#" in backboneNewick:
+            raise ValueError("The backbone must be a tree; reduce a network "
+                             "to its major tree first")
         userVals = backBoneToTriplets(backboneNewick)
     
     # if backbone tree is provided, use backbone (nexus/parenthetical)

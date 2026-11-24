@@ -9,6 +9,7 @@ jl.seval("using PhyloNetworks")
 # juliacall maps a trailing "_b" to Julia's "!", e.g. rootatnode_b -> rootatnode!
 readnewick, writenewick = jl.readnewick, jl.writenewick
 deleteleaf_b, nameinternalnodes_b, rootatnode_b = jl.deleteleaf_b, jl.nameinternalnodes_b, jl.rootatnode_b
+majortree = jl.majortree
 
 import ParentheticalConvertorNaman
 import ServerAction
@@ -50,6 +51,17 @@ def uploadHyde():
     hyde = json['text']
     thresh = json['threshold']
     eNewick = json.get('backbone') or "none_provided"
+
+    # The triplet code needs a backbone tree: a backbone network is reduced to
+    # its major tree (each hybrid keeps its parent with the larger gamma)
+    if eNewick != "none_provided":
+        try:
+            backbone = readnewick(eNewick)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'ERROR: Failed to read the backbone Newick.'}), 401
+        if backbone.numhybrids > 0:
+            eNewick = writenewick(majortree(backbone))
     
     print('parenthetical =', eNewick)
     print('Threshold =', thresh)

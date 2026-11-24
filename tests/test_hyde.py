@@ -124,10 +124,10 @@ def test_backbone_works_from_any_folder_and_leaves_no_files(tmp_path, monkeypatc
     assert os.listdir(tmp_path) == []
 
 
-@pytest.mark.java
-@pytest.mark.xfail(strict=True, reason="known bug: a backbone network adds its "
-                   "hybrid label (#H1) as if it were a taxon")
-def test_backbone_network_adds_no_fake_taxa(read_input):
-    result = parse(read_input("hyde_old_4_taxa_example.txt"),
-                   backbone="((2,(3)#H1),(#H1,(4,(5,6))));")
-    assert taxa(result) == {"2", "3", "4", "5", "6"}
+def test_backbone_network_is_rejected(read_input):
+    # The server reduces a backbone network to its major tree before calling
+    # parseHydeToTriplets (see test_server.py); a network here would add its
+    # hybrid label (#H1) as a fake taxon
+    with pytest.raises(ValueError):
+        parse(read_input("hyde_old_4_taxa_example.txt"),
+              backbone="((2,(3)#H1),(#H1,(4,(5,6))));")

@@ -122,11 +122,22 @@ def test_upload_hyde_with_backbone_tree(client, read_input):
 
 
 @pytest.mark.java
-def test_upload_hyde_backbone_with_special_characters(client, read_input):
-    # Extended Newick contains "#", which used to cut the backbone short
+def test_upload_hyde_with_backbone_network(client, read_input):
+    # A backbone network is reduced to its major tree. (Its "#" also used to
+    # cut the backbone short when it was sent in the URL.)
     r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
-                    backbone="((2,(3)#H1),(#H1,(4,(5,6))));")
+                    backbone="((2,(3)#H1:::0.3),(#H1:::0.7,(4,(5,6))));")
     assert r.status_code == 200
+    newick = r.get_json()["newick"]
+    assert newick_leaves(newick) == {"2", "3", "4", "5", "6"}
+    # the web page draws the result by sending it to /uploadNewick/
+    assert post(client, "/uploadNewick/", {"text": newick.strip()}).status_code == 200
+
+
+def test_upload_hyde_with_invalid_backbone_gives_clear_error(client, read_input):
+    r = upload_hyde(client, read_input("hyde_old_4_taxa_example.txt"),
+                    backbone="((2,(3,4)")
+    assert is_clear_error(r)
 
 
 @pytest.mark.xfail(strict=True, reason="known bug: an unrecognised HyDe format "
