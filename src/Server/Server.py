@@ -13,29 +13,11 @@ majortree = jl.majortree
 
 import ParentheticalConvertorNaman
 import ServerAction
-from flask import Flask, jsonify, make_response, request, send_file
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-
-def quotifyTheFile(fileName):
-    strF = ""
-    with open(fileName, 'r') as f:
-        strF = f.read()
-
-    writeContent = ""
-
-    for line in strF.split('\n'):
-        if line.__contains__("->"):
-            arr = line.split(" -> ")
-            line = "\"" + arr[0] + "\" -> \"" + arr[1] + "\""
-
-        writeContent += line
-        print(line)
-
-    return writeContent
 
 
 # POST
@@ -69,13 +51,11 @@ def uploadHyde():
     print('parenthetical =', eNewick)
     print('Threshold =', thresh)
 
-    #test_user.testHyde("HydeInput.txt",hyde,thresh)
     try:
         triplets = ServerAction.parseHydeToTriplets(hyde, thresh, eNewick)
     except ValueError as e:
         return jsonify({'error': 'ERROR: ' + str(e)}), 401
 
-    # TODO: uncomment the following done
     print("uploadHyde.triplets: ", triplets)
     try:
         newick = ServerAction.tripletsToNewick(triplets)
@@ -154,23 +134,6 @@ def getUserAdjustedParenthetical():
             rootatnode_b(net, new_root)
         except:
             return jsonify({'error':'ERROR: Failed to re-root network at selected node, most likely because re-rooting here would invert a reticulation.'}), 401
-            
-            # `undirectedOtherNetworks(net)` sometimes hangs forever, so we don't want to use it
-            #
-            # u_nets = undirectedOtherNetworks(net)
-            # j = 0
-            # for i in range(len(u_nets)):
-            #     try:
-            #         rootatnode_b(u_nets[i], new_root)
-            #         net = u_nets[i]
-            #         break
-            #     except:
-            #         j = i
-            
-            # if j == len(u_nets) - 1:
-            #     # we were unable to re-root the network
-            #     return jsonify({'result':'error','errmsg':"Failed to re-root network at " + new_root})
-            
 
     if net.node[net.rooti-1].name == '':
         net.node[net.rooti-1].name = "root"  # set the name to root, so we know which node is the root
@@ -182,18 +145,16 @@ def getUserAdjustedParenthetical():
 @app.route('/uploadNewick/', methods=['POST'])
 @cross_origin()
 def uploadParentheticalAndReturnDot():
-    """
-    predicts requested text whether it is ham or spam
-    :return: json
-    """
+    """Read a (extended) Newick string and return it as a DOT graph for the
+    web page to draw, with its internal nodes named."""
     json = request.get_json()
     if len(json['text']) == 0:
         return jsonify({'error': 'ERROR: Invalid input text.'}), 401
 
     parenthetical = json['text']
 
-    # Replace blank node names with `internal####` so that
-    # re-rooting can work
+    # Unnamed internal nodes are named "unnamed1", ... so that re-rooting can
+    # refer to them
     readnet_time = time()       # timing portions
     net = 0
     try:
@@ -223,7 +184,6 @@ def uploadParentheticalAndReturnDot():
         print("Time to adjust net names: " + str(round(adjustment_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
         print("Time to convert to dot: " + str(round(dotconversion_time, 2)) + "s (" + str(readnet_time / total_time) + ")")
         
-        # parenthetical convertor uploads as upload.dot
         return jsonify({'stat': "executing",'dot': dotString,'newick':parenthetical,'rootname':net.node[net.rooti-1].name})
     except:
         return jsonify({'error': 'ERROR: An error occurred when converting from newick to .dot format. Please report this issue with the link on the left sidebar.'}), 401
@@ -233,10 +193,7 @@ def uploadParentheticalAndReturnDot():
 @app.route('/upload/', methods=['POST'])
 @cross_origin()
 def uploadTripletsAndReturnDot():
-    """
-    predicts requested text whether it is ham or spam
-    :return: json
-    """
+    """Build a network from triplets with Lev1athan and return its Newick string."""
     json = request.get_json()
     print(json)
     if len(json['text']) == 0:
@@ -248,20 +205,6 @@ def uploadTripletsAndReturnDot():
         newick = ServerAction.tripletsToNewick(triplets)
     except ValueError as e:
         return jsonify({'error': 'ERROR: ' + str(e)}), 401
-
-    # if ServerAction.checkTripletErrors(triplets) == 401:
-    #     return jsonify({'error': 'File format is incorrect'}), 401
-
-    # print("triplets printed are \n", triplets, "\n")
-    # with open('retrievedTriplets.txt', 'w+') as f:
-    #     f.write(triplets)
-
-    # ServerAction.tripletsToDot('retrievedTriplets.txt')
-    # dotFile = ServerAction.returnReducedDotFile('cExample1.dot')
-
-    # print("triplets to dot is \n", dotFile, "\n end")
-    # with open('upload.dot', 'w+') as f:
-    #     f.write(dotFile)
 
     return jsonify({'stat': "executing", 'newick': newick})
 
