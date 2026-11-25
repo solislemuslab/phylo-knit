@@ -53,6 +53,53 @@ server from the previous step is still running. After updating the code,
 reload the page with a hard reload (Cmd+Shift+R on macOS, Ctrl+Shift+R on
 Windows and Linux) so the browser does not use old copies of its files.
 
+## Deploying on a server
+
+These notes are for installing phylo-knit as a website, for example on a
+university Linux server. Install it as described above (Python, Java, the
+virtual environment and `requirements.txt`); only the way the server is run
+changes.
+
+1. **Set up Julia once.** As the user account that will run the website,
+   start the server by hand once (`../../.venv/bin/python Server.py` in
+   `src/Server`), wait until it prints `Running on http://127.0.0.1:5001`,
+   and stop it with Ctrl+C. This first start downloads Julia and
+   PhyloNetworks and takes several minutes; doing it ahead of time lets the
+   website start quickly.
+
+2. **Run it with a production web server.** `python Server.py` uses Flask's
+   built-in server, which is meant for one person on one computer. For a
+   website, use gunicorn:
+
+   ```bash
+   .venv/bin/pip install gunicorn
+   cd src/Server
+   ../../.venv/bin/gunicorn --workers 2 --timeout 300 --bind 127.0.0.1:5001 Server:app
+   ```
+
+   - Each worker is a separate process with its own copy of Julia. It
+     handles one request at a time and uses about 800 MB of memory. Two
+     workers serve two people at once; add more if memory allows.
+   - `--timeout 300` gives large inputs time to finish. With gunicorn's
+     default of 30 seconds, a long LEV1ATHAN run could be stopped halfway.
+   - Do not use gunicorn's `--preload` option or more than one thread per
+     worker (`--threads`, or a threaded worker class). Julia must be called
+     from the main thread of the process that started it.
+
+3. **Put it behind the web server that handles HTTPS** (for example nginx
+   or Apache), forwarding requests to `http://127.0.0.1:5001`, with a time
+   limit of at least 300 seconds for those requests. The page sends its
+   requests to the address it was loaded from, so the code needs no changes
+   for the site's address.
+
+4. **Keep it running** with the server's service manager (for example a
+   systemd service), so that it restarts after a reboot or a crash.
+
+phylo-knit keeps no data: there are no accounts, and user input is not
+stored. While a triplets or HyDe request runs, its input is written to a
+temporary file in the system's temp folder, which is deleted when the
+request ends.
+
 ---
 
 ## Basic Functionality
