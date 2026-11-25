@@ -147,7 +147,46 @@ Users interested in expanding functionalities of `phylo-knit` are welcome to do 
 
 ## Citations
 
-* [LEV1ATHAN](https://skelk.sdf-eu.org/lev1athan/)
+phylo-knit reads, re-roots and edits networks with
+[PhyloNetworks](https://github.com/JuliaPhylo/PhyloNetworks.jl), and builds
+networks from triplets with [LEV1ATHAN](https://skelk.sdf-eu.org/lev1athan/).
+If you use phylo-knit, please cite PhyloNetworks; if you use triplets or HyDe
+input, please also cite LEV1ATHAN, and for HyDe input, HyDe itself.
+
+```bibtex
+@article{solislemus2017phylonetworks,
+  title   = {PhyloNetworks: A Package for Phylogenetic Networks},
+  author  = {Sol{\'i}s-Lemus, Claudia and Bastide, Paul and An{\'e}, C{\'e}cile},
+  journal = {Molecular Biology and Evolution},
+  volume  = {34},
+  number  = {12},
+  pages   = {3292--3298},
+  year    = {2017},
+  doi     = {10.1093/molbev/msx235}
+}
+
+@article{huber2011practical,
+  title   = {A Practical Algorithm for Reconstructing Level-1 Phylogenetic Networks},
+  author  = {Huber, Katharina T. and van Iersel, Leo and Kelk, Steven and Suchecki, R.},
+  journal = {IEEE/ACM Transactions on Computational Biology and Bioinformatics},
+  volume  = {8},
+  number  = {3},
+  pages   = {635--649},
+  year    = {2011},
+  doi     = {10.1109/TCBB.2010.17}
+}
+
+@article{blischak2018hyde,
+  title   = {HyDe: A Python Package for Genome-Scale Hybridization Detection},
+  author  = {Blischak, Paul D. and Chifman, Julia and Wolfe, Andrea D. and Kubatko, Laura S.},
+  journal = {Systematic Biology},
+  volume  = {67},
+  number  = {5},
+  pages   = {821--829},
+  year    = {2018},
+  doi     = {10.1093/sysbio/syy023}
+}
+```
 
 ## License
 
