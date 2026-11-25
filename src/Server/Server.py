@@ -1,4 +1,5 @@
 import io
+import os
 
 # Julia is called through juliacall. The Julia packages it needs (PhyloNetworks)
 # are listed in juliapkg.json and installed automatically on first run.
@@ -15,8 +16,16 @@ import ServerAction
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
 
-app = Flask(__name__)
+# The server also serves the web page, so that the page and the server share one
+# address: open http://127.0.0.1:5001/ after starting it
+WEBSITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Website")
+app = Flask(__name__, static_folder=WEBSITE_DIR, static_url_path="")
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+
+@app.route('/')
+def index():
+    return app.send_static_file("index.html")
 
 
 # POST
