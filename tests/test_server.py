@@ -213,6 +213,15 @@ def test_remove_leaf(client):
     assert r.get_json()["newick"] == "((C,D),B)root;"
 
 
+# --- the web page -------------------------------------------------------------
+
+def test_server_serves_the_web_page(client):
+    r = client.get("/")
+    assert r.status_code == 200
+    assert b"phylo-knit" in r.data
+    assert client.get("/request_helpers.js").status_code == 200
+
+
 # --- /getPDF/ -----------------------------------------------------------------
 
 def test_pdf_export(client):

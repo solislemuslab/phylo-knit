@@ -5,6 +5,12 @@
  *  The image downloading fxn is also included at the end of the file.
  */
 
+// Where the phylo-knit server is. When the page is served by the server itself
+// (http://127.0.0.1:5001/ locally, or a deployed site), requests go to the same
+// address as the page. When index.html is opened directly as a file, they go
+// to a server running on this computer.
+var SERVER_URL = (window.location.protocol === "file:") ? "http://127.0.0.1:5001" : "";
+
 
 // Send Hyde input to the server and draws the resulting network if there is one, else throws an error
 function pushHydeToServer(hydeInput, thresh, eNewick) {
@@ -17,7 +23,7 @@ function pushHydeToServer(hydeInput, thresh, eNewick) {
     });
 
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/uploadHyde/");
+    request.open("POST", SERVER_URL + "/uploadHyde/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     startLoading();
@@ -49,7 +55,7 @@ function pushSVGToServer(svg_string) {
     });
 
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/getPDF/");
+    request.open("POST", SERVER_URL + "/getPDF/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.responseType = 'blob';
@@ -83,7 +89,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
     });
 
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/uploadNewick/");
+    request.open("POST", SERVER_URL + "/uploadNewick/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     startLoading();
@@ -125,7 +131,7 @@ function pushParentheticalToServer(parenthetical, updateLeafBox) {
 // Used for re-rooting and showing/hiding nodes from the network
 function pushUpdatedParentheticalToServer(data) {
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/getUserAdjustedParenthetical/");
+    request.open("POST", SERVER_URL + "/getUserAdjustedParenthetical/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     request.send(data);
@@ -173,7 +179,7 @@ function pushTripletsToServer(triplets) {
     });
 
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5001/upload/");
+    request.open("POST", SERVER_URL + "/upload/");
     request.setRequestHeader("Content-Type", "application/json");
     request.addEventListener("readystatechange", processRequest, false);
     startLoading();

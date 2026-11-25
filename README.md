@@ -43,9 +43,10 @@ It listens at `http://127.0.0.1:5001`.
 
 ### Open the page
 
-Open the file `src/Website/index.html` in your web browser (on macOS, run
-`open src/Website/index.html` from the repository folder). The page does
-not need a web server of its own.
+Once the server is running, go to <http://127.0.0.1:5001/> in your web
+browser: the server also serves the page. (Opening the file
+`src/Website/index.html` directly works too; the page then sends its
+requests to the server at that same address.)
 
 If the page says it could not reach the phylo-knit server, check that the
 server from the previous step is still running. After updating the code,

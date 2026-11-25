@@ -55,8 +55,9 @@ browser does not keep using the old files.
 ## How the code is organized
 
 phylo-knit is a Flask web server (`src/Server/`) plus a static web page
-(`src/Website/`). The page sends the user's input to the server as JSON and
-draws the network that the server sends back.
+(`src/Website/`), which the server also serves at `/`. The page sends the
+user's input to the server as JSON and draws the network that the server
+sends back.
 
 ### Server (`src/Server/`)
 
