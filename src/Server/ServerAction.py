@@ -53,6 +53,14 @@ def removeDupTriplets(tripletString):
         if len(names) < 3:
             raise ValueError("Each triplet line needs three taxon names, but this "
                              "line has " + str(len(names)) + ": \"" + triple.strip() + "\"")
+        # Lev1athan reads the optional weight as an integer and fails without
+        # saying why on anything else (e.g. 0.5)
+        if len(names) == 4:
+            try:
+                int(names[3])
+            except ValueError:
+                raise ValueError("The weight of a triplet must be a whole number, but "
+                                 "this line has \"" + names[3] + "\": \"" + triple.strip() + "\"")
         leaf1, leaf2, outgroup = names[0], names[1], names[2]
         
         if outgroup in result:
