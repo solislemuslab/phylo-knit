@@ -137,7 +137,7 @@ After creating a network, click on the node that you want to make the new root. 
   - an older format, with one test per line: `Hybrid: 3 Parents: 2 and 4`, then the $z$-score and the $p$-value.
 - The process and limitations are as follows:
   - As unfiltered HyDe results list all possible triples, it is necessary to input a $p$-value. Filtered HyDe results only output relationships that fall below the bonferroni-corrected $p$-value threshold, though further filtering below this $p$-value can also be performed.
-  - Only hybrid relationships with a $p$-value strictly below the specified threshold will be converted to triples that specify hybrid relationships (that is, if P1 and P2 were putative parental lineages of hybrid `HYB`, we include triples `HYB P1 P2` and `HYB P2 P1`). For all other combinations of taxa (with a $p$-value at or above the threshold), we choose a single, arbitrary triple relationship per set of three taxa (that is, if P1, P2 and HYB had no hybrid relationship between them, we list only one of those two triples, with no other permutations).
+  - Only hybrid relationships with a $p$-value strictly below the specified threshold will be converted to triples that specify hybrid relationships (that is, if P1 and P2 were putative parental lineages of hybrid `HYB`, we include triples `HYB P1 P2` and `HYB P2 P1`). For all other combinations of taxa (with a $p$-value at or above the threshold), we keep a single triple relationship per set of three taxa (that is, if P1, P2 and HYB had no hybrid relationship between them, we list only `HYB P1 P2`, with no other permutations: HyDe's model with $\gamma = 0$, in which `HYB` descends from P1 alone).
   - For this reason, **use of a backbone tree in Newick or extended Newick format is highly recommended**. Triples relationships extracted from the provided backbone tree or network are combined with the HyDe hybrid relationships' triples, avoiding the use of arbitrary sets of triples from a HyDe file.
   - If the backbone is a network (extended Newick with hybrid nodes), only its major tree is used: at each hybrid node, the parent edge with the larger inheritance probability ($\gamma$) is kept and the other is dropped. If the backbone gives no $\gamma$ values, which parent is kept is arbitrary, so give $\gamma$ values (or a tree) if it matters. The hybridizations in the result come from the HyDe results.
 
@@ -147,7 +147,46 @@ Users interested in expanding functionalities of `phylo-knit` are welcome to do 
 
 ## Citations
 
-* [LEV1ATHAN](https://skelk.sdf-eu.org/lev1athan/)
+phylo-knit reads, re-roots and edits networks with
+[PhyloNetworks](https://github.com/JuliaPhylo/PhyloNetworks.jl), and builds
+networks from triplets with [LEV1ATHAN](https://skelk.sdf-eu.org/lev1athan/).
+If you use phylo-knit, please cite PhyloNetworks; if you use triplets or HyDe
+input, please also cite LEV1ATHAN, and for HyDe input, HyDe itself.
+
+```bibtex
+@article{solislemus2017phylonetworks,
+  title   = {PhyloNetworks: A Package for Phylogenetic Networks},
+  author  = {Sol{\'i}s-Lemus, Claudia and Bastide, Paul and An{\'e}, C{\'e}cile},
+  journal = {Molecular Biology and Evolution},
+  volume  = {34},
+  number  = {12},
+  pages   = {3292--3298},
+  year    = {2017},
+  doi     = {10.1093/molbev/msx235}
+}
+
+@article{huber2011practical,
+  title   = {A Practical Algorithm for Reconstructing Level-1 Phylogenetic Networks},
+  author  = {Huber, Katharina T. and van Iersel, Leo and Kelk, Steven and Suchecki, R.},
+  journal = {IEEE/ACM Transactions on Computational Biology and Bioinformatics},
+  volume  = {8},
+  number  = {3},
+  pages   = {635--649},
+  year    = {2011},
+  doi     = {10.1109/TCBB.2010.17}
+}
+
+@article{blischak2018hyde,
+  title   = {HyDe: A Python Package for Genome-Scale Hybridization Detection},
+  author  = {Blischak, Paul D. and Chifman, Julia and Wolfe, Andrea D. and Kubatko, Laura S.},
+  journal = {Systematic Biology},
+  volume  = {67},
+  number  = {5},
+  pages   = {821--829},
+  year    = {2018},
+  doi     = {10.1093/sysbio/syy023}
+}
+```
 
 ## License
 

@@ -53,6 +53,14 @@ def removeDupTriplets(tripletString):
         if len(names) < 3:
             raise ValueError("Each triplet line needs three taxon names, but this "
                              "line has " + str(len(names)) + ": \"" + triple.strip() + "\"")
+        # Lev1athan reads the optional weight as an integer and fails without
+        # saying why on anything else (e.g. 0.5)
+        if len(names) == 4:
+            try:
+                int(names[3])
+            except ValueError:
+                raise ValueError("The weight of a triplet must be a whole number, but "
+                                 "this line has \"" + names[3] + "\": \"" + triple.strip() + "\"")
         leaf1, leaf2, outgroup = names[0], names[1], names[2]
         
         if outgroup in result:
@@ -120,7 +128,10 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
     tripletsFromMore1 = ""
 
     trip = [] # storage for all triples
-    
+
+    # For a test that is not significant, both formats keep the one triplet
+    # Hybrid P1 | P2: HyDe's model with gamma = 0, where the hybrid descends
+    # from P1 alone
     # Older HyDe format that lists only putative parents, hybrid, z scores and p-values
     if len(dataset.columns) == 8:
         dataset.columns = ['a0', 'hybrid', 'a2', 'parent1', 'a4', 'parent2', 'z-score', 'p-value']
@@ -133,7 +144,7 @@ def parseHydeToTriplets(hydeContent, threshold, backboneNewick):
         datasetMore = dataset.loc[dataset['p-value'] >= threshold]
         tripletsFromLess1 = datasetLess.values[:, [1, 3, 5]]
         tripletsFromLess2 = datasetLess.values[:, [1, 5, 3]]
-        tripletsFromMore1 = datasetMore.values[:, [1, 5, 3]]
+        tripletsFromMore1 = datasetMore.values[:, [1, 3, 5]]
     # Newer HyDe format that contains site pattern frequencies
     elif len(dataset.columns) == 21 and NEW_HYDE_COLUMNS <= set(dataset.columns):
         dataset['P1'] = dataset['P1'].astype(str)

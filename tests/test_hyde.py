@@ -92,6 +92,14 @@ def test_threshold_zero_gives_no_hybrid_triplets(read_input):
     assert len(result) == len(covered_sets(result))
 
 
+def test_nonsignificant_test_gives_the_same_triplet_in_both_formats():
+    # Hybrid 3, parents 2 (P1) and 4 (P2), p = 0.6: the triplet 32|4 in both
+    old = "Hybrid: 3 Parents: 2 and 4\t 0.5 0.6\n"
+    new = ("P1\tHybrid\tP2\tZscore\tPvalue\tGamma\t" + "\t".join(["c"] * 15) + "\n"
+           "2\t3\t4\t0.5\t0.6\t0.1\t" + "\t".join(["1.0"] * 15) + "\n")
+    assert parse(old) == parse(new) == {trip("3", "2", "4")}
+
+
 # --- New HyDe format (header line, tab or comma separated) ------------------
 
 def test_new_format_filtered_output(read_input):

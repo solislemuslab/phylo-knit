@@ -41,6 +41,12 @@ def test_line_with_two_names_gives_a_clear_error():
         ServerAction.removeDupTriplets("A B\n")
 
 
+@pytest.mark.parametrize("weight", ["0.5", "2.0", "two"])
+def test_weight_that_is_not_a_whole_number_gives_a_clear_error(weight):
+    with pytest.raises(ValueError, match="whole number"):
+        ServerAction.removeDupTriplets("A B C " + weight + "\n")
+
+
 # --- tripletsToNewick (runs Lev1athan.jar) -----------------------------------
 
 # Networks Lev1athan builds from the bundled examples
